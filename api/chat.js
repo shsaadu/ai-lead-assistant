@@ -16,9 +16,13 @@ module.exports = async function handler(request, response) {
     });
     const data = await geminiResponse.json();
     const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!geminiResponse.ok || !answer) throw new Error('Gemini response invalid');
+    if (!geminiResponse.ok || !answer) {
+      console.error('Gemini request failed', { status: geminiResponse.status, message: data?.error?.message });
+      throw new Error('Gemini response invalid');
+    }
     return response.status(200).json({ answer });
-  } catch {
+  } catch (error) {
+    console.error('Gemini request error', error instanceof Error ? error.message : error);
     return response.status(200).json({ answer: 'I can help you request a visit or quote. Please share what is happening and where you are based.' });
   }
 }
