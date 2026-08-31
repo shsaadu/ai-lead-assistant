@@ -23,7 +23,8 @@ module.exports = async function handler(request, response) {
     }
     const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!geminiResponse.ok || !answer) {
-      console.error(`Gemini request failed: status=${geminiResponse.status}; response=${rawBody.slice(0, 500)}`);
+      const errorMessage = data?.error?.message || rawBody;
+      console.error(`Gemini request failed: status=${geminiResponse.status}; message=${String(errorMessage).replace(/\s+/g, ' ').slice(0, 500)}`);
       throw new Error('Gemini response invalid');
     }
     return response.status(200).json({ answer });
