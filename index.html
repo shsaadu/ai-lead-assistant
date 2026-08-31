@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A portfolio demo of an AI website assistant that answers questions and captures qualified leads." />
+    <title>Northstar Plumbing | 24/7 help, without the hold music</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="wordmark" href="#top" aria-label="Northstar home"><span>✦</span> northstar</a>
+      <a class="header-cta" href="#contact">Book a visit <span>→</span></a>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <p class="eyebrow">South East England · 24/7 emergency callouts</p>
+        <div class="hero-grid">
+          <div>
+            <h1>Plumbing that<br /><em>shows up.</em></h1>
+            <p class="hero-copy">Straightforward repairs, installations, and emergency support from a local team you can rely on.</p>
+            <div class="hero-actions">
+              <a class="button button-dark" href="#contact">Request a visit <span>→</span></a>
+              <button class="text-button" type="button" data-open-chat>Ask a question <span>↗</span></button>
+            </div>
+          </div>
+          <aside class="availability-card">
+            <span class="status-dot"></span>
+            <p>Available now</p>
+            <strong>Average response<br />time: 38 min</strong>
+            <span class="availability-note">For urgent leaks and loss of water</span>
+          </aside>
+        </div>
+      </section>
+
+      <section class="services" aria-labelledby="services-heading">
+        <div class="section-label"><span>01</span><span id="services-heading">What we can help with</span></div>
+        <div class="service-grid">
+          <article><span>01</span><h2>Emergency repairs</h2><p>Leaks, bursts, blockages, and no-hot-water problems dealt with quickly.</p></article>
+          <article><span>02</span><h2>Bathrooms &amp; kitchens</h2><p>New fixtures, pipework, appliance connections, and complete installations.</p></article>
+          <article><span>03</span><h2>Maintenance</h2><p>Small repairs and preventative checks to keep your home running smoothly.</p></article>
+        </div>
+      </section>
+
+      <section id="contact" class="contact-strip">
+        <p>Need a plumber?</p>
+        <h2>Tell us what’s happening.</h2>
+        <button class="button button-light" type="button" data-open-chat>Start a chat <span>→</span></button>
+      </section>
+    </main>
+
+    <footer>Northstar Plumbing · Demo website built for the AI Lead Assistant portfolio project <a href="admin.html">View demo dashboard →</a></footer>
+
+    <button class="chat-launcher" type="button" data-open-chat aria-label="Open Northstar assistant">
+      <span class="launcher-spark">✦</span><span>Ask Northstar</span>
+    </button>
+
+    <section class="chat-panel" aria-label="Northstar assistant" aria-hidden="true">
+      <div class="chat-panel__header">
+        <div><span class="online-dot"></span><strong>Northstar Assistant</strong><small>Usually replies instantly</small></div>
+        <button class="icon-button" type="button" data-close-chat aria-label="Close chat">×</button>
+      </div>
+      <div class="chat-messages" aria-live="polite">
+        <div class="message assistant">Hi, I’m here to help you find the right service. What do you need help with today?</div>
+      </div>
+      <div class="quick-replies">
+        <button type="button">I have a leak</button>
+        <button type="button">Book a repair</button>
+        <button type="button">Get a quote</button>
+      </div>
+      <form class="chat-form">
+        <label class="sr-only" for="chat-input">Your message</label>
+        <input id="chat-input" name="message" autocomplete="off" placeholder="Type your message…" required />
+        <button aria-label="Send message" type="submit">↑</button>
+      </form>
+      <p class="chat-disclaimer">This demo captures leads in this browser only.</p>
+    </section>
+
+    <section class="lead-modal" aria-hidden="true" aria-label="Request a visit">
+      <div class="lead-modal__card">
+        <button class="modal-close" type="button" data-close-lead aria-label="Close form">×</button>
+        <p class="eyebrow">Almost there</p>
+        <h2>Where should we reply?</h2>
+        <p class="modal-copy">Leave your details and a team member will get back to you shortly.</p>
+        <form class="lead-form">
+          <label>Name<input name="name" autocomplete="name" required /></label>
+          <label>Email<input name="email" type="email" autocomplete="email" required /></label>
+          <label>What do you need help with?<textarea name="need" rows="3" required></textarea></label>
+          <button class="button button-dark" type="submit">Send request <span>→</span></button>
+        </form>
+      </div>
+    </section>
+    <script src="js/app.js"></script>
+  </body>
+</html>

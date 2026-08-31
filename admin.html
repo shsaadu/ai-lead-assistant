@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Demo lead dashboard for the AI Website Support and Lead Capture Agent." />
+    <title>Northstar | Lead dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/admin.css" />
+  </head>
+  <body class="admin-body">
+    <aside class="sidebar">
+      <a class="wordmark" href="index.html"><span>✦</span> northstar</a>
+      <nav><a class="active" href="admin.html">Leads <span id="lead-count">0</span></a><a href="index.html">View website ↗</a></nav>
+      <p>Demo dashboard<br />Local browser data</p>
+    </aside>
+    <main class="dashboard">
+      <header class="dashboard-header"><div><p class="eyebrow">Lead inbox</p><h1>Good morning, Saad.</h1></div><button id="clear-leads" class="outline-button" type="button">Clear demo leads</button></header>
+      <section class="metric-grid">
+        <article><span>New enquiries</span><strong id="metric-new">0</strong><small>Captured by the assistant</small></article>
+        <article><span>Priority requests</span><strong id="metric-priority">0</strong><small>Leaks, callouts &amp; repairs</small></article>
+        <article><span>Response status</span><strong>Ready</strong><small>Lead follow-up is manual in demo</small></article>
+      </section>
+      <section class="lead-table-section"><div class="table-heading"><div><p class="eyebrow">Recent activity</p><h2>Captured leads</h2></div><span id="empty-hint">Submit the website form to see a lead here.</span></div><div class="table-wrap"><table><thead><tr><th>Customer</th><th>Request</th><th>Received</th><th>Status</th></tr></thead><tbody id="lead-rows"></tbody></table></div></section>
+    </main>
+    <script src="js/admin.js"></script>
+  </body>
+</html>
