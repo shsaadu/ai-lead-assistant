@@ -14,10 +14,16 @@ module.exports = async function handler(request, response) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: `${businessContext}\n\nCustomer: ${message}` }] }] })
     });
-    const data = await geminiResponse.json();
+    const rawBody = await geminiResponse.text();
+    let data;
+    try {
+      data = JSON.parse(rawBody);
+    } catch {
+      data = {};
+    }
     const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!geminiResponse.ok || !answer) {
-      console.error('Gemini request failed', { status: geminiResponse.status, message: data?.error?.message });
+      console.error(`Gemini request failed: status=${geminiResponse.status}; response=${rawBody.slice(0, 500)}`);
       throw new Error('Gemini response invalid');
     }
     return response.status(200).json({ answer });
