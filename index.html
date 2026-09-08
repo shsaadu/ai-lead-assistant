@@ -77,7 +77,7 @@
         <input id="chat-input" name="message" autocomplete="off" placeholder="Type your message…" required />
         <button aria-label="Send message" type="submit">↑</button>
       </form>
-      <p class="chat-disclaimer">This demo captures leads in this browser only.</p>
+      <p class="chat-disclaimer">Your conversation may be reviewed by our team to follow up on your enquiry.</p>
     </section>
 
     <section class="lead-modal" aria-hidden="true" aria-label="Request a visit">
@@ -89,6 +89,20 @@
         <form class="lead-form">
           <label>Name<input name="name" autocomplete="name" required /></label>
           <label>Email<input name="email" type="email" autocomplete="email" required /></label>
+          <label>Service needed
+            <select name="service" id="leadServiceSelect">
+              <option value="">Not sure yet</option>
+            </select>
+          </label>
+          <label>Budget
+            <select name="budget">
+              <option value="">Prefer not to say</option>
+              <option value="Under £150">Under £150</option>
+              <option value="£150–£400">£150–£400</option>
+              <option value="£400–£1,000">£400–£1,000</option>
+              <option value="£1,000+">£1,000+</option>
+            </select>
+          </label>
           <label>What do you need help with?<textarea name="need" rows="3" required></textarea></label>
           <button class="button button-dark" type="submit">Send request <span>→</span></button>
         </form>

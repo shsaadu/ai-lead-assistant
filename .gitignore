@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Local environment — never commit real keys
+.env
+.env.local
+.env*.local
+
+# Vercel
+.vercel
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*

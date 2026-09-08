@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Demo lead dashboard for the AI Website Support and Lead Capture Agent." />
-    <title>Northstar | Lead dashboard</title>
+    <meta name="description" content="Admin dashboard for the AI Lead Assistant — leads, conversations, knowledge base, and settings." />
+    <title>Northstar | Admin dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -12,20 +12,87 @@
     <link rel="stylesheet" href="css/admin.css" />
   </head>
   <body class="admin-body">
-    <aside class="sidebar">
-      <a class="wordmark" href="index.html"><span>✦</span> northstar</a>
-      <nav><a class="active" href="admin.html">Leads <span id="lead-count">0</span></a><a href="index.html">View website ↗</a></nav>
-      <p>Demo dashboard<br />Local browser data</p>
-    </aside>
-    <main class="dashboard">
-      <header class="dashboard-header"><div><p class="eyebrow">Lead inbox</p><h1>Good morning, Saad.</h1></div><button id="clear-leads" class="outline-button" type="button">Clear demo leads</button></header>
-      <section class="metric-grid">
-        <article><span>New enquiries</span><strong id="metric-new">0</strong><small>Captured by the assistant</small></article>
-        <article><span>Priority requests</span><strong id="metric-priority">0</strong><small>Leaks, callouts &amp; repairs</small></article>
-        <article><span>Response status</span><strong>Ready</strong><small>Lead follow-up is manual in demo</small></article>
-      </section>
-      <section class="lead-table-section"><div class="table-heading"><div><p class="eyebrow">Recent activity</p><h2>Captured leads</h2></div><span id="empty-hint">Submit the website form to see a lead here.</span></div><div class="table-wrap"><table><thead><tr><th>Customer</th><th>Request</th><th>Received</th><th>Status</th></tr></thead><tbody id="lead-rows"></tbody></table></div></section>
-    </main>
+    <div class="login-screen" id="loginScreen">
+      <form class="login-card" id="loginForm">
+        <p class="eyebrow">Admin</p>
+        <h2>Sign in</h2>
+        <label>Password<input type="password" id="loginPassword" required autocomplete="current-password" /></label>
+        <button class="button button-dark" type="submit">Sign in <span>→</span></button>
+        <p class="login-error" id="loginError"></p>
+      </form>
+    </div>
+
+    <div class="admin-shell hidden" id="adminShell">
+      <aside class="sidebar">
+        <a class="wordmark" href="index.html"><span>✦</span> northstar</a>
+        <nav>
+          <a class="tab-link active" data-tab="leads" href="#leads">Leads <span id="lead-count">0</span></a>
+          <a class="tab-link" data-tab="conversations" href="#conversations">Conversations</a>
+          <a class="tab-link" data-tab="knowledge" href="#knowledge">Knowledge base</a>
+          <a class="tab-link" data-tab="settings" href="#settings">Settings</a>
+          <a href="index.html">View website ↗</a>
+        </nav>
+        <button class="outline-button" id="logoutBtn" type="button">Log out</button>
+      </aside>
+
+      <main class="dashboard">
+        <header class="dashboard-header">
+          <div><p class="eyebrow">Lead inbox</p><h1 id="dashboardGreeting">Good morning.</h1></div>
+        </header>
+
+        <section class="metric-grid">
+          <article><span>New enquiries</span><strong id="metric-new">0</strong><small>Captured by the assistant</small></article>
+          <article><span>Priority requests</span><strong id="metric-priority">0</strong><small>Leaks, callouts &amp; repairs</small></article>
+          <article><span>Needs follow-up</span><strong id="metric-handoff">0</strong><small>Bot was unsure or asked for a human</small></article>
+        </section>
+
+        <section class="tab-panel" data-panel="leads">
+          <div class="table-heading">
+            <div><p class="eyebrow">Recent activity</p><h2>Captured leads</h2></div>
+            <span id="empty-hint">No leads yet.</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Customer</th><th>Service</th><th>Budget</th><th>Message</th><th>Received</th><th>Status</th></tr></thead>
+              <tbody id="lead-rows"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="tab-panel hidden" data-panel="conversations">
+          <div class="table-heading"><div><p class="eyebrow">Chat history</p><h2>Conversations</h2></div></div>
+          <div class="conversations-layout">
+            <div class="conversation-list" id="conversationList"></div>
+            <div class="conversation-detail" id="conversationDetail"><p class="empty-hint">Select a conversation to view its messages.</p></div>
+          </div>
+        </section>
+
+        <section class="tab-panel hidden" data-panel="knowledge">
+          <div class="table-heading"><div><p class="eyebrow">RAG knowledge base</p><h2>FAQs &amp; documents</h2></div></div>
+          <form class="stack-form" id="documentForm">
+            <label>Document name<input type="text" id="docName" placeholder="e.g. Pricing FAQ" required /></label>
+            <label>Content<textarea id="docContent" rows="6" placeholder="Paste FAQ text, service details, or policies here..." required></textarea></label>
+            <button class="button button-dark" type="submit">Add &amp; index document</button>
+            <p class="hint" id="docHint"></p>
+          </form>
+          <div class="document-list" id="documentList"></div>
+        </section>
+
+        <section class="tab-panel hidden" data-panel="settings">
+          <div class="table-heading"><div><p class="eyebrow">Business configuration</p><h2>Branding &amp; behaviour</h2></div></div>
+          <form class="stack-form" id="settingsForm">
+            <label>Business name<input type="text" id="cfgName" /></label>
+            <label>Tagline<input type="text" id="cfgTagline" /></label>
+            <label>Brand colour<input type="color" id="cfgColor" /></label>
+            <label>Notification email (where new leads are sent)<input type="email" id="cfgNotifyEmail" placeholder="you@example.com" /></label>
+            <label>Assistant instructions (system prompt)<textarea id="cfgSystemPrompt" rows="6"></textarea></label>
+            <button class="button button-dark" type="submit">Save settings</button>
+            <p class="hint" id="settingsHint"></p>
+          </form>
+        </section>
+      </main>
+    </div>
+
     <script src="js/admin.js"></script>
   </body>
 </html>

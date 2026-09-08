@@ -1,0 +1,12 @@
+{
+  "name": "ai-lead-assistant",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI Lead Assistant for Service Businesses — a website chat widget with RAG-based FAQ answers, lead capture, human hand-off, and an admin dashboard.",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0"
+  }
+}

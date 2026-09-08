@@ -1,0 +1,127 @@
+-- AI Lead Assistant — database schema
+-- Run this in Supabase: Project → SQL Editor → New query → paste this whole file → Run
+
+-- Enables vector similarity search (pgvector), used for real RAG retrieval
+-- instead of doing cosine similarity in JavaScript.
+create extension if not exists vector;
+
+-- One row per business using this assistant. Ships with one demo row
+-- (Northstar Plumbing) but the schema supports multiple businesses/clients.
+create table if not exists businesses (
+  id uuid primary key default gen_random_uuid(),
+  slug text unique not null,
+  name text not null,
+  tagline text,
+  brand_color text default '#1d4ed8',
+  notify_email text,
+  system_prompt text not null,
+  services text[] default '{}',
+  created_at timestamptz default now()
+);
+
+-- Source documents (FAQs, service pages, policies) a business uploads via the
+-- admin dashboard. Each gets chunked + embedded into `chunks` below.
+create table if not exists documents (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid references businesses(id) on delete cascade,
+  name text not null,
+  content text not null,
+  created_at timestamptz default now()
+);
+
+-- Chunked + embedded document text. `embedding` uses gemini-embedding-001's
+-- 768-dimension output (matching the dimensionality set in api/_lib/gemini.js).
+create table if not exists chunks (
+  id uuid primary key default gen_random_uuid(),
+  document_id uuid references documents(id) on delete cascade,
+  business_id uuid references businesses(id) on delete cascade,
+  content text not null,
+  embedding vector(768),
+  created_at timestamptz default now()
+);
+
+create index if not exists chunks_embedding_idx
+  on chunks using ivfflat (embedding vector_cosine_ops) with (lists = 100);
+
+-- One row per website visitor chat session.
+create table if not exists conversations (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid references businesses(id) on delete cascade,
+  handoff_requested boolean default false,
+  created_at timestamptz default now(),
+  last_message_at timestamptz default now()
+);
+
+create table if not exists messages (
+  id uuid primary key default gen_random_uuid(),
+  conversation_id uuid references conversations(id) on delete cascade,
+  role text not null check (role in ('user', 'assistant')),
+  content text not null,
+  created_at timestamptz default now()
+);
+
+-- Captured leads: name, email, service needed, budget — the actual
+-- commercial output of the assistant.
+create table if not exists leads (
+  id uuid primary key default gen_random_uuid(),
+  business_id uuid references businesses(id) on delete cascade,
+  conversation_id uuid references conversations(id) on delete set null,
+  name text not null,
+  email text not null,
+  service_needed text,
+  budget text,
+  message text,
+  status text default 'new' check (status in ('new', 'contacted', 'won', 'lost')),
+  created_at timestamptz default now()
+);
+
+-- Vector search function: given a query embedding, return the top N most
+-- similar chunks for a specific business. Called via Supabase RPC from
+-- api/chat.js instead of pulling every chunk into JS and scoring client-side.
+create or replace function match_chunks(
+  query_embedding vector(768),
+  match_business_id uuid,
+  match_count int default 4
+)
+returns table (
+  id uuid,
+  content text,
+  document_id uuid,
+  similarity float
+)
+language sql stable
+as $$
+  select
+    chunks.id,
+    chunks.content,
+    chunks.document_id,
+    1 - (chunks.embedding <=> query_embedding) as similarity
+  from chunks
+  where chunks.business_id = match_business_id
+  order by chunks.embedding <=> query_embedding
+  limit match_count;
+$$;
+
+-- Row-level security: lock every table down. The backend (api/_lib/supabase.js)
+-- connects with the service_role key, which bypasses RLS entirely, so all the
+-- API routes keep working. Enabling RLS with NO policies means the anon/public
+-- key — if it is ever used from the browser — can read and write nothing.
+alter table businesses    enable row level security;
+alter table documents     enable row level security;
+alter table chunks        enable row level security;
+alter table conversations enable row level security;
+alter table messages      enable row level security;
+alter table leads         enable row level security;
+
+-- Seed the demo business (Northstar Plumbing) so the site works immediately.
+insert into businesses (slug, name, tagline, brand_color, notify_email, system_prompt, services)
+values (
+  'northstar-plumbing',
+  'Northstar Plumbing',
+  'Plumbing that shows up.',
+  '#1d4ed8',
+  null, -- set this to your own email after creating your Resend account
+  'You are Northstar Plumbing''s concise, helpful website assistant, serving South East England. You handle emergency leaks, burst pipes, blockages, no-hot-water issues, bathroom and kitchen plumbing, and maintenance. Never invent prices, availability, or diagnostic certainty. If you are not confident an answer is correct, say so plainly and offer to connect the customer with the team instead of guessing. Keep responses under 70 words and end with a helpful next step.',
+  array['Emergency repairs', 'Bathroom & kitchen installs', 'Maintenance & servicing']
+)
+on conflict (slug) do nothing;
