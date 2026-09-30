@@ -43,3 +43,9 @@
 .admin-message{ max-width:80%; padding:10px 14px; border-radius:12px; font-size:0.85rem; line-height:1.4; }
 .admin-message.user{ align-self:flex-end; background:var(--ink); color:#fff; border-bottom-right-radius:4px; }
 .admin-message.assistant{ align-self:flex-start; background:#eeece3; border-bottom-left-radius:4px; }
+
+.business-switcher{ display:flex; flex-direction:column; gap:6px; margin-top:28px; font: 0.62rem "DM Mono", monospace; text-transform:uppercase; letter-spacing:0.04em; color:#b9c8bf; }
+.business-switcher select{ font-family:Manrope, sans-serif; font-size:0.85rem; padding:8px 10px; border-radius:7px; border:1px solid #3a4a41; background:#1f2b25; color:white; }
+.sidebar .signed-in-as{ margin-top:auto; margin-bottom:10px; font: 0.65rem/1.5 "DM Mono", monospace; color:#b9c8bf; word-break:break-all; }
+.sidebar .signed-in-as + #logoutBtn{ margin-top:0; }
+@media (max-width:700px) { .business-switcher{ margin-top:14px; } .sidebar .signed-in-as{ display:none; } }

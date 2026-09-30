@@ -1,16 +1,24 @@
 const { getSupabase } = require('../_lib/supabase');
-const { requireAuth } = require('../_lib/admin-auth');
+const { requireAdmin } = require('../_lib/admin-auth');
 
 module.exports = async function handler(req, res) {
-  if (!requireAuth(req, res)) return;
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
+  const auth = await requireAdmin(req, res);
+  if (!auth) return;
+  const { business } = auth;
   const supabase = getSupabase();
-  const slug = req.query.business || 'northstar-plumbing';
-  const { data: business } = await supabase.from('businesses').select('id').eq('slug', slug).single();
-  if (!business) return res.status(404).json({ error: 'Business not found' });
 
   if (req.query.id) {
+    // Only show a conversation if it belongs to this admin's business.
+    const { data: convo } = await supabase
+      .from('conversations')
+      .select('id')
+      .eq('id', req.query.id)
+      .eq('business_id', business.id)
+      .maybeSingle();
+    if (!convo) return res.status(404).json({ error: 'Conversation not found' });
+
     const { data: messages, error } = await supabase
       .from('messages')
       .select('role, content, created_at')

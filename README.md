@@ -9,7 +9,9 @@ Demo business: **Northstar Plumbing** (fictional UK plumbing company) — but ev
 - **Website chat widget** — answers questions, recognises high-intent messages ("I have a leak", "get a quote"), and opens a lead form at the right moment
 - **RAG-based FAQ answers** — documents added via the admin dashboard are chunked, embedded (`gemini-embedding-001`), and retrieved via Postgres vector search (`pgvector`) for every question
 - **Lead capture** — name, email, service needed, budget, and message, saved to a real database
-- **Admin dashboard** — leads table (with status tracking), full conversation history, knowledge-base management (add/remove documents), and business settings — all behind a password-protected login
+- **Admin dashboard** — leads table (with status tracking), full conversation history, knowledge-base management (add/remove documents), and business settings
+- **Per-business admin accounts** — each business owner logs in with their own email and password and only ever sees their own business; a superadmin account can switch between all businesses
+- **Rate limiting** — per-visitor and per-business daily chat limits, plus login and lead-form limits, so bots can't burn through the AI quota
 - **Human hand-off** — when the assistant isn't confident in an answer, it says so, and the conversation is flagged in the admin dashboard as needing follow-up
 - **Configurable branding** — business name, tagline, and brand colour are set from the admin dashboard and applied live on the website
 - **Email notification** — the business owner gets an email (via Resend) the moment a new lead comes in
@@ -24,12 +26,14 @@ ai-lead-assistant/
 ├── api/leads.js                → lead capture + email notification
 ├── api/config.js               → public branding config for the widget
 ├── api/admin/*.js              → password-protected: leads, conversations, documents, settings
-├── api/_lib/*.js                → shared Supabase/Gemini/chunking/auth helpers
+├── api/_lib/*.js                → shared Supabase/Gemini/chunking/auth/rate-limit helpers
 ├── supabase/schema.sql          → full database schema (run once in Supabase)
+├── supabase/migrations/         → upgrades for projects created with an older schema.sql
+├── scripts/create_admin.py      → creates admin accounts (prints SQL to paste into Supabase)
 └── vercel.json
 ```
 
-**Data flow for a question:** widget → `/api/chat` → embed the question → `match_chunks()` (pgvector similarity search, scoped to this business) → Gemini generates an answer grounded in the retrieved chunks → message history saved → response includes whether a lead form should open.
+**Data flow for a question:** widget → `/api/chat` → rate-limit check → embed the question → `match_chunks()` (pgvector similarity search, scoped to this business, ignoring chunks below a relevance threshold) → Gemini generates an answer grounded in the retrieved chunks → message history saved → response includes whether a lead form should open.
 
 **Data flow for a lead:** lead form → `/api/leads` → saved to Supabase → email sent via Resend to the business's `notify_email` → shows up instantly in the admin dashboard.
 
@@ -62,11 +66,30 @@ Same as previous projects — [aistudio.google.com](https://aistudio.google.com)
    SUPABASE_SERVICE_ROLE_KEY=...
    RESEND_API_KEY=...
    RESEND_FROM_EMAIL=AI Lead Assistant <onboarding@resend.dev>
-   ADMIN_PASSWORD=choose_your_own_password
+   SESSION_SECRET=a_long_random_string
    ```
+   Generate `SESSION_SECRET` with `python3 -c "import secrets; print(secrets.token_urlsafe(48))"`.
 3. Deploy
 4. In Supabase's SQL editor, run: `update businesses set notify_email = 'your-email@example.com' where slug = 'northstar-plumbing';` so lead emails actually go somewhere
-5. Visit `/admin.html` on your deployed site and log in with your `ADMIN_PASSWORD`
+5. Create your admin account (see below), then visit `/admin.html` on your deployed site and sign in
+
+## Admin accounts
+
+Accounts live in the `admin_users` table. Create them with the included script — it only uses Python's standard library, asks for the password without echoing it, and prints a SQL statement to paste into Supabase's SQL editor (no database keys needed):
+
+```bash
+# Your own account — can see and switch between every business
+python3 scripts/create_admin.py --email you@example.com --name Saad --role superadmin
+
+# A client's account — can only see their own business
+python3 scripts/create_admin.py --email owner@client.co.uk --name Jane --business northstar-plumbing
+```
+
+Running it again for the same email resets that account's password.
+
+### Upgrading an existing deployment
+
+If your Supabase project was set up with an older `schema.sql` (single `ADMIN_PASSWORD` login), run `supabase/migrations/002_multi_tenant.sql` once in the SQL editor, add `SESSION_SECRET` in Vercel, remove `ADMIN_PASSWORD`, redeploy, and create your admin account as above.
 
 ## 5. Add your first knowledge-base document
 
@@ -80,6 +103,7 @@ In the admin dashboard → **Knowledge base** tab → paste in FAQs, pricing inf
 
 ## Notes for going from demo to a real client
 
-- `ADMIN_PASSWORD` auth is intentionally simple (one shared password) — fine for a single business owner, not meant for multiple staff accounts. A real multi-user version would need proper auth (e.g. Supabase Auth).
-- The Resend "5,000 free grounded prompts" style deals don't apply here — email sending on Resend's free tier is 3,000 emails/month, no separate cost per lead.
-- Consider adding basic rate-limiting on `/api/chat` and `/api/leads` before pointing this at real public traffic, to avoid abuse racking up Gemini API usage.
+- Admin auth has no self-service password reset or email verification yet — accounts are created and reset with `scripts/create_admin.py`.
+- Email sending on Resend's free tier is 3,000 emails/month, no separate cost per lead.
+- Rate limits default to 15 chat messages per visitor per minute and 500 per business per day; change them with the `CHAT_LIMIT_PER_MINUTE` and `CHAT_LIMIT_PER_BUSINESS_PER_DAY` environment variables.
+- `MIN_SIMILARITY` in `api/chat.js` (default 0.5) controls how related a document chunk must be before the model sees it. Lower it if the assistant misses answers that are in the knowledge base; raise it if it pulls in unrelated text.

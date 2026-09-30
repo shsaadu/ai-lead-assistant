@@ -1,7 +1,15 @@
 const { getSupabase } = require('./_lib/supabase');
 const { embedTexts, generateAnswer } = require('./_lib/gemini');
+const rateLimit = require('./_lib/rate-limit');
+const { isUuid } = require('./_lib/ids');
 
 const TOP_K = 4;
+// Chunks less similar than this to the question are treated as unrelated and
+// not shown to the model. Tune per knowledge base if answers miss obvious
+// matches (lower it) or pull in irrelevant text (raise it).
+const MIN_SIMILARITY = 0.5;
+const HISTORY_LIMIT = 12;
+const MAX_MESSAGE_LENGTH = 2000;
 const UNSURE_PHRASES = [
   "don't have that information",
   'not sure',
@@ -20,6 +28,9 @@ module.exports = async function handler(req, res) {
   const { message, conversationId, business: businessSlug } = req.body || {};
   if (!message || typeof message !== 'string') {
     return res.status(400).json({ error: 'A message is required' });
+  }
+  if (message.length > MAX_MESSAGE_LENGTH) {
+    return res.status(400).json({ error: `Please keep messages under ${MAX_MESSAGE_LENGTH} characters.` });
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
@@ -49,8 +60,35 @@ module.exports = async function handler(req, res) {
       return res.status(404).json({ error: 'Business configuration not found' });
     }
 
-    // Get or create the conversation for this session.
-    let convoId = conversationId;
+    // Limits: per visitor (stops one person/bot hammering the widget) and per
+    // business per day (caps total AI usage, protecting the Gemini quota).
+    const [visitorOk, businessOk] = await Promise.all([
+      rateLimit.allow(supabase, rateLimit.ipKey(req, 'chat'), 60, rateLimit.envInt('CHAT_LIMIT_PER_MINUTE', 15)),
+      rateLimit.allow(supabase, `chat:biz:${business.id}`, 24 * 60 * 60, rateLimit.envInt('CHAT_LIMIT_PER_BUSINESS_PER_DAY', 500))
+    ]);
+    if (!visitorOk || !businessOk) {
+      return res.status(429).json({
+        answer: visitorOk
+          ? "The assistant is very busy right now. Please leave your details and the team will get back to you."
+          : "You're sending messages quite quickly — please wait a minute and try again.",
+        conversationId: conversationId || null,
+        suggestLeadCapture: !businessOk
+      });
+    }
+
+    // Reuse the visitor's conversation only if it really belongs to this
+    // business; otherwise (missing, malformed, or someone else's ID) start a
+    // new one.
+    let convoId = null;
+    if (isUuid(conversationId)) {
+      const { data: existing } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('id', conversationId)
+        .eq('business_id', business.id)
+        .maybeSingle();
+      if (existing) convoId = existing.id;
+    }
     if (!convoId) {
       const { data: newConvo, error: convoError } = await supabase
         .from('conversations')
@@ -69,11 +107,14 @@ module.exports = async function handler(req, res) {
     if (apiKey) {
       try {
         const [queryEmbedding] = await embedTexts(apiKey, [message], 'RETRIEVAL_QUERY');
-        const { data: chunks } = await supabase.rpc('match_chunks', {
+        const { data: chunks, error: matchError } = await supabase.rpc('match_chunks', {
           query_embedding: queryEmbedding,
           match_business_id: business.id,
-          match_count: TOP_K
+          match_count: TOP_K,
+          min_similarity: MIN_SIMILARITY
         });
+        // Most likely cause: supabase/migrations/002_multi_tenant.sql not run yet.
+        if (matchError) console.error('match_chunks failed:', matchError.message);
         if (chunks && chunks.length > 0) {
           hasKnowledgeBase = true;
           contextBlock =
@@ -86,13 +127,15 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    // Recent conversation history for context.
-    const { data: history } = await supabase
+    // Most recent messages for context: fetch newest-first so the limit keeps
+    // the latest turns, then flip back into chronological order for the model.
+    const { data: recent } = await supabase
       .from('messages')
       .select('role, content')
       .eq('conversation_id', convoId)
-      .order('created_at', { ascending: true })
-      .limit(12);
+      .order('created_at', { ascending: false })
+      .limit(HISTORY_LIMIT);
+    const history = (recent || []).reverse();
 
     const systemInstruction =
       business.system_prompt +
@@ -102,7 +145,7 @@ module.exports = async function handler(req, res) {
     let answer;
     if (apiKey) {
       try {
-        const contents = (history || []).map((m) => ({
+        const contents = history.map((m) => ({
           role: m.role === 'user' ? 'user' : 'model',
           parts: [{ text: m.content }]
         }));

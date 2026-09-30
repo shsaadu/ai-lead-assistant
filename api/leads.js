@@ -1,4 +1,6 @@
 const { getSupabase } = require('./_lib/supabase');
+const rateLimit = require('./_lib/rate-limit');
+const { isUuid } = require('./_lib/ids');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -29,11 +31,30 @@ module.exports = async function handler(req, res) {
       return res.status(404).json({ error: 'Business configuration not found' });
     }
 
+    // 5 lead submissions per visitor per 10 minutes is plenty for a real
+    // person and stops form spam flooding the owner's inbox.
+    const allowed = await rateLimit.allow(supabase, rateLimit.ipKey(req, 'leads'), 10 * 60, 5);
+    if (!allowed) {
+      return res.status(429).json({ error: "You've sent several requests already — please wait a few minutes and try again." });
+    }
+
+    // Only link the lead to the conversation if it belongs to this business.
+    let linkedConversationId = null;
+    if (isUuid(conversationId)) {
+      const { data: convo } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('id', conversationId)
+        .eq('business_id', business.id)
+        .maybeSingle();
+      if (convo) linkedConversationId = convo.id;
+    }
+
     const { data: lead, error: leadError } = await supabase
       .from('leads')
       .insert({
         business_id: business.id,
-        conversation_id: conversationId || null,
+        conversation_id: linkedConversationId,
         name,
         email,
         service_needed: serviceNeeded || null,
@@ -45,8 +66,8 @@ module.exports = async function handler(req, res) {
 
     if (leadError) throw leadError;
 
-    if (conversationId) {
-      await supabase.from('conversations').update({ handoff_requested: true }).eq('id', conversationId);
+    if (linkedConversationId) {
+      await supabase.from('conversations').update({ handoff_requested: true }).eq('id', linkedConversationId);
     }
 
     // Email notification is best-effort — a failed email should never stop the
@@ -97,5 +118,6 @@ function escapeHtml(str) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }

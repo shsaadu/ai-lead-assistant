@@ -1,15 +1,13 @@
 const { getSupabase } = require('../_lib/supabase');
-const { requireAuth } = require('../_lib/admin-auth');
+const { requireAdmin } = require('../_lib/admin-auth');
 const { embedTexts } = require('../_lib/gemini');
 const { chunkText } = require('../_lib/chunk');
 
 module.exports = async function handler(req, res) {
-  if (!requireAuth(req, res)) return;
-
+  const auth = await requireAdmin(req, res);
+  if (!auth) return;
+  const { business } = auth;
   const supabase = getSupabase();
-  const slug = req.query.business || 'northstar-plumbing';
-  const { data: business } = await supabase.from('businesses').select('id').eq('slug', slug).single();
-  if (!business) return res.status(404).json({ error: 'Business not found' });
 
   if (req.method === 'GET') {
     const { data, error } = await supabase

@@ -12,13 +12,26 @@ function formatDate(iso) {
   return new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso));
 }
 
+// Superadmins can switch between businesses; the chosen slug is sent with
+// every admin API call. For owners the server ignores it and always uses
+// their own business.
+let selectedBusiness = null;
+
+function adminUrl(path, params = {}) {
+  const url = new URL(path, window.location.origin);
+  if (selectedBusiness) url.searchParams.set('business', selectedBusiness);
+  Object.entries(params).forEach(([key, value]) => url.searchParams.set(key, value));
+  return url.pathname + url.search;
+}
+
 // ---- Auth ----
 async function checkSession() {
-  const res = await fetch('/api/admin/session');
+  const res = await fetch(adminUrl('/api/admin/session'));
   const data = await res.json();
   if (data.authenticated) {
     loginScreen.classList.add('hidden');
     adminShell.classList.remove('hidden');
+    renderSessionInfo(data);
     loadAll();
   } else {
     loginScreen.classList.remove('hidden');
@@ -26,19 +39,57 @@ async function checkSession() {
   }
 }
 
+function renderSessionInfo({ user, business, businesses }) {
+  const displayName = user.name || user.email;
+  document.getElementById('signedInAs').textContent = `Signed in as ${displayName}`;
+  document.getElementById('dashboardGreeting').textContent = `${greeting()}, ${user.name || 'there'}.`;
+  if (business) {
+    selectedBusiness = user.role === 'superadmin' ? business.slug : null;
+    document.getElementById('sidebarBusinessName').textContent = business.name;
+    document.title = `${business.name} | Admin dashboard`;
+  }
+
+  const switcher = document.getElementById('businessSwitcher');
+  const select = document.getElementById('businessSelect');
+  if (user.role === 'superadmin' && Array.isArray(businesses) && businesses.length > 1) {
+    select.innerHTML = businesses
+      .map((b) => `<option value="${escapeHtml(b.slug)}">${escapeHtml(b.name)}</option>`)
+      .join('');
+    select.value = business ? business.slug : '';
+    switcher.classList.remove('hidden');
+  } else {
+    switcher.classList.add('hidden');
+  }
+}
+
+function greeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
+}
+
+document.getElementById('businessSelect').addEventListener('change', (e) => {
+  selectedBusiness = e.target.value;
+  document.getElementById('conversationDetail').innerHTML =
+    '<p class="empty-hint">Select a conversation to view its messages.</p>';
+  checkSession();
+});
+
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   loginError.textContent = '';
+  const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
   try {
     const res = await fetch('/api/admin/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ password })
+      body: JSON.stringify({ email, password })
     });
     const data = await res.json();
     if (!res.ok) {
-      loginError.textContent = data.error || 'Incorrect password';
+      loginError.textContent = data.error || 'Incorrect email or password';
       return;
     }
     loginForm.reset();
@@ -50,6 +101,7 @@ loginForm.addEventListener('submit', async (e) => {
 
 document.getElementById('logoutBtn').addEventListener('click', async () => {
   await fetch('/api/admin/logout', { method: 'POST' });
+  selectedBusiness = null;
   checkSession();
 });
 
@@ -75,7 +127,7 @@ function loadAll() {
 
 // ---- Leads ----
 async function loadLeads() {
-  const res = await fetch('/api/admin/leads');
+  const res = await fetch(adminUrl('/api/admin/leads'));
   if (!res.ok) return;
   const { leads } = await res.json();
   renderLeads(leads || []);
@@ -118,7 +170,7 @@ function renderLeads(leads) {
 
   rows.querySelectorAll('.status-select').forEach((select) => {
     select.addEventListener('change', async () => {
-      await fetch('/api/admin/leads', {
+      await fetch(adminUrl('/api/admin/leads'), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id: select.dataset.leadId, status: select.value })
@@ -129,7 +181,7 @@ function renderLeads(leads) {
 
 // ---- Conversations ----
 async function loadConversations() {
-  const res = await fetch('/api/admin/conversations');
+  const res = await fetch(adminUrl('/api/admin/conversations'));
   if (!res.ok) return;
   const { conversations } = await res.json();
   renderConversationList(conversations || []);
@@ -167,7 +219,7 @@ async function loadConversationDetail(id, itemEl) {
   const detail = document.getElementById('conversationDetail');
   detail.innerHTML = '<p class="empty-hint">Loading…</p>';
 
-  const res = await fetch(`/api/admin/conversations?id=${encodeURIComponent(id)}`);
+  const res = await fetch(adminUrl('/api/admin/conversations', { id }));
   if (!res.ok) {
     detail.innerHTML = '<p class="empty-hint">Could not load this conversation.</p>';
     return;
@@ -184,7 +236,7 @@ async function loadConversationDetail(id, itemEl) {
 
 // ---- Knowledge base ----
 async function loadDocuments() {
-  const res = await fetch('/api/admin/documents');
+  const res = await fetch(adminUrl('/api/admin/documents'));
   if (!res.ok) return;
   const { documents } = await res.json();
   renderDocuments(documents || []);
@@ -212,7 +264,7 @@ function renderDocuments(documents) {
   list.querySelectorAll('[data-doc-id]').forEach((btn) => {
     btn.addEventListener('click', async () => {
       if (!confirm('Remove this document from the knowledge base?')) return;
-      await fetch(`/api/admin/documents?id=${encodeURIComponent(btn.dataset.docId)}`, { method: 'DELETE' });
+      await fetch(adminUrl('/api/admin/documents', { id: btn.dataset.docId }), { method: 'DELETE' });
       loadDocuments();
     });
   });
@@ -227,7 +279,7 @@ document.getElementById('documentForm').addEventListener('submit', async (e) => 
 
   hint.textContent = 'Indexing document…';
   try {
-    const res = await fetch('/api/admin/documents', {
+    const res = await fetch(adminUrl('/api/admin/documents'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, content })
@@ -247,11 +299,10 @@ document.getElementById('documentForm').addEventListener('submit', async (e) => 
 
 // ---- Settings ----
 async function loadSettings() {
-  const res = await fetch('/api/admin/config');
+  const res = await fetch(adminUrl('/api/admin/config'));
   if (!res.ok) return;
   const { business } = await res.json();
   if (!business) return;
-  document.getElementById('dashboardGreeting').textContent = `Good morning, Saad.`;
   document.getElementById('cfgName').value = business.name || '';
   document.getElementById('cfgTagline').value = business.tagline || '';
   document.getElementById('cfgColor').value = business.brand_color || '#1d4ed8';
@@ -264,7 +315,7 @@ document.getElementById('settingsForm').addEventListener('submit', async (e) => 
   const hint = document.getElementById('settingsHint');
   hint.textContent = 'Saving…';
   try {
-    const res = await fetch('/api/admin/config', {
+    const res = await fetch(adminUrl('/api/admin/config'), {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
