@@ -1,6 +1,7 @@
 {
+  "regions": ["sin1"],
   "functions": {
-    "api/chat.js": { "maxDuration": 15 },
+    "api/chat.js": { "maxDuration": 30 },
     "api/admin/documents.js": { "maxDuration": 30 }
   }
 }

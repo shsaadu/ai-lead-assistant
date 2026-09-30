@@ -49,23 +49,54 @@ module.exports = async function handler(req, res) {
     });
   }
 
+  // Timestamp the visitor's message now; it's saved together with the reply at
+  // the end so the two rows always sort in the right order.
+  const userMessageAt = new Date().toISOString();
+  const timings = {};
+  const timed = async (label, promise) => {
+    const t0 = Date.now();
+    try {
+      return await promise;
+    } finally {
+      timings[label] = Date.now() - t0;
+    }
+  };
+
+  // The embedding only needs the message text, so start it straight away and
+  // let it run alongside the database lookups below.
+  const embeddingPromise = apiKey
+    ? timed('embed', embedTexts(apiKey, [message], 'RETRIEVAL_QUERY'))
+        .then(([embedding]) => embedding)
+        .catch((err) => {
+          console.error('Embedding failed:', err.message || err);
+          return null;
+        })
+    : Promise.resolve(null);
+
+  let convoId = null;
   try {
-    const { data: business, error: businessError } = await supabase
-      .from('businesses')
-      .select('id, name, system_prompt, services')
-      .eq('slug', slug)
-      .single();
+    const { data: business, error: businessError } = await timed(
+      'business',
+      supabase.from('businesses').select('id, name, system_prompt, services').eq('slug', slug).single()
+    );
 
     if (businessError || !business) {
       return res.status(404).json({ error: 'Business configuration not found' });
     }
 
-    // Limits: per visitor (stops one person/bot hammering the widget) and per
-    // business per day (caps total AI usage, protecting the Gemini quota).
-    const [visitorOk, businessOk] = await Promise.all([
+    // In parallel: rate limits — per visitor (stops one person/bot hammering
+    // the widget) and per business per day (caps total AI usage, protecting
+    // the Gemini quota) — and checking the visitor's conversation belongs to
+    // this business.
+    const [visitorOk, businessOk, existingConvo] = await timed('limits+convo', Promise.all([
       rateLimit.allow(supabase, rateLimit.ipKey(req, 'chat'), 60, rateLimit.envInt('CHAT_LIMIT_PER_MINUTE', 15)),
-      rateLimit.allow(supabase, `chat:biz:${business.id}`, 24 * 60 * 60, rateLimit.envInt('CHAT_LIMIT_PER_BUSINESS_PER_DAY', 500))
-    ]);
+      rateLimit.allow(supabase, `chat:biz:${business.id}`, 24 * 60 * 60, rateLimit.envInt('CHAT_LIMIT_PER_BUSINESS_PER_DAY', 500)),
+      isUuid(conversationId)
+        ? supabase.from('conversations').select('id').eq('id', conversationId).eq('business_id', business.id).maybeSingle()
+            .then(({ data }) => data)
+        : Promise.resolve(null)
+    ]));
+
     if (!visitorOk || !businessOk) {
       return res.status(429).json({
         answer: visitorOk
@@ -76,66 +107,51 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // Reuse the visitor's conversation only if it really belongs to this
-    // business; otherwise (missing, malformed, or someone else's ID) start a
-    // new one.
-    let convoId = null;
-    if (isUuid(conversationId)) {
-      const { data: existing } = await supabase
-        .from('conversations')
-        .select('id')
-        .eq('id', conversationId)
-        .eq('business_id', business.id)
-        .maybeSingle();
-      if (existing) convoId = existing.id;
-    }
-    if (!convoId) {
-      const { data: newConvo, error: convoError } = await supabase
-        .from('conversations')
-        .insert({ business_id: business.id })
-        .select('id')
-        .single();
+    // Reuse the conversation only if it belongs to this business; otherwise
+    // (missing, malformed, or someone else's ID) start a new one.
+    if (existingConvo) {
+      convoId = existingConvo.id;
+    } else {
+      const { data: newConvo, error: convoError } = await timed(
+        'new-convo',
+        supabase.from('conversations').insert({ business_id: business.id }).select('id').single()
+      );
       if (convoError) throw convoError;
       convoId = newConvo.id;
     }
 
-    await supabase.from('messages').insert({ conversation_id: convoId, role: 'user', content: message });
-
-    // Retrieve relevant document chunks via pgvector cosine similarity.
-    let contextBlock = '';
-    let hasKnowledgeBase = false;
-    if (apiKey) {
-      try {
-        const [queryEmbedding] = await embedTexts(apiKey, [message], 'RETRIEVAL_QUERY');
-        const { data: chunks, error: matchError } = await supabase.rpc('match_chunks', {
+    // In parallel: earlier messages in this conversation, and knowledge-base
+    // retrieval (pgvector similarity search on the question's embedding).
+    const [earlier, chunks] = await Promise.all([
+      existingConvo
+        ? timed('history', supabase
+            .from('messages')
+            .select('role, content')
+            .eq('conversation_id', convoId)
+            // Newest-first so the limit keeps the latest turns; reversed below.
+            .order('created_at', { ascending: false })
+            .limit(HISTORY_LIMIT - 1)
+          ).then(({ data }) => (data || []).reverse())
+        : Promise.resolve([]),
+      embeddingPromise.then(async (queryEmbedding) => {
+        if (!queryEmbedding) return [];
+        const { data, error } = await timed('retrieve', supabase.rpc('match_chunks', {
           query_embedding: queryEmbedding,
           match_business_id: business.id,
           match_count: TOP_K,
           min_similarity: MIN_SIMILARITY
-        });
+        }));
         // Most likely cause: supabase/migrations/002_multi_tenant.sql not run yet.
-        if (matchError) console.error('match_chunks failed:', matchError.message);
-        if (chunks && chunks.length > 0) {
-          hasKnowledgeBase = true;
-          contextBlock =
-            '\n\nRelevant information from the business\'s own FAQs/documents:\n' +
-            chunks.map((c, i) => `[${i + 1}] ${c.content}`).join('\n\n');
-        }
-      } catch {
-        // Retrieval failure shouldn't block the whole response — fall back to
-        // the base system prompt with no retrieved context.
-      }
-    }
+        if (error) console.error('match_chunks failed:', error.message);
+        return data || [];
+      })
+    ]);
 
-    // Most recent messages for context: fetch newest-first so the limit keeps
-    // the latest turns, then flip back into chronological order for the model.
-    const { data: recent } = await supabase
-      .from('messages')
-      .select('role, content')
-      .eq('conversation_id', convoId)
-      .order('created_at', { ascending: false })
-      .limit(HISTORY_LIMIT);
-    const history = (recent || []).reverse();
+    const hasKnowledgeBase = chunks.length > 0;
+    const contextBlock = hasKnowledgeBase
+      ? '\n\nRelevant information from the business\'s own FAQs/documents:\n' +
+        chunks.map((c, i) => `[${i + 1}] ${c.content}`).join('\n\n')
+      : '';
 
     const systemInstruction =
       business.system_prompt +
@@ -145,11 +161,11 @@ module.exports = async function handler(req, res) {
     let answer;
     if (apiKey) {
       try {
-        const contents = history.map((m) => ({
+        const contents = [...earlier, { role: 'user', content: message }].map((m) => ({
           role: m.role === 'user' ? 'user' : 'model',
           parts: [{ text: m.content }]
         }));
-        answer = await generateAnswer(apiKey, { systemInstruction, contents, generationConfig: { temperature: 0.4 } });
+        answer = await timed('generate', generateAnswer(apiKey, { systemInstruction, contents, generationConfig: { temperature: 0.4 } }));
       } catch (err) {
         console.error('Gemini request failed:', err.message || err);
       }
@@ -159,23 +175,37 @@ module.exports = async function handler(req, res) {
       answer = `I can help you get in touch with ${business.name}. Could you share a few details about what you need?`;
     }
 
-    await supabase.from('messages').insert({ conversation_id: convoId, role: 'assistant', content: answer });
-    await supabase.from('conversations').update({ last_message_at: new Date().toISOString() }).eq('id', convoId);
-
     const seemsUnsure = UNSURE_PHRASES.some((phrase) => answer.toLowerCase().includes(phrase));
     const seemsHighIntent = LEAD_INTENT_PATTERN.test(message);
-    const suggestLeadCapture = seemsUnsure || seemsHighIntent || !hasKnowledgeBase && seemsHighIntent;
+    const suggestLeadCapture = seemsUnsure || seemsHighIntent;
 
-    if (seemsUnsure) {
-      await supabase.from('conversations').update({ handoff_requested: true }).eq('id', convoId);
-    }
+    const convoUpdate = { last_message_at: new Date().toISOString() };
+    if (seemsUnsure) convoUpdate.handoff_requested = true;
 
+    // Save both messages and update the conversation in parallel.
+    const [{ error: saveError }] = await timed('save', Promise.all([
+      supabase.from('messages').insert([
+        { conversation_id: convoId, role: 'user', content: message, created_at: userMessageAt },
+        { conversation_id: convoId, role: 'assistant', content: answer, created_at: new Date().toISOString() }
+      ]),
+      supabase.from('conversations').update(convoUpdate).eq('id', convoId)
+    ]));
+    if (saveError) console.error('Saving messages failed:', saveError.message);
+
+    console.log('chat timings (ms):', JSON.stringify(timings));
     return res.status(200).json({ answer, conversationId: convoId, suggestLeadCapture });
   } catch (err) {
-    console.error('Chat handler error:', err.message || err);
+    console.error('Chat handler error:', err.message || err, 'timings (ms):', JSON.stringify(timings));
+    // Keep the visitor's message even though the reply failed, so the team can follow up.
+    if (convoId) {
+      await supabase
+        .from('messages')
+        .insert({ conversation_id: convoId, role: 'user', content: message, created_at: userMessageAt })
+        .then(() => {}, () => {});
+    }
     return res.status(200).json({
       answer: 'Sorry, something went wrong on our end. Please leave your details and the team will follow up.',
-      conversationId: conversationId || null,
+      conversationId: convoId || conversationId || null,
       suggestLeadCapture: true
     });
   }
