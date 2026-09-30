@@ -23,17 +23,31 @@ async function embedTexts(apiKey, texts, taskType = 'RETRIEVAL_DOCUMENT') {
   return (data.embeddings || []).map((e) => e.values || []);
 }
 
-async function generateAnswer(apiKey, { systemInstruction, contents, generationConfig }) {
-  const body = { contents };
-  if (systemInstruction) body.system_instruction = { parts: [{ text: systemInstruction }] };
-  if (generationConfig) body.generationConfig = generationConfig;
+// Short FAQ-style answers don't benefit from the model "thinking" first, and
+// thinking was most of the ~13s reply time. Ask for minimal thinking; if the
+// model rejects the setting, retry once without it rather than failing.
+const THINKING_CONFIG = { thinkingLevel: 'minimal' };
 
+async function callGenerate(apiKey, body) {
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${CHAT_MODEL}:generateContent`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
     body: JSON.stringify(body)
   });
-  const data = await res.json();
+  return { res, data: await res.json() };
+}
+
+async function generateAnswer(apiKey, { systemInstruction, contents, generationConfig }) {
+  const body = { contents };
+  if (systemInstruction) body.system_instruction = { parts: [{ text: systemInstruction }] };
+  body.generationConfig = { ...(generationConfig || {}), thinkingConfig: THINKING_CONFIG };
+
+  let { res, data } = await callGenerate(apiKey, body);
+  if (res.status === 400) {
+    console.error('Gemini rejected thinkingConfig, retrying without it:', data && data.error && data.error.message);
+    const { thinkingConfig, ...withoutThinking } = body.generationConfig;
+    ({ res, data } = await callGenerate(apiKey, { ...body, generationConfig: withoutThinking }));
+  }
   if (!res.ok) throw new Error((data && data.error && data.error.message) || 'Gemini request failed');
   const candidate = data.candidates && data.candidates[0];
   const parts = candidate && candidate.content && candidate.content.parts;
