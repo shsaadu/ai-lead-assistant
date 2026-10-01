@@ -95,12 +95,9 @@ async function respond(message) {
     addMessage(data.answer || "Sorry, I couldn't process that. Please try again.", 'assistant');
 
     // The server decides (from the AI's own judgement of the visitor's
-    // intent). Its summary is in English, so it only pre-fills the "what do
-    // you need" box for English-speaking visitors; others see their own words.
-    if (data.suggestLeadCapture) {
-      const english = !data.language || data.language === 'en';
-      maybeOfferLeadForm(english && data.summary ? data.summary : message);
-    }
+    // intent). Pre-fill the form with the visitor's own words — the AI's
+    // summary is written for staff, about the visitor.
+    if (data.suggestLeadCapture) maybeOfferLeadForm(message);
   } catch {
     typing.remove();
     addMessage('Sorry, something went wrong. Please leave your details and the team will follow up.', 'assistant');

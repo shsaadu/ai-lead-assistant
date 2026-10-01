@@ -303,11 +303,9 @@
           writeStorage(data.conversationId);
         }
         addMessage(data.answer || data.error || "Sorry, I couldn't process that. Please try again.", 'assistant');
-        if (data.suggestLeadCapture) {
-          // The summary is English; use it only for English-speaking visitors.
-          var english = !data.language || data.language === 'en';
-          maybeOfferLeadForm(english && data.summary ? data.summary : text);
-        }
+        // Pre-fill the form with the visitor's own words (the AI's summary is
+        // written for staff, about the visitor, so it reads oddly to them).
+        if (data.suggestLeadCapture) maybeOfferLeadForm(text);
       })
       .catch(function () {
         typing.remove();
