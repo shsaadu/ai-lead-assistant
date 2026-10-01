@@ -1,5 +1,5 @@
 const { getSupabase } = require('./_lib/supabase');
-const { embedTexts, generateAnswer } = require('./_lib/gemini');
+const { embedTexts, generateAnswer, CHAT_MODEL } = require('./_lib/gemini');
 const rateLimit = require('./_lib/rate-limit');
 const { isUuid } = require('./_lib/ids');
 
@@ -10,6 +10,11 @@ const TOP_K = 4;
 const MIN_SIMILARITY = 0.5;
 const HISTORY_LIMIT = 12;
 const MAX_MESSAGE_LENGTH = 2000;
+// Time limits for Gemini calls, kept well inside the function's 30s
+// maxDuration (vercel.json) so slow free-tier responses get a fallback reply
+// instead of a crash.
+const EMBED_TIMEOUT_MS = 6000;
+const GENERATE_TIMEOUT_MS = 15000;
 const UNSURE_PHRASES = [
   "don't have that information",
   'not sure',
@@ -65,7 +70,7 @@ module.exports = async function handler(req, res) {
   // The embedding only needs the message text, so start it straight away and
   // let it run alongside the database lookups below.
   const embeddingPromise = apiKey
-    ? timed('embed', embedTexts(apiKey, [message], 'RETRIEVAL_QUERY'))
+    ? timed('embed', embedTexts(apiKey, [message], 'RETRIEVAL_QUERY', { timeoutMs: EMBED_TIMEOUT_MS }))
         .then(([embedding]) => embedding)
         .catch((err) => {
           console.error('Embedding failed:', err.message || err);
@@ -165,17 +170,25 @@ module.exports = async function handler(req, res) {
           role: m.role === 'user' ? 'user' : 'model',
           parts: [{ text: m.content }]
         }));
-        answer = await timed('generate', generateAnswer(apiKey, { systemInstruction, contents, generationConfig: { temperature: 0.4 } }));
+        answer = await timed('generate', generateAnswer(apiKey, {
+          systemInstruction,
+          contents,
+          generationConfig: { temperature: 0.4 },
+          timeoutMs: GENERATE_TIMEOUT_MS
+        }));
       } catch (err) {
         console.error('Gemini request failed:', err.message || err);
       }
     }
 
-    if (!answer) {
-      answer = `I can help you get in touch with ${business.name}. Could you share a few details about what you need?`;
+    // No AI answer (Gemini slow, down, or not configured): reply politely and
+    // open the lead form so the enquiry isn't lost.
+    const usedFallback = !answer;
+    if (usedFallback) {
+      answer = `Thanks for your message! I can't answer that right now, but the ${business.name} team can. Leave your details and they'll get back to you shortly.`;
     }
 
-    const seemsUnsure = UNSURE_PHRASES.some((phrase) => answer.toLowerCase().includes(phrase));
+    const seemsUnsure = usedFallback || UNSURE_PHRASES.some((phrase) => answer.toLowerCase().includes(phrase));
     const seemsHighIntent = LEAD_INTENT_PATTERN.test(message);
     const suggestLeadCapture = seemsUnsure || seemsHighIntent;
 
@@ -192,7 +205,7 @@ module.exports = async function handler(req, res) {
     ]));
     if (saveError) console.error('Saving messages failed:', saveError.message);
 
-    console.log('chat timings (ms):', JSON.stringify(timings));
+    console.log(`chat timings (ms) [${CHAT_MODEL}${usedFallback ? ', FALLBACK' : ''}]:`, JSON.stringify(timings));
     return res.status(200).json({ answer, conversationId: convoId, suggestLeadCapture });
   } catch (err) {
     console.error('Chat handler error:', err.message || err, 'timings (ms):', JSON.stringify(timings));
