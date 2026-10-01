@@ -19,6 +19,10 @@ create table if not exists businesses (
   -- Websites allowed to embed this business's chat widget (widget.js), e.g.
   -- {'https://www.example.co.uk'}. Empty = any website (fine for demos).
   allowed_origins text[] default '{}',
+  -- Extra lead-form questions, e.g. [{"key":"course","label":"Which course?",
+  -- "type":"select","options":["General English"]}]. `label` may be an object
+  -- of translations keyed by language code. See migrations/005.
+  lead_fields jsonb default '[]'::jsonb,
   created_at timestamptz default now()
 );
 
@@ -76,12 +80,16 @@ create table if not exists leads (
   business_id uuid references businesses(id) on delete cascade,
   conversation_id uuid references conversations(id) on delete set null,
   name text not null,
-  email text not null,
+  email text,
+  phone text,
   service_needed text,
   budget text,
   message text,
+  -- Answers to the business's lead_fields questions, keyed by question key.
+  details jsonb default '{}'::jsonb,
   status text default 'new' check (status in ('new', 'contacted', 'won', 'lost')),
-  created_at timestamptz default now()
+  created_at timestamptz default now(),
+  constraint leads_contact_required check (email is not null or phone is not null)
 );
 
 -- Vector search function: given a query embedding, return the top N most

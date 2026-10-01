@@ -96,6 +96,15 @@ If your Supabase project was set up with an older `schema.sql`, run the files in
 - `002_multi_tenant.sql` — per-business admin accounts, rate limiting, relevance threshold. Then add `SESSION_SECRET` in Vercel, remove `ADMIN_PASSWORD`, redeploy, and create your admin account as above.
 - `003_conversation_insights.sql` — stores each conversation's language, intent and summary for the dashboard. The chat keeps working without it; the dashboard just won't show those details.
 - `004_widget_allowed_origins.sql` — lets each business restrict which websites can embed its widget. Without it, any website can use the widget.
+- `005_lead_questions.sql` — per-business lead-form questions (e.g. course, start date) and phone/WhatsApp as an alternative to email.
+
+## Demo: Thames English Academy (fictional language school)
+
+A ready-made sales demo for language schools:
+
+1. Run `supabase/migrations/005_lead_questions.sql`, then `supabase/seed/thames-english-academy.sql`, in the Supabase SQL editor.
+2. In the dashboard, switch to **Thames English Academy** → **Knowledge base** → upload every file in `demo/thames-english-academy/knowledge-base/` at once.
+3. Open `/demo/thames-english-academy/` — a school website with the widget on it. Try questions in different languages: the replies, the widget's buttons and the lead form follow the visitor's language (right-to-left for Arabic), and the lead form asks the school's own questions (course, start date, level, accommodation, nationality) with email or WhatsApp.
 
 ## Putting the assistant on a client's website
 

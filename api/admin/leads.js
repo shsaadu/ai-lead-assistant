@@ -8,13 +8,15 @@ module.exports = async function handler(req, res) {
   const supabase = getSupabase();
 
   if (req.method === 'GET') {
-    const { data, error } = await supabase
-      .from('leads')
-      .select('id, name, email, service_needed, budget, message, status, created_at, conversation_id')
-      .eq('business_id', business.id)
-      .order('created_at', { ascending: false });
+    // select('*') so phone/details (migration 005) appear when they exist.
+    const [{ data, error }, { data: config }] = await Promise.all([
+      supabase.from('leads').select('*').eq('business_id', business.id).order('created_at', { ascending: false }),
+      supabase.from('businesses').select('*').eq('id', business.id).single()
+    ]);
     if (error) return res.status(500).json({ error: error.message });
-    return res.status(200).json({ leads: data });
+    // The business's lead questions, so the dashboard can label each answer.
+    const fields = config && Array.isArray(config.lead_fields) ? config.lead_fields : [];
+    return res.status(200).json({ leads: data, fields });
   }
 
   if (req.method === 'PATCH') {

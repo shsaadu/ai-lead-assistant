@@ -51,3 +51,5 @@
 @media (max-width:700px) { .business-switcher{ margin-top:14px; } .sidebar .signed-in-as{ display:none; } }
 .pill-row{ display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end; }
 .conversation-summary{ font-size:0.78rem; line-height:1.35; color:var(--ink); }
+.details-cell small{ display:block; color:var(--muted); margin-bottom:3px; }
+.details-cell small strong{ display:inline; color:var(--ink); font-weight:600; }

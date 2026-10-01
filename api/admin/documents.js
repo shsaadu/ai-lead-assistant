@@ -3,6 +3,9 @@ const { requireAdmin } = require('../_lib/admin-auth');
 const { embedTexts } = require('../_lib/gemini');
 const { chunkText } = require('../_lib/chunk');
 
+// About 30 pages of text: indexes comfortably inside the function's time limit.
+const MAX_DOCUMENT_CHARS = 100000;
+
 module.exports = async function handler(req, res) {
   const auth = await requireAdmin(req, res);
   if (!auth) return;
@@ -28,6 +31,11 @@ module.exports = async function handler(req, res) {
   if (req.method === 'POST') {
     const { name, content } = req.body || {};
     if (!name || !content) return res.status(400).json({ error: 'name and content are required' });
+    if (String(content).length > MAX_DOCUMENT_CHARS) {
+      return res.status(400).json({
+        error: `"${name}" is too long (${String(content).length.toLocaleString()} characters; the limit is ${MAX_DOCUMENT_CHARS.toLocaleString()}). Split it into smaller documents.`
+      });
+    }
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) return res.status(500).json({ error: 'GEMINI_API_KEY is not set on the server.' });

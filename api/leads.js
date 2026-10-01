@@ -2,16 +2,34 @@ const { getSupabase } = require('./_lib/supabase');
 const rateLimit = require('./_lib/rate-limit');
 const { isUuid } = require('./_lib/ids');
 const { handleCors, originAllowed, ORIGIN_NOT_ALLOWED } = require('./_lib/cors');
+const { leadFields, fieldLabel, cleanDetails } = require('./_lib/lead-fields');
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_PATTERN = /^[+()\d][\d\s().-]{5,39}$/;
+
+function text(value, maxLength) {
+  return typeof value === 'string' ? value.trim().slice(0, maxLength) : '';
+}
 
 module.exports = async function handler(req, res) {
   if (handleCors(req, res)) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { name, email, serviceNeeded, budget, message, conversationId, business: businessSlug } = req.body || {};
+  const body = req.body || {};
+  const { conversationId, business: businessSlug } = body;
+  const name = text(body.name, 120);
+  const email = text(body.email, 200);
+  const phone = text(body.phone, 40);
+  const serviceNeeded = text(body.serviceNeeded, 200);
+  const budget = text(body.budget, 100);
+  const message = text(body.message, 2000);
 
-  if (!name || !email) {
-    return res.status(400).json({ error: 'Name and email are required' });
-  }
+  // A name, plus an email OR a phone number (many international students
+  // prefer WhatsApp to email).
+  if (!name) return res.status(400).json({ error: 'Please tell us your name.' });
+  if (!email && !phone) return res.status(400).json({ error: 'Please give an email address or a phone number.' });
+  if (email && !EMAIL_PATTERN.test(email)) return res.status(400).json({ error: "That email address doesn't look right." });
+  if (phone && !PHONE_PATTERN.test(phone)) return res.status(400).json({ error: "That phone number doesn't look right." });
 
   const slug = businessSlug || 'northstar-plumbing';
 
@@ -45,29 +63,37 @@ module.exports = async function handler(req, res) {
 
     // Only link the lead to the conversation if it belongs to this business.
     let linkedConversationId = null;
+    let conversationLanguage = null;
     if (isUuid(conversationId)) {
       const { data: convo } = await supabase
         .from('conversations')
-        .select('id')
+        .select('*')
         .eq('id', conversationId)
         .eq('business_id', business.id)
         .maybeSingle();
-      if (convo) linkedConversationId = convo.id;
+      if (convo) {
+        linkedConversationId = convo.id;
+        conversationLanguage = convo.language || null;
+      }
     }
 
-    const { data: lead, error: leadError } = await supabase
-      .from('leads')
-      .insert({
-        business_id: business.id,
-        conversation_id: linkedConversationId,
-        name,
-        email,
-        service_needed: serviceNeeded || null,
-        budget: budget || null,
-        message: message || null
-      })
-      .select('id')
-      .single();
+    // Answers to this business's own questions (e.g. course, start date).
+    const details = cleanDetails(body.details, business);
+    const row = {
+      business_id: business.id,
+      conversation_id: linkedConversationId,
+      name,
+      email: email || null,
+      service_needed: serviceNeeded || null,
+      budget: budget || null,
+      message: message || null
+    };
+    // Only send the newer columns when used, so businesses without lead
+    // questions keep working on databases that haven't run migration 005.
+    if (phone) row.phone = phone;
+    if (Object.keys(details).length) row.details = details;
+
+    const { data: lead, error: leadError } = await supabase.from('leads').insert(row).select('id').single();
 
     if (leadError) throw leadError;
 
@@ -89,14 +115,19 @@ module.exports = async function handler(req, res) {
           body: JSON.stringify({
             from: process.env.RESEND_FROM_EMAIL || 'AI Lead Assistant <onboarding@resend.dev>',
             to: business.notify_email,
-            subject: `New lead: ${name} — ${serviceNeeded || 'general enquiry'}`,
+            subject: `New lead: ${name} — ${details.course || serviceNeeded || 'general enquiry'}`,
             html: `
-              <h2>New lead from ${business.name}'s website</h2>
-              <p><strong>Name:</strong> ${escapeHtml(name)}</p>
-              <p><strong>Email:</strong> ${escapeHtml(email)}</p>
-              ${serviceNeeded ? `<p><strong>Service needed:</strong> ${escapeHtml(serviceNeeded)}</p>` : ''}
-              ${budget ? `<p><strong>Budget:</strong> ${escapeHtml(budget)}</p>` : ''}
-              ${message ? `<p><strong>Message:</strong> ${escapeHtml(message)}</p>` : ''}
+              <h2>New lead from ${escapeHtml(business.name)}'s website</h2>
+              ${emailRows([
+                ['Name', name],
+                ['Email', email],
+                ['Phone / WhatsApp', phone],
+                ['Service needed', serviceNeeded],
+                ['Budget', budget],
+                ...leadFields(business).map((field) => [fieldLabel(field), details[field.key]]),
+                ['Chat language', conversationLanguage && languageName(conversationLanguage)],
+                ['Message', message]
+              ])}
               <p style="color:#888;font-size:12px;">Captured via the AI website assistant.</p>
             `
           })
@@ -117,6 +148,21 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'Could not save your details. Please try again.' });
   }
 };
+
+function emailRows(rows) {
+  return rows
+    .filter(([, value]) => value)
+    .map(([label, value]) => `<p><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</p>`)
+    .join('');
+}
+
+function languageName(code) {
+  try {
+    return new Intl.DisplayNames(['en'], { type: 'language' }).of(code) || code;
+  } catch {
+    return code;
+  }
+}
 
 function escapeHtml(str) {
   return String(str)

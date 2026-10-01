@@ -31,17 +31,29 @@ async function postJson(url, apiKey, body, timeoutMs) {
   }
 }
 
-async function embedTexts(apiKey, texts, taskType = 'RETRIEVAL_DOCUMENT', { timeoutMs = 25000 } = {}) {
-  const requests = texts.map((text) => ({
-    model: `models/${EMBED_MODEL}`,
-    content: { parts: [{ text: String(text).slice(0, 6000) }] },
-    taskType,
-    outputDimensionality: EMBED_DIMENSIONS
-  }));
+// Gemini accepts at most 100 texts per batchEmbedContents call.
+const EMBED_BATCH_SIZE = 100;
 
-  const { res, data } = await postJson(`${API_BASE}/${EMBED_MODEL}:batchEmbedContents`, apiKey, { requests }, timeoutMs);
-  if (!res.ok) throw new Error((data && data.error && data.error.message) || 'Embedding request failed');
-  return (data.embeddings || []).map((e) => e.values || []);
+async function embedTexts(apiKey, texts, taskType = 'RETRIEVAL_DOCUMENT', { timeoutMs = 25000 } = {}) {
+  const deadline = Date.now() + timeoutMs;
+  const embeddings = [];
+  for (let start = 0; start < texts.length; start += EMBED_BATCH_SIZE) {
+    const requests = texts.slice(start, start + EMBED_BATCH_SIZE).map((text) => ({
+      model: `models/${EMBED_MODEL}`,
+      content: { parts: [{ text: String(text).slice(0, 6000) }] },
+      taskType,
+      outputDimensionality: EMBED_DIMENSIONS
+    }));
+    const { res, data } = await postJson(
+      `${API_BASE}/${EMBED_MODEL}:batchEmbedContents`,
+      apiKey,
+      { requests },
+      Math.max(1000, deadline - Date.now())
+    );
+    if (!res.ok) throw new Error((data && data.error && data.error.message) || 'Embedding request failed');
+    embeddings.push(...(data.embeddings || []).map((e) => e.values || []));
+  }
+  return embeddings;
 }
 
 // Optional request features, tried in this order of preference. Short

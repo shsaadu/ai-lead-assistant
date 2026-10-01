@@ -58,7 +58,7 @@
           </div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Customer</th><th>Service</th><th>Budget</th><th>Message</th><th>Received</th><th>Status</th></tr></thead>
+              <thead><tr><th>Customer</th><th>Service</th><th>Details</th><th>Message</th><th>Received</th><th>Status</th></tr></thead>
               <tbody id="lead-rows"></tbody>
             </table>
           </div>
@@ -79,6 +79,13 @@
             <label>Content<textarea id="docContent" rows="6" placeholder="Paste FAQ text, service details, or policies here..." required></textarea></label>
             <button class="button button-dark" type="submit">Add &amp; index document</button>
             <p class="hint" id="docHint"></p>
+          </form>
+          <form class="stack-form" id="uploadForm">
+            <label>Or upload text files (.txt or .md — select several at once)
+              <input type="file" id="docFiles" accept=".txt,.md,.markdown,text/plain,text/markdown" multiple />
+            </label>
+            <button class="button button-dark" type="submit">Upload &amp; index files</button>
+            <p class="hint" id="uploadHint"></p>
           </form>
           <div class="document-list" id="documentList"></div>
         </section>

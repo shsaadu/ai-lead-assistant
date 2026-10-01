@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <meta name="description" content="Demo website for a fictional London English school, showing the AI admissions assistant." />
+    <title>Thames English Academy | Learn English in London (demo)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      :root { --navy: #1f4e79; --navy-dark: #143553; --gold: #f2b33d; --ink: #172433; --muted: #5b6b7c; --paper: #f7f4ee; --line: #e3ddd1; }
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: "Plus Jakarta Sans", system-ui, sans-serif; color: var(--ink); background: var(--paper); line-height: 1.55; }
+      a { color: inherit; }
+      .demo-bar { background: var(--ink); color: #dbe4ee; font-size: 13.5px; text-align: center; padding: 9px 16px; }
+      .demo-bar strong { color: var(--gold); }
+      header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px clamp(16px, 5vw, 64px); background: #fff; border-bottom: 1px solid var(--line); }
+      .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; text-decoration: none; color: var(--navy); }
+      .logo-mark { width: 34px; height: 34px; border-radius: 9px; background: var(--navy); color: var(--gold); display: grid; place-items: center; font-size: 18px; }
+      nav { display: flex; gap: 22px; font-size: 14.5px; font-weight: 600; }
+      nav a { text-decoration: none; color: var(--muted); }
+      nav a:hover { color: var(--navy); }
+      .hero { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%); color: #fff; padding: clamp(56px, 9vw, 110px) clamp(16px, 5vw, 64px); }
+      .hero-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; align-items: center; }
+      .eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: 12.5px; font-weight: 700; color: var(--gold); margin: 0 0 14px; }
+      h1 { font-size: clamp(34px, 5.5vw, 58px); line-height: 1.05; letter-spacing: -.02em; margin: 0 0 18px; }
+      .hero p.lead { font-size: 18px; color: #d6e2ee; max-width: 520px; margin: 0 0 28px; }
+      .cta { display: inline-block; background: var(--gold); color: var(--ink); font-weight: 700; padding: 13px 22px; border-radius: 10px; text-decoration: none; }
+      .facts { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 16px; padding: 24px; display: grid; gap: 16px; }
+      .facts div { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(255,255,255,.12); padding-bottom: 12px; }
+      .facts div:last-child { border-bottom: 0; padding-bottom: 0; }
+      .facts span { color: #b9cadb; } .facts strong { text-align: right; }
+      section.block { max-width: 1100px; margin: 0 auto; padding: 64px clamp(16px, 5vw, 64px); }
+      h2 { font-size: clamp(26px, 3.5vw, 36px); letter-spacing: -.01em; margin: 0 0 8px; }
+      .sub { color: var(--muted); margin: 0 0 32px; max-width: 620px; }
+      .courses { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+      .course { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 6px; }
+      .course h3 { margin: 0; font-size: 18px; color: var(--navy); }
+      .course p { margin: 0; color: var(--muted); font-size: 14.5px; flex: 1; }
+      .price { font-weight: 800; font-size: 20px; margin-top: 10px; } .price small { font-weight: 500; font-size: 13px; color: var(--muted); }
+      .why { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; }
+      .why div { border-top: 3px solid var(--gold); padding-top: 14px; }
+      .why h3 { margin: 0 0 6px; font-size: 17px; } .why p { margin: 0; color: var(--muted); font-size: 14.5px; }
+      .try { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 28px; }
+      .try ul { margin: 12px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 10px; }
+      .try li { background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; font-size: 14.5px; }
+      footer { background: var(--ink); color: #b7c3d0; font-size: 14px; padding: 36px clamp(16px, 5vw, 64px); }
+      footer .inner { max-width: 1100px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; }
+      @media (max-width: 820px) { .hero-inner { grid-template-columns: 1fr; } nav { display: none; } }
+    </style>
+  </head>
+  <body>
+    <div class="demo-bar">
+      <strong>Demo website.</strong> Thames English Academy is a fictional school. The chat assistant in the corner is real: try it.
+    </div>
+
+    <header>
+      <a class="logo" href="#top"><span class="logo-mark">T</span>Thames English Academy</a>
+      <nav aria-label="Main">
+        <a href="#courses">Courses</a>
+        <a href="#why">Why us</a>
+        <a href="#try">Ask us</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-inner">
+          <div>
+            <p class="eyebrow">English courses in London · Ages 16+</p>
+            <h1>Learn English in the heart of London.</h1>
+            <p class="lead">Small classes, qualified teachers and students from over 40 countries, a short walk from the River Thames.</p>
+            <a class="cta" href="#courses">See courses and prices</a>
+          </div>
+          <div class="facts" aria-label="Key facts">
+            <div><span>Class size</span><strong>Max 12 students</strong></div>
+            <div><span>Start dates</span><strong>Every Monday</strong></div>
+            <div><span>Courses from</span><strong>£110 per week</strong></div>
+            <div><span>Nearest station</span><strong>London Bridge</strong></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="block" id="courses">
+        <h2>Courses</h2>
+        <p class="sub">All levels from Beginner to Advanced. Prices are per week; long-stay discounts apply to General and Intensive English.</p>
+        <div class="courses">
+          <article class="course"><h3>General English</h3><p>20 lessons a week, mornings. Our most popular course, for every level.</p><div class="price">£230 <small>per week</small></div></article>
+          <article class="course"><h3>Intensive English</h3><p>32 lessons a week, with afternoon speaking, writing and pronunciation workshops.</p><div class="price">£320 <small>per week</small></div></article>
+          <article class="course"><h3>IELTS Preparation</h3><p>32 lessons a week, with two full practice tests. Intermediate level and above.</p><div class="price">£340 <small>per week</small></div></article>
+          <article class="course"><h3>Business English</h3><p>Meetings, presentations, emails and negotiations. Upper-intermediate and above.</p><div class="price">£360 <small>per week</small></div></article>
+          <article class="course"><h3>Evening English</h3><p>Tuesday and Thursday evenings, for people who work or study in London.</p><div class="price">£110 <small>per week</small></div></article>
+        </div>
+      </section>
+
+      <section class="block" id="why">
+        <h2>Why students choose us</h2>
+        <p class="sub">Everything you need to make real progress, and enjoy London while you do.</p>
+        <div class="why">
+          <div><h3>Small classes</h3><p>Never more than 12 students, so you speak in every lesson.</p></div>
+          <div><h3>Qualified teachers</h3><p>CELTA or DELTA-qualified teachers, with a progress review every 4 weeks.</p></div>
+          <div><h3>Homestay or residence</h3><p>Live with a London host, or in an en-suite room 15 minutes from school.</p></div>
+          <div><h3>Free activities</h3><p>Walking tours, conversation club and film nights every week.</p></div>
+        </div>
+      </section>
+
+      <section class="block" id="try">
+        <div class="try">
+          <h2>Questions? Ask our assistant, in your language</h2>
+          <p class="sub">Open the chat in the corner and ask anything about courses, prices, dates or accommodation. For example:</p>
+          <ul>
+            <li>How much is 12 weeks of General English?</li>
+            <li>¿Cuándo empieza el curso para principiantes?</li>
+            <li>هل يوجد سكن مع عائلة؟</li>
+            <li>IELTS 课程最少要上几周？</li>
+            <li>Do I need a visa to study with you?</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="inner">
+        <span>Thames English Academy · 18 Wharf Lane, London SE1 (fictional)</span>
+        <span>Demo built with the AI Lead Assistant</span>
+      </div>
+    </footer>
+
+    <!-- The only thing a school adds to its website: -->
+    <script src="/widget.js" data-business="thames-english" async></script>
+  </body>
+</html>

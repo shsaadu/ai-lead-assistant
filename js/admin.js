@@ -129,11 +129,29 @@ function loadAll() {
 async function loadLeads() {
   const res = await fetch(adminUrl('/api/admin/leads'));
   if (!res.ok) return;
-  const { leads } = await res.json();
-  renderLeads(leads || []);
+  const { leads, fields } = await res.json();
+  renderLeads(leads || [], fields || []);
 }
 
-function renderLeads(leads) {
+function fieldLabel(field) {
+  const label = field.label;
+  if (typeof label === 'string') return label;
+  return (label && (label.en || Object.values(label)[0])) || field.key;
+}
+
+// Budget plus answers to the business's own lead questions, one per line.
+function leadDetails(lead, fields) {
+  const lines = [];
+  if (lead.budget) lines.push(['Budget', lead.budget]);
+  const answers = lead.details || {};
+  fields.forEach((field) => {
+    if (answers[field.key]) lines.push([fieldLabel(field), answers[field.key]]);
+  });
+  if (!lines.length) return '—';
+  return lines.map(([label, value]) => `<small>${escapeHtml(label)}: <strong>${escapeHtml(value)}</strong></small>`).join('');
+}
+
+function renderLeads(leads, fields = []) {
   const rows = document.getElementById('lead-rows');
   const emptyHint = document.getElementById('empty-hint');
   document.getElementById('lead-count').textContent = leads.length;
@@ -149,9 +167,11 @@ function renderLeads(leads) {
     .map(
       (lead) => `
     <tr>
-      <td><strong>${escapeHtml(lead.name)}</strong><small>${escapeHtml(lead.email)}</small></td>
-      <td>${escapeHtml(lead.service_needed || '—')}</td>
-      <td>${escapeHtml(lead.budget || '—')}</td>
+      <td><strong>${escapeHtml(lead.name)}</strong>${lead.email ? `<small>${escapeHtml(lead.email)}</small>` : ''}${
+        lead.phone ? `<small>${escapeHtml(lead.phone)}</small>` : ''
+      }</td>
+      <td>${escapeHtml(lead.service_needed || (lead.details && lead.details.course) || '—')}</td>
+      <td class="details-cell">${leadDetails(lead, fields)}</td>
       <td class="request-cell">${escapeHtml(lead.message || '—')}</td>
       <td>${formatDate(lead.created_at)}</td>
       <td>
@@ -308,6 +328,42 @@ document.getElementById('documentForm').addEventListener('submit', async (e) => 
   } catch {
     hint.textContent = 'Could not reach the server.';
   }
+});
+
+// Upload several .txt/.md files: each becomes one document, named after the
+// file (without its extension), indexed one at a time.
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const hint = document.getElementById('uploadHint');
+  const files = Array.from(document.getElementById('docFiles').files || []);
+  if (!files.length) {
+    hint.textContent = 'Choose one or more .txt or .md files first.';
+    return;
+  }
+
+  const results = [];
+  for (const [i, file] of files.entries()) {
+    hint.textContent = `Indexing ${i + 1} of ${files.length}: ${file.name}…`;
+    try {
+      const content = (await file.text()).trim();
+      if (!content) {
+        results.push(`${file.name}: empty, skipped`);
+        continue;
+      }
+      const res = await fetch(adminUrl('/api/admin/documents'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: file.name.replace(/\.(txt|md|markdown)$/i, ''), content })
+      });
+      const data = await res.json();
+      results.push(res.ok ? `${file.name}: ${data.chunkCount} chunks` : `${file.name}: ${data.error || 'failed'}`);
+    } catch {
+      results.push(`${file.name}: could not reach the server`);
+    }
+  }
+  hint.textContent = `Done. ${results.join(' · ')}`;
+  document.getElementById('uploadForm').reset();
+  loadDocuments();
 });
 
 // ---- Settings ----
