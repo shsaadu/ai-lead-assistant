@@ -3,6 +3,7 @@ const { embedTexts, generateAnswer, CHAT_MODEL } = require('./_lib/gemini');
 const rateLimit = require('./_lib/rate-limit');
 const { isUuid } = require('./_lib/ids');
 const { REPLY_SCHEMA, REPLY_INSTRUCTIONS, parseReply } = require('./_lib/reply-format');
+const { handleCors, originAllowed, ORIGIN_NOT_ALLOWED } = require('./_lib/cors');
 
 const TOP_K = 4;
 // Chunks less similar than this to the question are treated as unrelated and
@@ -18,6 +19,7 @@ const EMBED_TIMEOUT_MS = 6000;
 const GENERATE_TIMEOUT_MS = 15000;
 
 module.exports = async function handler(req, res) {
+  if (handleCors(req, res)) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { message, conversationId, business: businessSlug } = req.body || {};
@@ -72,11 +74,15 @@ module.exports = async function handler(req, res) {
   try {
     const { data: business, error: businessError } = await timed(
       'business',
-      supabase.from('businesses').select('id, name, system_prompt, services').eq('slug', slug).single()
+      // select('*') so newer optional columns (allowed_origins) never break chat.
+      supabase.from('businesses').select('*').eq('slug', slug).single()
     );
 
     if (businessError || !business) {
       return res.status(404).json({ error: 'Business configuration not found' });
+    }
+    if (!originAllowed(req, business)) {
+      return res.status(403).json({ error: ORIGIN_NOT_ALLOWED, answer: ORIGIN_NOT_ALLOWED, conversationId: null });
     }
 
     // In parallel: rate limits — per visitor (stops one person/bot hammering

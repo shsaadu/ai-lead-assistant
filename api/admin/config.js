@@ -1,7 +1,8 @@
 const { getSupabase } = require('../_lib/supabase');
 const { requireAdmin } = require('../_lib/admin-auth');
+const { normalizeOrigin } = require('../_lib/cors');
 
-const EDITABLE_FIELDS = ['name', 'tagline', 'brand_color', 'notify_email', 'system_prompt', 'services'];
+const EDITABLE_FIELDS = ['name', 'tagline', 'brand_color', 'notify_email', 'system_prompt', 'services', 'allowed_origins'];
 
 module.exports = async function handler(req, res) {
   const auth = await requireAdmin(req, res);
@@ -22,6 +23,16 @@ module.exports = async function handler(req, res) {
     }
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ error: 'No valid fields to update' });
+    }
+    if (updates.allowed_origins !== undefined) {
+      // Accept full URLs or bare domains; store each as a clean origin.
+      const list = Array.isArray(updates.allowed_origins) ? updates.allowed_origins : [];
+      const origins = [...new Set(list.map(normalizeOrigin).filter(Boolean))];
+      const invalid = list.filter((value) => String(value).trim() && !normalizeOrigin(value));
+      if (invalid.length) {
+        return res.status(400).json({ error: `Not a valid website address: ${invalid.join(', ')}` });
+      }
+      updates.allowed_origins = origins;
     }
     const { error } = await supabase.from('businesses').update(updates).eq('id', business.id);
     if (error) return res.status(500).json({ error: error.message });

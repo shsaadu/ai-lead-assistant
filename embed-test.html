@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Widget test page</title>
+    <style>
+      /* Deliberately plain, with clashing global styles, to show the widget
+         keeps its own look on any website. */
+      body { font-family: Georgia, serif; max-width: 720px; margin: 48px auto; padding: 0 20px; color: #222; background: #fffbe9; }
+      button { background: hotpink; font-size: 30px; }
+      textarea, input { border: 3px dashed red; }
+      code { background: #eee; padding: 2px 5px; border-radius: 4px; word-break: break-all; }
+    </style>
+  </head>
+  <body>
+    <h1>Widget test page</h1>
+    <p>
+      This page stands in for a client's own website. It has none of the demo site's code. The only
+      thing added is the one-line snippet below, and the chat button in the corner comes from that.
+    </p>
+    <p>The snippet on this page:</p>
+    <p><code id="snippet"></code></p>
+    <p>
+      Use <code>?business=your-business-slug</code> in this page's address to test another business.
+      The ugly buttons and red dashed borders on this page are on purpose: the widget should ignore them.
+    </p>
+    <button type="button">A page button (should stay pink)</button>
+
+    <script>
+      // Load the widget exactly as a client's site would, for the business in ?business=.
+      var slug = new URLSearchParams(location.search).get('business') || 'northstar-plumbing';
+      var tag = document.createElement('script');
+      tag.src = '/widget.js';
+      tag.async = true;
+      tag.setAttribute('data-business', slug);
+      document.body.appendChild(tag);
+      document.getElementById('snippet').textContent =
+        '<script src="' + location.origin + '/widget.js" data-business="' + slug + '" async><\/script>';
+    </script>
+  </body>
+</html>

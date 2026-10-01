@@ -94,6 +94,20 @@
             <button class="button button-dark" type="submit">Save settings</button>
             <p class="hint" id="settingsHint"></p>
           </form>
+
+          <div class="table-heading"><div><p class="eyebrow">Website embed</p><h2>Add the assistant to any website</h2></div></div>
+          <form class="stack-form" id="embedForm">
+            <label>Paste this just before &lt;/body&gt; on the website
+              <textarea id="embedSnippet" rows="3" readonly></textarea>
+            </label>
+            <button class="outline-button" id="copySnippet" type="button">Copy code</button>
+            <label>Allowed websites (one per line, e.g. https://www.example.co.uk)
+              <textarea id="cfgAllowedOrigins" rows="3" placeholder="Leave empty to allow any website (fine for demos)"></textarea>
+            </label>
+            <button class="button button-dark" type="submit">Save allowed websites</button>
+            <p class="hint" id="embedHint"></p>
+            <p class="hint"><a id="embedTestLink" href="#" target="_blank" rel="noopener">Open a plain test page with the widget →</a></p>
+          </form>
         </section>
       </main>
     </div>

@@ -321,7 +321,55 @@ async function loadSettings() {
   document.getElementById('cfgColor').value = business.brand_color || '#1d4ed8';
   document.getElementById('cfgNotifyEmail').value = business.notify_email || '';
   document.getElementById('cfgSystemPrompt').value = business.system_prompt || '';
+
+  // Website embed: the one-line snippet for this business, and its allow-list.
+  const slug = business.slug;
+  document.getElementById('embedSnippet').value =
+    `<script src="${window.location.origin}/widget.js" data-business="${slug}" async></script>`;
+  document.getElementById('embedTestLink').href = `/embed-test.html?business=${encodeURIComponent(slug)}`;
+  const origins = Array.isArray(business.allowed_origins) ? business.allowed_origins : [];
+  document.getElementById('cfgAllowedOrigins').value = origins.join('\n');
+  document.getElementById('embedHint').textContent = 'allowed_origins' in business
+    ? (origins.length ? `Only these ${origins.length} website(s) can use the widget.` : 'Any website can use the widget right now.')
+    : 'Run supabase/migrations/004_widget_allowed_origins.sql to restrict which websites can use the widget.';
 }
+
+document.getElementById('copySnippet').addEventListener('click', async () => {
+  const snippet = document.getElementById('embedSnippet');
+  try {
+    await navigator.clipboard.writeText(snippet.value);
+  } catch {
+    snippet.select();
+    document.execCommand('copy');
+  }
+  document.getElementById('embedHint').textContent = 'Copied.';
+});
+
+document.getElementById('embedForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const hint = document.getElementById('embedHint');
+  const allowedOrigins = document
+    .getElementById('cfgAllowedOrigins')
+    .value.split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean);
+  hint.textContent = 'Saving…';
+  try {
+    const res = await fetch(adminUrl('/api/admin/config'), {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ allowed_origins: allowedOrigins })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      hint.textContent = data.error || 'Could not save.';
+      return;
+    }
+    loadSettings();
+  } catch {
+    hint.textContent = 'Could not reach the server.';
+  }
+});
 
 document.getElementById('settingsForm').addEventListener('submit', async (e) => {
   e.preventDefault();

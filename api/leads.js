@@ -1,8 +1,10 @@
 const { getSupabase } = require('./_lib/supabase');
 const rateLimit = require('./_lib/rate-limit');
 const { isUuid } = require('./_lib/ids');
+const { handleCors, originAllowed, ORIGIN_NOT_ALLOWED } = require('./_lib/cors');
 
 module.exports = async function handler(req, res) {
+  if (handleCors(req, res)) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { name, email, serviceNeeded, budget, message, conversationId, business: businessSlug } = req.body || {};
@@ -23,12 +25,15 @@ module.exports = async function handler(req, res) {
   try {
     const { data: business, error: businessError } = await supabase
       .from('businesses')
-      .select('id, name, notify_email')
+      .select('*')
       .eq('slug', slug)
       .single();
 
     if (businessError || !business) {
       return res.status(404).json({ error: 'Business configuration not found' });
+    }
+    if (!originAllowed(req, business)) {
+      return res.status(403).json({ error: ORIGIN_NOT_ALLOWED });
     }
 
     // 5 lead submissions per visitor per 10 minutes is plenty for a real

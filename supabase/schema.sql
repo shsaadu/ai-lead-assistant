@@ -16,6 +16,9 @@ create table if not exists businesses (
   notify_email text,
   system_prompt text not null,
   services text[] default '{}',
+  -- Websites allowed to embed this business's chat widget (widget.js), e.g.
+  -- {'https://www.example.co.uk'}. Empty = any website (fine for demos).
+  allowed_origins text[] default '{}',
   created_at timestamptz default now()
 );
 

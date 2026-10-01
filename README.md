@@ -6,6 +6,7 @@ Demo business: **Northstar Plumbing** (fictional UK plumbing company) — but ev
 
 ## What it includes
 
+- **Embeddable widget** — one `<script>` line puts the assistant on any website (Shadow DOM, so the host site's styles can't break it); each business can restrict which websites may use it
 - **Website chat widget** — answers questions in the visitor's own language and opens a lead form at the right moment (without re-offering it on every message)
 - **AI intent detection** — on every reply the assistant also reports, as structured JSON, whether the visitor is ready to act, whether a person needs to step in, their language, and a short English summary for staff; works in any language, no keyword lists
 - **RAG-based FAQ answers** — documents added via the admin dashboard are chunked, embedded (`gemini-embedding-001`), and retrieved via Postgres vector search (`pgvector`) for every question
@@ -94,6 +95,19 @@ If your Supabase project was set up with an older `schema.sql`, run the files in
 
 - `002_multi_tenant.sql` — per-business admin accounts, rate limiting, relevance threshold. Then add `SESSION_SECRET` in Vercel, remove `ADMIN_PASSWORD`, redeploy, and create your admin account as above.
 - `003_conversation_insights.sql` — stores each conversation's language, intent and summary for the dashboard. The chat keeps working without it; the dashboard just won't show those details.
+- `004_widget_allowed_origins.sql` — lets each business restrict which websites can embed its widget. Without it, any website can use the widget.
+
+## Putting the assistant on a client's website
+
+Add one line just before `</body>` on their site (the dashboard's **Settings → Website embed** shows it ready to copy, with the right business slug):
+
+```html
+<script src="https://YOUR-DEPLOYMENT.vercel.app/widget.js" data-business="their-business-slug" async></script>
+```
+
+Optional attributes: `data-position="left"`, `data-greeting="…"` (first message), `data-label="…"` (button text).
+
+For real clients, list their website(s) under **Allowed websites** so nobody else can embed their assistant. `/embed-test.html?business=<slug>` is a deliberately plain page for checking the widget outside the demo site.
 
 ## 5. Add your first knowledge-base document
 

@@ -3,5 +3,11 @@
   "functions": {
     "api/chat.js": { "maxDuration": 30 },
     "api/admin/documents.js": { "maxDuration": 30 }
-  }
+  },
+  "headers": [
+    {
+      "source": "/widget.js",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=300, must-revalidate" }]
+    }
+  ]
 }
