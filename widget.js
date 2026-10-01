@@ -293,6 +293,8 @@
     '  background: var(--brand); color: var(--on-brand); font-family: inherit; font-size: 15px; font-weight: 600; line-height: 1; cursor: pointer;',
     '  box-shadow: 0 6px 24px rgba(0,0,0,.18); }',
     '.launcher:hover { filter: brightness(1.05); }',
+    // Hidden until the business's branding arrives, so it never flashes the default colour.
+    '.root.loading .launcher { visibility: hidden; }',
     '.launcher:focus-visible, button:focus-visible, textarea:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }',
     '.launcher svg { width: 20px; height: 20px; }',
     '.panel { position: absolute; bottom: 64px; ' + POSITION + ': 0; width: 370px; height: min(580px, calc(100vh - 110px));',
@@ -346,7 +348,7 @@
   // (data-t = text, data-t-placeholder / data-t-aria = attributes), and every
   // piece of business or visitor text is set with textContent, never as HTML.
   var MARKUP =
-    '<div class="root">' +
+    '<div class="root loading">' +
     '  <section class="panel" role="dialog" hidden>' +
     '    <header><div><strong class="title"></strong><small data-t="subtitle"></small></div>' +
     '      <button class="icon-btn close" type="button" data-t-aria="closeChat">&times;</button></header>' +
@@ -720,6 +722,11 @@
   else document.addEventListener('DOMContentLoaded', mount);
 
   applyBranding();
+  function showLauncher() {
+    root.classList.remove('loading');
+  }
+  // Show the button anyway if the config is slow, so the chat is never missing.
+  setTimeout(showLauncher, 4000);
   api('/api/config?business=' + encodeURIComponent(business))
     .then(function (result) {
       if (result.status === 403) {
@@ -736,5 +743,6 @@
     })
     .catch(function () {
       /* keep defaults; the chat itself will report connection problems */
-    });
+    })
+    .then(showLauncher);
 })();
