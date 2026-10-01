@@ -49,3 +49,5 @@
 .sidebar .signed-in-as{ margin-top:auto; margin-bottom:10px; font: 0.65rem/1.5 "DM Mono", monospace; color:#b9c8bf; word-break:break-all; }
 .sidebar .signed-in-as + #logoutBtn{ margin-top:0; }
 @media (max-width:700px) { .business-switcher{ margin-top:14px; } .sidebar .signed-in-as{ display:none; } }
+.pill-row{ display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end; }
+.conversation-summary{ font-size:0.78rem; line-height:1.35; color:var(--ink); }

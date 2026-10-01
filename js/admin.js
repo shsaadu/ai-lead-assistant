@@ -138,9 +138,6 @@ function renderLeads(leads) {
   const emptyHint = document.getElementById('empty-hint');
   document.getElementById('lead-count').textContent = leads.length;
   document.getElementById('metric-new').textContent = leads.length;
-  document.getElementById('metric-priority').textContent = leads.filter((l) =>
-    /leak|repair|emergency|burst|block/i.test(`${l.service_needed || ''} ${l.message || ''}`)
-  ).length;
   emptyHint.hidden = leads.length > 0;
 
   if (!leads.length) {
@@ -186,6 +183,16 @@ async function loadConversations() {
   const { conversations } = await res.json();
   renderConversationList(conversations || []);
   document.getElementById('metric-handoff').textContent = (conversations || []).filter((c) => c.handoffRequested).length;
+  document.getElementById('metric-priority').textContent = (conversations || []).filter((c) => c.intent === 'ready').length;
+}
+
+// "ar" → "Arabic", using the browser's built-in language names.
+function languageName(code) {
+  try {
+    return new Intl.DisplayNames(['en'], { type: 'language' }).of(code) || code.toUpperCase();
+  } catch {
+    return code.toUpperCase();
+  }
 }
 
 function renderConversationList(conversations) {
@@ -200,9 +207,15 @@ function renderConversationList(conversations) {
     <button class="conversation-item" data-id="${c.id}" type="button">
       <span class="conversation-item-top">
         <strong>${formatDate(c.lastMessageAt)}</strong>
-        ${c.handoffRequested ? '<span class="pill pill-warn">Needs follow-up</span>' : ''}
+        <span class="pill-row">
+          ${c.intent === 'ready' ? '<span class="pill">Ready to act</span>' : ''}
+          ${c.handoffRequested ? '<span class="pill pill-warn">Needs follow-up</span>' : ''}
+        </span>
       </span>
-      <small>${c.messageCount} message${c.messageCount === 1 ? '' : 's'}</small>
+      ${c.summary ? `<span class="conversation-summary">${escapeHtml(c.summary)}</span>` : ''}
+      <small>${c.messageCount} message${c.messageCount === 1 ? '' : 's'}${
+        c.language ? ` · ${escapeHtml(languageName(c.language))}` : ''
+      }</small>
     </button>`
     )
     .join('');

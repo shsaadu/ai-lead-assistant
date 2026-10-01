@@ -2,6 +2,7 @@ const { getSupabase } = require('./_lib/supabase');
 const { embedTexts, generateAnswer, CHAT_MODEL } = require('./_lib/gemini');
 const rateLimit = require('./_lib/rate-limit');
 const { isUuid } = require('./_lib/ids');
+const { REPLY_SCHEMA, REPLY_INSTRUCTIONS, parseReply } = require('./_lib/reply-format');
 
 const TOP_K = 4;
 // Chunks less similar than this to the question are treated as unrelated and
@@ -15,17 +16,6 @@ const MAX_MESSAGE_LENGTH = 2000;
 // instead of a crash.
 const EMBED_TIMEOUT_MS = 6000;
 const GENERATE_TIMEOUT_MS = 15000;
-const UNSURE_PHRASES = [
-  "don't have that information",
-  'not sure',
-  "can't confirm",
-  'cannot confirm',
-  "don't know",
-  'connect you with',
-  'best to check with',
-  'team can confirm'
-];
-const LEAD_INTENT_PATTERN = /\b(book|quote|price|pricing|cost|repair|leak|call|visit|appointment|emergency|urgent|hire|available)\b/i;
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -50,7 +40,7 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({
       answer: "Thanks for your message — our team will follow up shortly. (Note: the assistant's database isn't connected yet, so this reply isn't AI-generated.)",
       conversationId: null,
-      suggestLeadCapture: LEAD_INTENT_PATTERN.test(message)
+      suggestLeadCapture: true
     });
   }
 
@@ -158,24 +148,24 @@ module.exports = async function handler(req, res) {
         chunks.map((c, i) => `[${i + 1}] ${c.content}`).join('\n\n')
       : '';
 
-    const systemInstruction =
-      business.system_prompt +
-      contextBlock +
-      '\n\nIf you are not confident an answer is correct or the information above doesn\'t cover it, say so plainly and offer to connect the customer with the team — never guess.';
+    const systemInstruction = business.system_prompt + contextBlock + '\n' + REPLY_INSTRUCTIONS;
 
-    let answer;
+    let parsed = null;
     if (apiKey) {
       try {
         const contents = [...earlier, { role: 'user', content: message }].map((m) => ({
           role: m.role === 'user' ? 'user' : 'model',
           parts: [{ text: m.content }]
         }));
-        answer = await timed('generate', generateAnswer(apiKey, {
+        const { text, structured } = await timed('generate', generateAnswer(apiKey, {
           systemInstruction,
           contents,
           generationConfig: { temperature: 0.4 },
+          responseSchema: REPLY_SCHEMA,
           timeoutMs: GENERATE_TIMEOUT_MS
         }));
+        parsed = parseReply(text, structured);
+        if (!parsed.reply) parsed = null;
       } catch (err) {
         console.error('Gemini request failed:', err.message || err);
       }
@@ -183,30 +173,57 @@ module.exports = async function handler(req, res) {
 
     // No AI answer (Gemini slow, down, or not configured): reply politely and
     // open the lead form so the enquiry isn't lost.
-    const usedFallback = !answer;
+    const usedFallback = !parsed;
     if (usedFallback) {
-      answer = `Thanks for your message! I can't answer that right now, but the ${business.name} team can. Leave your details and they'll get back to you shortly.`;
+      parsed = {
+        reply: `Thanks for your message! I can't answer that right now, but the ${business.name} team can. Leave your details and they'll get back to you shortly.`,
+        language: null,
+        intent: 'other',
+        needsHuman: true,
+        summary: ''
+      };
     }
+    const answer = parsed.reply;
 
-    const seemsUnsure = usedFallback || UNSURE_PHRASES.some((phrase) => answer.toLowerCase().includes(phrase));
-    const seemsHighIntent = LEAD_INTENT_PATTERN.test(message);
-    const suggestLeadCapture = seemsUnsure || seemsHighIntent;
+    // The model's own judgement (works in any language): open the lead form
+    // when the visitor is ready to act or a person needs to step in.
+    const suggestLeadCapture = parsed.intent === 'ready' || parsed.needsHuman;
 
     const convoUpdate = { last_message_at: new Date().toISOString() };
-    if (seemsUnsure) convoUpdate.handoff_requested = true;
+    if (parsed.needsHuman) convoUpdate.handoff_requested = true;
+    const insights = {};
+    if (parsed.language) insights.language = parsed.language;
+    if (!usedFallback) insights.intent = parsed.intent;
+    if (parsed.summary) insights.summary = parsed.summary;
 
     // Save both messages and update the conversation in parallel.
-    const [{ error: saveError }] = await timed('save', Promise.all([
+    const [{ error: saveError }, { error: updateError }] = await timed('save', Promise.all([
       supabase.from('messages').insert([
         { conversation_id: convoId, role: 'user', content: message, created_at: userMessageAt },
         { conversation_id: convoId, role: 'assistant', content: answer, created_at: new Date().toISOString() }
       ]),
-      supabase.from('conversations').update(convoUpdate).eq('id', convoId)
+      supabase.from('conversations').update({ ...convoUpdate, ...insights }).eq('id', convoId)
     ]));
     if (saveError) console.error('Saving messages failed:', saveError.message);
+    if (updateError) {
+      // Most likely supabase/migrations/003_conversation_insights.sql hasn't
+      // been run, so the insight columns don't exist yet — save the rest.
+      console.error('Conversation update failed, retrying without insights:', updateError.message);
+      await supabase.from('conversations').update(convoUpdate).eq('id', convoId);
+    }
 
-    console.log(`chat timings (ms) [${CHAT_MODEL}${usedFallback ? ', FALLBACK' : ''}]:`, JSON.stringify(timings));
-    return res.status(200).json({ answer, conversationId: convoId, suggestLeadCapture });
+    console.log(
+      `chat timings (ms) [${CHAT_MODEL}${usedFallback ? ', FALLBACK' : ''}] intent=${parsed.intent} human=${parsed.needsHuman} lang=${parsed.language}:`,
+      JSON.stringify(timings)
+    );
+    return res.status(200).json({
+      answer,
+      conversationId: convoId,
+      suggestLeadCapture,
+      intent: parsed.intent,
+      language: parsed.language,
+      summary: parsed.summary
+    });
   } catch (err) {
     console.error('Chat handler error:', err.message || err, 'timings (ms):', JSON.stringify(timings));
     // Keep the visitor's message even though the reply failed, so the team can follow up.

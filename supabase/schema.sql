@@ -48,6 +48,12 @@ create table if not exists conversations (
   id uuid primary key default gen_random_uuid(),
   business_id uuid references businesses(id) on delete cascade,
   handoff_requested boolean default false,
+  -- Filled in by the assistant on each reply (see api/_lib/reply-format.js):
+  -- the visitor's language (ISO 639-1), how ready they are to act, and a
+  -- short English summary for staff.
+  language text,
+  intent text check (intent in ('ready', 'researching', 'other')),
+  summary text,
   created_at timestamptz default now(),
   last_message_at timestamptz default now()
 );

@@ -28,13 +28,20 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ messages });
   }
 
-  const { data, error } = await supabase
-    .from('conversations')
-    .select('id, handoff_requested, created_at, last_message_at, messages(count)')
-    .eq('business_id', business.id)
-    .order('last_message_at', { ascending: false })
-    .limit(50);
+  const listConversations = (fields) =>
+    supabase
+      .from('conversations')
+      .select(fields)
+      .eq('business_id', business.id)
+      .order('last_message_at', { ascending: false })
+      .limit(50);
 
+  const baseFields = 'id, handoff_requested, created_at, last_message_at, messages(count)';
+  let { data, error } = await listConversations(`${baseFields}, language, intent, summary`);
+  if (error) {
+    // Insight columns missing (migration 003 not run yet) — list without them.
+    ({ data, error } = await listConversations(baseFields));
+  }
   if (error) return res.status(500).json({ error: error.message });
 
   const conversations = (data || []).map((c) => ({
@@ -42,7 +49,10 @@ module.exports = async function handler(req, res) {
     handoffRequested: c.handoff_requested,
     createdAt: c.created_at,
     lastMessageAt: c.last_message_at,
-    messageCount: (c.messages && c.messages[0] && c.messages[0].count) || 0
+    messageCount: (c.messages && c.messages[0] && c.messages[0].count) || 0,
+    language: c.language || null,
+    intent: c.intent || null,
+    summary: c.summary || ''
   }));
 
   return res.status(200).json({ conversations });

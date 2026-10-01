@@ -7,6 +7,12 @@ const serviceSelect = document.querySelector('#leadServiceSelect');
 
 let conversationId = null;
 
+// Lead-form pacing: never re-open it after the visitor has sent their
+// details, and after they close it, wait a few messages before offering again.
+const MESSAGES_BEFORE_REOFFER = 3;
+let leadSubmitted = false;
+let messagesSinceDismiss = Infinity;
+
 // ---- Load business config (branding, services) so this widget is reusable per client ----
 async function loadBusinessConfig() {
   try {
@@ -55,6 +61,17 @@ function addMessage(text, role) {
   return message;
 }
 
+function maybeOfferLeadForm(context) {
+  if (leadSubmitted || messagesSinceDismiss < MESSAGES_BEFORE_REOFFER) return;
+  setTimeout(() => showLeadForm(context), 450);
+}
+
+function closeLeadForm() {
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  messagesSinceDismiss = 0;
+}
+
 function showLeadForm(context = '') {
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
@@ -63,14 +80,8 @@ function showLeadForm(context = '') {
   modal.querySelector('[name="name"]').focus();
 }
 
-// Client-side heuristic kept as a fast, no-latency fallback signal — the
-// server's suggestLeadCapture (based on the AI's own confidence + intent
-// detection) is the primary signal once a response comes back.
-function looksLikeHighIntent(message) {
-  return /book|quote|repair|leak|call|visit|plumber|emergency/i.test(message);
-}
-
 async function respond(message) {
+  messagesSinceDismiss += 1;
   const typing = addMessage('Thinking…', 'assistant');
   try {
     const response = await fetch('/api/chat', {
@@ -83,13 +94,17 @@ async function respond(message) {
     if (data.conversationId) conversationId = data.conversationId;
     addMessage(data.answer || "Sorry, I couldn't process that. Please try again.", 'assistant');
 
-    if (data.suggestLeadCapture || looksLikeHighIntent(message)) {
-      setTimeout(() => showLeadForm(message), 450);
+    // The server decides (from the AI's own judgement of the visitor's
+    // intent). Its summary is in English, so it only pre-fills the "what do
+    // you need" box for English-speaking visitors; others see their own words.
+    if (data.suggestLeadCapture) {
+      const english = !data.language || data.language === 'en';
+      maybeOfferLeadForm(english && data.summary ? data.summary : message);
     }
   } catch {
     typing.remove();
     addMessage('Sorry, something went wrong. Please leave your details and the team will follow up.', 'assistant');
-    setTimeout(() => showLeadForm(message), 450);
+    maybeOfferLeadForm(message);
   }
 }
 
@@ -110,9 +125,9 @@ document.querySelectorAll('.quick-replies button').forEach((button) =>
   })
 );
 
-document.querySelector('[data-close-lead]').addEventListener('click', () => modal.classList.remove('open'));
+document.querySelector('[data-close-lead]').addEventListener('click', closeLeadForm);
 modal.addEventListener('click', (event) => {
-  if (event.target === modal) modal.classList.remove('open');
+  if (event.target === modal) closeLeadForm();
 });
 
 document.querySelector('.lead-form').addEventListener('submit', async (event) => {
@@ -141,7 +156,9 @@ document.querySelector('.lead-form').addEventListener('submit', async (event) =>
       return;
     }
     form.reset();
+    leadSubmitted = true;
     modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
     panel.classList.add('open');
     addMessage('Thanks — your request has been saved. A team member will be in touch shortly.', 'assistant');
   } catch {

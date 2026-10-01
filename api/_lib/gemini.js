@@ -44,39 +44,52 @@ async function embedTexts(apiKey, texts, taskType = 'RETRIEVAL_DOCUMENT', { time
   return (data.embeddings || []).map((e) => e.values || []);
 }
 
-// Short FAQ-style answers don't benefit from the model "thinking" first, so
-// ask for minimal thinking. If the model rejects the setting, retry without it
-// and remember that, so later requests on this instance don't pay for a
-// failed call first.
+// Optional request features, tried in this order of preference. Short
+// FAQ-style answers don't benefit from the model "thinking" first, and a JSON
+// schema lets the model report intent/hand-off alongside its reply. If the
+// model rejects one with a 400, retry without it and remember that, so later
+// requests on this instance don't pay for a failed call first.
 const THINKING_CONFIG = { thinkingLevel: 'minimal' };
-let thinkingConfigSupported = true;
+const supported = { thinking: true, schema: true };
 
-async function generateAnswer(apiKey, { systemInstruction, contents, generationConfig, timeoutMs = 15000 }) {
+// Returns { text, structured }: `structured` is true when the model was asked
+// for JSON matching `responseSchema` (the caller parses `text`).
+async function generateAnswer(apiKey, { systemInstruction, contents, generationConfig, responseSchema, timeoutMs = 15000 }) {
   const deadline = Date.now() + timeoutMs;
   const url = `${API_BASE}/${CHAT_MODEL}:generateContent`;
-  const body = { contents, generationConfig: { ...(generationConfig || {}) } };
-  if (systemInstruction) body.system_instruction = { parts: [{ text: systemInstruction }] };
 
-  let res, data;
-  if (thinkingConfigSupported) {
-    ({ res, data } = await postJson(url, apiKey, {
-      ...body,
-      generationConfig: { ...body.generationConfig, thinkingConfig: THINKING_CONFIG }
-    }, timeoutMs));
-    if (res.status === 400) {
-      console.error(`Gemini (${CHAT_MODEL}) rejected thinkingConfig, retrying without it:`, data && data.error && data.error.message);
-      thinkingConfigSupported = false;
+  for (;;) {
+    const useThinking = supported.thinking;
+    const useSchema = Boolean(responseSchema) && supported.schema;
+
+    const config = { ...(generationConfig || {}) };
+    if (useThinking) config.thinkingConfig = THINKING_CONFIG;
+    if (useSchema) {
+      config.responseMimeType = 'application/json';
+      config.responseSchema = responseSchema;
     }
-  }
-  if (!thinkingConfigSupported) {
-    // Whatever time is left of the overall deadline (at least 1s).
-    ({ res, data } = await postJson(url, apiKey, body, Math.max(1000, deadline - Date.now())));
-  }
+    const body = { contents, generationConfig: config };
+    if (systemInstruction) body.system_instruction = { parts: [{ text: systemInstruction }] };
 
-  if (!res.ok) throw new Error((data && data.error && data.error.message) || 'Gemini request failed');
-  const candidate = data.candidates && data.candidates[0];
-  const parts = candidate && candidate.content && candidate.content.parts;
-  return (parts || []).map((p) => p.text || '').join('');
+    // Whatever time is left of the overall deadline (at least 1s).
+    const { res, data } = await postJson(url, apiKey, body, Math.max(1000, deadline - Date.now()));
+    const message = (data && data.error && data.error.message) || 'Gemini request failed';
+
+    if (res.status === 400 && (useThinking || useSchema)) {
+      // Drop the feature the error names; if it names neither, drop thinking
+      // first, then the schema.
+      const blamesSchema = /schema|mime|response_?(mime|schema)/i.test(message);
+      const drop = useSchema && (blamesSchema || !useThinking) ? 'schema' : 'thinking';
+      console.error(`Gemini (${CHAT_MODEL}) rejected ${drop} setting, retrying without it:`, message);
+      supported[drop] = false;
+      continue;
+    }
+
+    if (!res.ok) throw new Error(message);
+    const candidate = data.candidates && data.candidates[0];
+    const parts = candidate && candidate.content && candidate.content.parts;
+    return { text: (parts || []).map((p) => p.text || '').join(''), structured: useSchema };
+  }
 }
 
 module.exports = { embedTexts, generateAnswer, EMBED_DIMENSIONS, CHAT_MODEL };

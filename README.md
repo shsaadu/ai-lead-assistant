@@ -6,7 +6,8 @@ Demo business: **Northstar Plumbing** (fictional UK plumbing company) — but ev
 
 ## What it includes
 
-- **Website chat widget** — answers questions, recognises high-intent messages ("I have a leak", "get a quote"), and opens a lead form at the right moment
+- **Website chat widget** — answers questions in the visitor's own language and opens a lead form at the right moment (without re-offering it on every message)
+- **AI intent detection** — on every reply the assistant also reports, as structured JSON, whether the visitor is ready to act, whether a person needs to step in, their language, and a short English summary for staff; works in any language, no keyword lists
 - **RAG-based FAQ answers** — documents added via the admin dashboard are chunked, embedded (`gemini-embedding-001`), and retrieved via Postgres vector search (`pgvector`) for every question
 - **Lead capture** — name, email, service needed, budget, and message, saved to a real database
 - **Admin dashboard** — leads table (with status tracking), full conversation history, knowledge-base management (add/remove documents), and business settings
@@ -89,7 +90,10 @@ Running it again for the same email resets that account's password.
 
 ### Upgrading an existing deployment
 
-If your Supabase project was set up with an older `schema.sql` (single `ADMIN_PASSWORD` login), run `supabase/migrations/002_multi_tenant.sql` once in the SQL editor, add `SESSION_SECRET` in Vercel, remove `ADMIN_PASSWORD`, redeploy, and create your admin account as above.
+If your Supabase project was set up with an older `schema.sql`, run the files in `supabase/migrations/` that you haven't run yet, in number order, once each in the SQL editor:
+
+- `002_multi_tenant.sql` — per-business admin accounts, rate limiting, relevance threshold. Then add `SESSION_SECRET` in Vercel, remove `ADMIN_PASSWORD`, redeploy, and create your admin account as above.
+- `003_conversation_insights.sql` — stores each conversation's language, intent and summary for the dashboard. The chat keeps working without it; the dashboard just won't show those details.
 
 ## 5. Add your first knowledge-base document
 
