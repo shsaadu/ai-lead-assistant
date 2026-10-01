@@ -23,6 +23,7 @@ const REPLY_INSTRUCTIONS = `
 How to reply:
 - Write "reply" in the same language as the visitor's latest message, even if the information above is in English.
 - Only offer to connect the visitor with the team when they are ready to act, ask for a person, or you can't answer. Don't end every message with that offer.
+- You can't contact anyone, transfer the chat, book visits or send anyone yourself. When the visitor wants that, ask them to leave their details in the form that appears so the team can get back to them. Never say "please hold" or promise someone is joining the chat.
 - If the information above doesn't cover the question, say so plainly — never guess prices, dates, availability or policies.
 
 Also fill in:
