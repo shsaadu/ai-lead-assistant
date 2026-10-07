@@ -100,6 +100,7 @@ If your Supabase project was set up with an older `schema.sql`, run the files in
 - `003_conversation_insights.sql` — stores each conversation's language, intent and summary for the dashboard. The chat keeps working without it; the dashboard just won't show those details.
 - `004_widget_allowed_origins.sql` — lets each business restrict which websites can embed its widget. Without it, any website can use the widget.
 - `005_lead_questions.sql` — per-business lead-form questions (e.g. course, start date) and phone/WhatsApp as an alternative to email.
+- `006_assistant_name.sql` — an optional assistant name (e.g. "Lumi"), avatar ("lamp" street-lamp, or an image link) and light/dark chat theme per business. Editable in the dashboard under Settings.
 
 ## Assist Street website assistant
 

@@ -23,6 +23,13 @@ create table if not exists businesses (
   -- "type":"select","options":["General English"]}]. `label` may be an object
   -- of translations keyed by language code. See migrations/005.
   lead_fields jsonb default '[]'::jsonb,
+  -- Optional name for the assistant (e.g. "Lumi"), shown in the chat header
+  -- and greeting. See migrations/006.
+  assistant_name text,
+  -- "lamp" (built-in street lamp), an https:// image URL, or null for none.
+  assistant_avatar text,
+  -- "light" or "dark" chat window.
+  widget_theme text default 'light',
   created_at timestamptz default now()
 );
 

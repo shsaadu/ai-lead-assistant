@@ -367,12 +367,22 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
 });
 
 // ---- Settings ----
+document.getElementById('cfgAvatar').addEventListener('change', (e) => {
+  document.getElementById('cfgAvatarUrlLabel').hidden = e.target.value !== 'custom';
+});
+
 async function loadSettings() {
   const res = await fetch(adminUrl('/api/admin/config'));
   if (!res.ok) return;
   const { business } = await res.json();
   if (!business) return;
   document.getElementById('cfgName').value = business.name || '';
+  document.getElementById('cfgAssistantName').value = business.assistant_name || '';
+  const avatar = business.assistant_avatar || '';
+  document.getElementById('cfgAvatar').value = avatar === 'lamp' || avatar === '' ? avatar : 'custom';
+  document.getElementById('cfgAvatarUrl').value = avatar.startsWith('https://') ? avatar : '';
+  document.getElementById('cfgAvatarUrlLabel').hidden = document.getElementById('cfgAvatar').value !== 'custom';
+  document.getElementById('cfgTheme').value = business.widget_theme === 'dark' ? 'dark' : 'light';
   document.getElementById('cfgTagline').value = business.tagline || '';
   document.getElementById('cfgColor').value = business.brand_color || '#1d4ed8';
   document.getElementById('cfgNotifyEmail').value = business.notify_email || '';
@@ -437,6 +447,12 @@ document.getElementById('settingsForm').addEventListener('submit', async (e) => 
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         name: document.getElementById('cfgName').value.trim(),
+        assistant_name: document.getElementById('cfgAssistantName').value.trim(),
+        assistant_avatar:
+          document.getElementById('cfgAvatar').value === 'custom'
+            ? document.getElementById('cfgAvatarUrl').value.trim()
+            : document.getElementById('cfgAvatar').value,
+        widget_theme: document.getElementById('cfgTheme').value,
         tagline: document.getElementById('cfgTagline').value.trim(),
         brand_color: document.getElementById('cfgColor').value,
         notify_email: document.getElementById('cfgNotifyEmail').value.trim(),

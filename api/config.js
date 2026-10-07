@@ -4,7 +4,7 @@ const { handleCors, originAllowed, ORIGIN_NOT_ALLOWED } = require('./_lib/cors')
 // Public branding for the chat widget. Only these fields ever leave the
 // server — the rest of the business row (system prompt, notification email,
 // allowed websites) stays private.
-const PUBLIC_FIELDS = ['slug', 'name', 'tagline', 'brand_color', 'services', 'lead_fields'];
+const PUBLIC_FIELDS = ['slug', 'name', 'assistant_name', 'assistant_avatar', 'widget_theme', 'tagline', 'brand_color', 'services', 'lead_fields'];
 
 module.exports = async function handler(req, res) {
   if (handleCors(req, res)) return;

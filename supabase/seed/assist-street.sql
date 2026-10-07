@@ -1,16 +1,19 @@
 -- Assist Street's own assistant (the chat on the company website).
 --
 -- Run in Supabase: SQL Editor → New query → paste → Run. Needs migrations up
--- to 005. Safe to run again: it updates the existing row.
+-- to 006. Safe to run again: it updates the existing row.
 --
 -- Then add its knowledge base: in the admin dashboard, switch to
 -- "Assist Street" → Knowledge base → upload the files in
 -- content/assist-street-knowledge-base/.
 
-insert into businesses (slug, name, tagline, brand_color, notify_email, system_prompt, services, lead_fields)
+insert into businesses (slug, name, assistant_name, assistant_avatar, widget_theme, tagline, brand_color, notify_email, system_prompt, services, lead_fields)
 values (
   'assist-street',
   'Assist Street',
+  'Lumi',
+  'lamp',
+  'dark',
   'Your front desk never closes.',
   '#ff2d55',
   null, -- set to your own email to receive new enquiries
@@ -43,6 +46,9 @@ Keep replies under 70 words, in plain English unless the visitor writes in anoth
 )
 on conflict (slug) do update set
   name = excluded.name,
+  assistant_name = excluded.assistant_name,
+  assistant_avatar = excluded.assistant_avatar,
+  widget_theme = excluded.widget_theme,
   tagline = excluded.tagline,
   brand_color = excluded.brand_color,
   system_prompt = excluded.system_prompt,

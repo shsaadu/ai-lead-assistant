@@ -2,7 +2,7 @@ const { getSupabase } = require('../_lib/supabase');
 const { requireAdmin } = require('../_lib/admin-auth');
 const { normalizeOrigin } = require('../_lib/cors');
 
-const EDITABLE_FIELDS = ['name', 'tagline', 'brand_color', 'notify_email', 'system_prompt', 'services', 'allowed_origins'];
+const EDITABLE_FIELDS = ['name', 'assistant_name', 'assistant_avatar', 'widget_theme', 'tagline', 'brand_color', 'notify_email', 'system_prompt', 'services', 'allowed_origins'];
 
 module.exports = async function handler(req, res) {
   const auth = await requireAdmin(req, res);
@@ -23,6 +23,19 @@ module.exports = async function handler(req, res) {
     }
     if (Object.keys(updates).length === 0) {
       return res.status(400).json({ error: 'No valid fields to update' });
+    }
+    if (updates.widget_theme !== undefined && !['light', 'dark'].includes(updates.widget_theme)) {
+      return res.status(400).json({ error: 'Theme must be light or dark.' });
+    }
+    if (updates.assistant_avatar !== undefined) {
+      const avatar = String(updates.assistant_avatar || '').trim();
+      if (avatar && avatar !== 'lamp' && !/^https:\/\/\S+$/i.test(avatar)) {
+        return res.status(400).json({ error: 'Avatar must be "lamp", an https:// image link, or empty.' });
+      }
+      updates.assistant_avatar = avatar || null;
+    }
+    if (updates.assistant_name !== undefined) {
+      updates.assistant_name = String(updates.assistant_name || '').trim().slice(0, 40) || null;
     }
     if (updates.allowed_origins !== undefined) {
       // Accept full URLs or bare domains; store each as a clean origin.

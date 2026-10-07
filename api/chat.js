@@ -154,7 +154,12 @@ module.exports = async function handler(req, res) {
         chunks.map((c, i) => `[${i + 1}] ${c.content}`).join('\n\n')
       : '';
 
-    const systemInstruction = business.system_prompt + contextBlock + '\n' + REPLY_INSTRUCTIONS;
+    // A named assistant (e.g. "Lumi") introduces itself by name, and never
+    // pretends to be a person.
+    const identity = business.assistant_name
+      ? `\n\nYour name is ${business.assistant_name}. You are ${business.name}'s AI assistant. Use your name when you introduce yourself, and if anyone asks, say plainly that you are an AI assistant, not a person.`
+      : '';
+    const systemInstruction = business.system_prompt + identity + contextBlock + '\n' + REPLY_INSTRUCTIONS;
 
     let parsed = null;
     if (apiKey) {

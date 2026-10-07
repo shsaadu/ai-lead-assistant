@@ -10,6 +10,7 @@
  *   data-greeting="Hi there!"   replace the first message shown in the chat
  *   data-label="Ask us"         replace the text on the chat button
  *   data-language="es"          start in this language instead of the visitor's browser language
+ *   data-theme="dark"           use the dark theme (otherwise the business's setting, or light)
  *
  * The widget's own text follows the visitor: it starts in their browser's
  * language and switches to whatever language they write in (12 languages
@@ -52,6 +53,8 @@
       placeholder: 'Type your message…', sendMessage: 'Send message', typing: 'Assistant is typing',
       note: 'AI assistant. The team may review this chat to follow up on your enquiry.',
       greeting: 'Hi! I can answer questions about {name}. What can I help you with?',
+      greetingNamed: 'Hi! I\'m {assistant}, the AI assistant for {name}. What can I help you with?',
+      aiAssistant: 'AI assistant',
       leadTitle: 'Where should the team reply?', leadIntro: 'Leave your details and someone will get back to you shortly.',
       name: 'Name', email: 'Email', phone: 'Phone / WhatsApp', contactHint: 'Email or phone — one is enough.',
       message: 'Message', service: 'What do you need?', notSure: 'Not sure yet', notNow: 'Not now', submit: 'Send',
@@ -67,6 +70,8 @@
       placeholder: 'Escribe tu mensaje…', sendMessage: 'Enviar mensaje', typing: 'El asistente está escribiendo',
       note: 'Asistente de IA. El equipo puede revisar esta conversación para dar seguimiento a tu consulta.',
       greeting: '¡Hola! Puedo responder preguntas sobre {name}. ¿En qué te puedo ayudar?',
+      greetingNamed: '¡Hola! Soy {assistant}, el asistente de IA de {name}. ¿En qué te puedo ayudar?',
+      aiAssistant: 'Asistente de IA',
       leadTitle: '¿Dónde te respondemos?', leadIntro: 'Déjanos tus datos y alguien se pondrá en contacto contigo pronto.',
       name: 'Nombre', email: 'Correo electrónico', phone: 'Teléfono / WhatsApp', contactHint: 'Correo o teléfono: con uno es suficiente.',
       message: 'Mensaje', service: '¿Qué necesitas?', notSure: 'Aún no lo sé', notNow: 'Ahora no', submit: 'Enviar',
@@ -82,6 +87,8 @@
       placeholder: 'Écrivez votre message…', sendMessage: 'Envoyer le message', typing: "L'assistant écrit",
       note: "Assistant IA. L'équipe peut consulter cette conversation pour donner suite à votre demande.",
       greeting: 'Bonjour ! Je peux répondre à vos questions sur {name}. Comment puis-je vous aider ?',
+      greetingNamed: 'Bonjour ! Je suis {assistant}, l\'assistant IA de {name}. Comment puis-je vous aider ?',
+      aiAssistant: 'Assistant IA',
       leadTitle: "Où l'équipe peut-elle vous répondre ?", leadIntro: "Laissez vos coordonnées et quelqu'un vous recontactera rapidement.",
       name: 'Nom', email: 'E-mail', phone: 'Téléphone / WhatsApp', contactHint: 'E-mail ou téléphone : un seul suffit.',
       message: 'Message', service: 'De quoi avez-vous besoin ?', notSure: 'Je ne sais pas encore', notNow: 'Pas maintenant', submit: 'Envoyer',
@@ -97,6 +104,8 @@
       placeholder: 'Nachricht eingeben…', sendMessage: 'Nachricht senden', typing: 'Der Assistent schreibt',
       note: 'KI-Assistent. Das Team kann diesen Chat einsehen, um Ihre Anfrage zu bearbeiten.',
       greeting: 'Hallo! Ich beantworte gern Fragen zu {name}. Wie kann ich helfen?',
+      greetingNamed: 'Hallo! Ich bin {assistant}, der KI-Assistent von {name}. Wie kann ich helfen?',
+      aiAssistant: 'KI-Assistent',
       leadTitle: 'Wie kann Sie das Team erreichen?', leadIntro: 'Hinterlassen Sie Ihre Kontaktdaten, und wir melden uns in Kürze.',
       name: 'Name', email: 'E-Mail', phone: 'Telefon / WhatsApp', contactHint: 'E-Mail oder Telefon – eines genügt.',
       message: 'Nachricht', service: 'Was benötigen Sie?', notSure: 'Noch nicht sicher', notNow: 'Nicht jetzt', submit: 'Senden',
@@ -112,6 +121,8 @@
       placeholder: 'Scrivi il tuo messaggio…', sendMessage: 'Invia messaggio', typing: "L'assistente sta scrivendo",
       note: 'Assistente IA. Il team potrebbe leggere questa chat per dare seguito alla tua richiesta.',
       greeting: 'Ciao! Posso rispondere a domande su {name}. Come posso aiutarti?',
+      greetingNamed: 'Ciao! Sono {assistant}, l\'assistente IA di {name}. Come posso aiutarti?',
+      aiAssistant: 'Assistente IA',
       leadTitle: 'Dove possiamo risponderti?', leadIntro: 'Lascia i tuoi dati e ti ricontatteremo a breve.',
       name: 'Nome', email: 'Email', phone: 'Telefono / WhatsApp', contactHint: 'Email o telefono: ne basta uno.',
       message: 'Messaggio', service: 'Di cosa hai bisogno?', notSure: 'Non lo so ancora', notNow: 'Non ora', submit: 'Invia',
@@ -127,6 +138,8 @@
       placeholder: 'Digite sua mensagem…', sendMessage: 'Enviar mensagem', typing: 'O assistente está digitando',
       note: 'Assistente de IA. A equipe pode revisar esta conversa para dar continuidade ao seu pedido.',
       greeting: 'Olá! Posso responder a perguntas sobre {name}. Como posso ajudar?',
+      greetingNamed: 'Olá! Sou {assistant}, o assistente de IA de {name}. Como posso ajudar?',
+      aiAssistant: 'Assistente de IA',
       leadTitle: 'Onde a equipe pode responder?', leadIntro: 'Deixe seus dados e alguém entrará em contato em breve.',
       name: 'Nome', email: 'E-mail', phone: 'Telefone / WhatsApp', contactHint: 'E-mail ou telefone: basta um.',
       message: 'Mensagem', service: 'Do que você precisa?', notSure: 'Ainda não sei', notNow: 'Agora não', submit: 'Enviar',
@@ -142,6 +155,8 @@
       placeholder: 'اكتب رسالتك…', sendMessage: 'إرسال الرسالة', typing: 'المساعد يكتب',
       note: 'مساعد بالذكاء الاصطناعي. قد يراجع الفريق هذه المحادثة لمتابعة استفسارك.',
       greeting: 'مرحبًا! يمكنني الإجابة عن أسئلتك حول {name}. كيف يمكنني مساعدتك؟',
+      greetingNamed: 'مرحبًا! أنا {assistant}، المساعد الذكي لـ {name}. كيف يمكنني مساعدتك؟',
+      aiAssistant: 'مساعد ذكاء اصطناعي',
       leadTitle: 'أين يمكن للفريق الرد عليك؟', leadIntro: 'اترك بياناتك وسيتواصل معك أحد أعضاء الفريق قريبًا.',
       name: 'الاسم', email: 'البريد الإلكتروني', phone: 'الهاتف / واتساب', contactHint: 'البريد الإلكتروني أو الهاتف، يكفي أحدهما.',
       message: 'الرسالة', service: 'ماذا تحتاج؟', notSure: 'لست متأكدًا بعد', notNow: 'ليس الآن', submit: 'إرسال',
@@ -157,6 +172,8 @@
       placeholder: '请输入您的消息…', sendMessage: '发送消息', typing: '助手正在输入',
       note: 'AI 助手。团队可能会查看此对话以跟进您的咨询。',
       greeting: '您好！我可以回答有关{name}的问题。有什么可以帮您？',
+      greetingNamed: '您好！我是{assistant}，{name}的AI助手。有什么可以帮您？',
+      aiAssistant: 'AI 助手',
       leadTitle: '我们该如何回复您？', leadIntro: '留下您的联系方式，我们会尽快与您联系。',
       name: '姓名', email: '电子邮箱', phone: '电话 / WhatsApp', contactHint: '邮箱或电话，填写一项即可。',
       message: '留言', service: '您需要什么？', notSure: '还不确定', notNow: '暂不填写', submit: '提交',
@@ -172,6 +189,8 @@
       placeholder: 'メッセージを入力…', sendMessage: 'メッセージを送信', typing: 'アシスタントが入力中',
       note: 'AIアシスタントです。お問い合わせへの対応のため、スタッフがこのチャットを確認する場合があります。',
       greeting: 'こんにちは！{name}についてのご質問にお答えします。どのようなご用件でしょうか？',
+      greetingNamed: 'こんにちは！{name}のAIアシスタント、{assistant}です。どのようなご用件でしょうか？',
+      aiAssistant: 'AIアシスタント',
       leadTitle: 'ご連絡先を教えてください', leadIntro: 'ご連絡先をご記入いただければ、担当者からすぐにご連絡します。',
       name: 'お名前', email: 'メールアドレス', phone: '電話番号 / WhatsApp', contactHint: 'メールか電話番号のどちらか一方で結構です。',
       message: 'メッセージ', service: 'ご希望の内容', notSure: 'まだ決めていない', notNow: '今はしない', submit: '送信',
@@ -187,6 +206,8 @@
       placeholder: '메시지를 입력하세요…', sendMessage: '메시지 보내기', typing: '어시스턴트가 입력 중입니다',
       note: 'AI 어시스턴트입니다. 문의 처리를 위해 담당자가 이 대화를 확인할 수 있습니다.',
       greeting: '안녕하세요! {name}에 대한 질문에 답변해 드립니다. 무엇을 도와드릴까요?',
+      greetingNamed: '안녕하세요! 저는 {name}의 AI 어시스턴트 {assistant}입니다. 무엇을 도와드릴까요?',
+      aiAssistant: 'AI 어시스턴트',
       leadTitle: '어디로 연락드릴까요?', leadIntro: '연락처를 남겨 주시면 곧 연락드리겠습니다.',
       name: '이름', email: '이메일', phone: '전화번호 / WhatsApp', contactHint: '이메일 또는 전화번호 중 하나면 됩니다.',
       message: '메시지', service: '필요하신 것', notSure: '아직 모르겠어요', notNow: '나중에', submit: '보내기',
@@ -202,6 +223,8 @@
       placeholder: 'Mesajınızı yazın…', sendMessage: 'Mesaj gönder', typing: 'Asistan yazıyor',
       note: 'Yapay zekâ asistanı. Talebinizi takip etmek için ekip bu sohbeti inceleyebilir.',
       greeting: 'Merhaba! {name} hakkındaki sorularınızı yanıtlayabilirim. Size nasıl yardımcı olabilirim?',
+      greetingNamed: 'Merhaba! Ben {assistant}, {name} için yapay zekâ asistanıyım. Size nasıl yardımcı olabilirim?',
+      aiAssistant: 'Yapay zekâ asistanı',
       leadTitle: 'Ekip size nereden ulaşsın?', leadIntro: 'Bilgilerinizi bırakın, kısa süre içinde size dönüş yapalım.',
       name: 'Ad Soyad', email: 'E-posta', phone: 'Telefon / WhatsApp', contactHint: 'E-posta veya telefon: biri yeterli.',
       message: 'Mesaj', service: 'Neye ihtiyacınız var?', notSure: 'Henüz emin değilim', notNow: 'Şimdi değil', submit: 'Gönder',
@@ -217,6 +240,8 @@
       placeholder: 'Введите сообщение…', sendMessage: 'Отправить сообщение', typing: 'Ассистент печатает',
       note: 'ИИ-ассистент. Команда может просмотреть этот чат, чтобы ответить на ваш запрос.',
       greeting: 'Здравствуйте! Я отвечу на вопросы о {name}. Чем могу помочь?',
+      greetingNamed: 'Здравствуйте! Я {assistant}, ИИ-ассистент {name}. Чем могу помочь?',
+      aiAssistant: 'ИИ-ассистент',
       leadTitle: 'Как с вами связаться?', leadIntro: 'Оставьте свои контакты, и мы скоро свяжемся с вами.',
       name: 'Имя', email: 'Эл. почта', phone: 'Телефон / WhatsApp', contactHint: 'Эл. почта или телефон — достаточно одного.',
       message: 'Сообщение', service: 'Что вам нужно?', notSure: 'Пока не знаю', notNow: 'Не сейчас', submit: 'Отправить',
@@ -243,12 +268,12 @@
     messagesSinceDismiss: Infinity,
     sending: false,
     lang: supportedLanguage(script.getAttribute('data-language')) || supportedLanguage(navigator.language) || 'en',
-    config: { name: '', brand_color: DEFAULT_COLOR, services: [], lead_fields: [] }
+    config: { name: '', assistant_name: '', assistant_avatar: '', widget_theme: '', brand_color: DEFAULT_COLOR, services: [], lead_fields: [] }
   };
 
   function t(key) {
     var text = (I18N[state.lang] && I18N[state.lang][key]) || I18N.en[key] || '';
-    return text.replace('{name}', state.config.name || 'us');
+    return text.replace('{name}', state.config.name || 'us').replace('{assistant}', state.config.assistant_name || '');
   }
 
   // ---- Storage (per tab; can be unavailable in private mode) ----
@@ -284,55 +309,76 @@
   }
 
   // ---- Markup ----
+  // Colours are CSS variables so a business can choose the light theme
+  // (default) or the dark one (data-theme / config widget_theme = "dark").
   var STYLES = [
     ':host { all: initial; }',
     '*, *::before, *::after { box-sizing: border-box; }',
-    '.root { position: fixed; bottom: 20px; ' + POSITION + ': 20px; z-index: 2147483000;',
-    '  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans Arabic", sans-serif; font-size: 15px; line-height: 1.45; color: #111827; }',
-    '.launcher { display: flex; align-items: center; gap: 8px; border: 0; border-radius: 999px; padding: 12px 18px;',
-    '  background: var(--brand); color: var(--on-brand); font-family: inherit; font-size: 15px; font-weight: 600; line-height: 1; cursor: pointer;',
-    '  box-shadow: 0 6px 24px rgba(0,0,0,.18); }',
-    '.launcher:hover { filter: brightness(1.05); }',
+    '.root { --panel: #fff; --messages: #f7f7f8; --bot: #fff; --bot-border: #e5e7eb; --text: #111827; --muted: #6b7280;',
+    '  --label: #374151; --line: #e5e7eb; --field: #fff; --field-border: #d1d5db; --overlay: rgba(17,24,39,.45);',
+    '  --head: var(--brand); --on-head: var(--on-brand); --head-line: transparent; --launcher: var(--brand); --on-launcher: var(--on-brand);',
+    '  --launcher-border: transparent; --glow: rgba(0,0,0,.18); --error: #b91c1c;',
+    '  position: fixed; bottom: 20px; ' + POSITION + ': 20px; z-index: 2147483000;',
+    '  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans Arabic", sans-serif; font-size: 15px; line-height: 1.45; color: var(--text); }',
+    '.root.dark { --panel: #0c0e13; --messages: #07080b; --bot: #161a22; --bot-border: rgba(255,255,255,.08); --text: #eceef1; --muted: #8d939d;',
+    '  --label: #c9ced6; --line: rgba(255,255,255,.08); --field: #11141a; --field-border: rgba(255,255,255,.14); --overlay: rgba(0,0,0,.6);',
+    '  --head: #0c0e13; --on-head: #fff; --head-line: var(--brand); --launcher: #0c0e13; --on-launcher: #fff;',
+    '  --launcher-border: var(--brand); --glow: color-mix(in srgb, var(--brand) 45%, transparent); --error: #ff6b81; }',
+    '.launcher { display: flex; align-items: center; gap: 9px; border: 1px solid var(--launcher-border); border-radius: 999px; padding: 11px 18px;',
+    '  background: var(--launcher); color: var(--on-launcher); font-family: inherit; font-size: 15px; font-weight: 600; line-height: 1; cursor: pointer;',
+    '  box-shadow: 0 8px 28px var(--glow); transition: transform .2s ease, box-shadow .2s ease; }',
+    '.launcher:hover { transform: translateY(-2px); filter: brightness(1.08); }',
     // Hidden until the business's branding arrives, so it never flashes the default colour.
     '.root.loading .launcher { visibility: hidden; }',
     '.launcher:focus-visible, button:focus-visible, textarea:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }',
-    '.launcher svg { width: 20px; height: 20px; }',
-    '.panel { position: absolute; bottom: 64px; ' + POSITION + ': 0; width: 370px; height: min(580px, calc(100vh - 110px));',
-    '  display: flex; flex-direction: column; background: #fff; border-radius: 16px; overflow: hidden;',
-    '  box-shadow: 0 12px 48px rgba(0,0,0,.22); }',
+    '.launcher .chat-icon { width: 20px; height: 20px; }',
+    '.launcher .avatar { width: 28px; height: 28px; margin: -6px 0 -6px -8px; }',
+    '.panel { position: absolute; bottom: 66px; ' + POSITION + ': 0; width: 370px; height: min(580px, calc(100vh - 110px));',
+    '  display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; overflow: hidden;',
+    '  box-shadow: 0 16px 56px rgba(0,0,0,.28), 0 0 0 1px rgba(0,0,0,.02); }',
+    '.root.dark .panel { box-shadow: 0 20px 60px rgba(0,0,0,.6), 0 0 40px -10px var(--glow); }',
     '.panel[hidden] { display: none; }',
-    'header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px;',
-    '  background: var(--brand); color: var(--on-brand); }',
+    'header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 14px 13px 16px;',
+    '  background: var(--head); color: var(--on-head); border-bottom: 2px solid var(--head-line); }',
+    '.who { display: flex; align-items: center; gap: 11px; min-width: 0; }',
     'header strong { display: block; font-size: 16px; }',
-    'header small { display: block; font-size: 12.5px; opacity: .85; }',
+    'header small { display: block; font-size: 12.5px; opacity: .8; }',
+    '.avatar { display: grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 50%; overflow: hidden; }',
+    '.avatar svg, .avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }',
+    '.avatar[hidden] { display: none; }',
     '.icon-btn { border: 0; background: transparent; color: inherit; font-size: 24px; line-height: 1; padding: 4px 8px; cursor: pointer; border-radius: 8px; }',
-    '.messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; background: #f7f7f8; }',
+    '.messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; background: var(--messages); }',
     '.msg { max-width: 85%; padding: 10px 13px; border-radius: 14px; white-space: pre-wrap; word-wrap: break-word; }',
-    '.msg.assistant { align-self: flex-start; background: #fff; border: 1px solid #e5e7eb; border-end-start-radius: 4px; }',
+    '.msg.assistant { align-self: flex-start; background: var(--bot); color: var(--text); border: 1px solid var(--bot-border); border-end-start-radius: 4px; }',
     '.msg.user { align-self: flex-end; background: var(--brand); color: var(--on-brand); border-end-end-radius: 4px; }',
+    // Assistant messages sit next to a small avatar when the business has one.
+    '.msg-row { display: flex; align-items: flex-end; gap: 8px; align-self: flex-start; max-width: 92%; }',
+    '.msg-row .msg { max-width: none; }',
+    '.msg-row .avatar { width: 28px; height: 28px; }',
     '.typing { display: inline-flex; gap: 4px; padding: 14px 13px; }',
-    '.typing span { width: 6px; height: 6px; border-radius: 50%; background: #9ca3af; animation: blink 1.2s infinite; }',
+    '.typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: blink 1.2s infinite; }',
     '.typing span:nth-child(2) { animation-delay: .2s; } .typing span:nth-child(3) { animation-delay: .4s; }',
     '@keyframes blink { 0%, 80%, 100% { opacity: .3; } 40% { opacity: 1; } }',
-    'form.composer { display: flex; gap: 8px; padding: 10px; border-top: 1px solid #e5e7eb; background: #fff; }',
-    'textarea, input, select { font: inherit; font-size: 15px; color: #111827; border: 1px solid #d1d5db; border-radius: 10px; padding: 9px 11px; background: #fff; width: 100%; }',
+    'form.composer { display: flex; gap: 8px; padding: 10px; border-top: 1px solid var(--line); background: var(--panel); }',
+    'textarea, input, select { font: inherit; font-size: 15px; color: var(--text); border: 1px solid var(--field-border); border-radius: 10px; padding: 9px 11px; background: var(--field); width: 100%; }',
+    'textarea::placeholder, input::placeholder { color: var(--muted); }',
     'form.composer textarea { flex: 1; resize: none; max-height: 110px; }',
     '.send { flex: none; border: 0; border-radius: 10px; width: 44px; background: var(--brand); color: var(--on-brand); font-size: 18px; cursor: pointer; }',
     '.send:disabled { opacity: .5; cursor: default; }',
-    '.note { margin: 0; padding: 0 12px 10px; font-size: 11.5px; color: #6b7280; background: #fff; }',
-    '.lead { position: absolute; inset: 0; background: rgba(17,24,39,.45); display: flex; align-items: flex-end; }',
+    '.note { margin: 0; padding: 0 12px 10px; font-size: 11.5px; color: var(--muted); background: var(--panel); }',
+    '.lead { position: absolute; inset: 0; background: var(--overlay); display: flex; align-items: flex-end; }',
     '.lead[hidden] { display: none; }',
-    '.lead-card { width: 100%; background: #fff; border-radius: 16px 16px 0 0; padding: 18px 16px; max-height: 100%; overflow-y: auto; }',
+    '.lead-card { width: 100%; background: var(--panel); color: var(--text); border-top: 1px solid var(--line); border-radius: 16px 16px 0 0; padding: 18px 16px; max-height: 100%; overflow-y: auto; }',
     '.lead-card h2 { margin: 0 0 4px; font-size: 17px; }',
-    '.lead-card p { margin: 0 0 12px; font-size: 13.5px; color: #4b5563; }',
+    '.lead-card p { margin: 0 0 12px; font-size: 13.5px; color: var(--muted); }',
     '.lead-card form { display: flex; flex-direction: column; gap: 10px; }',
-    '.lead-card label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: #374151; }',
-    '.lead-card .hint { margin: -4px 0 0; font-size: 12px; color: #6b7280; }',
+    '.lead-card label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 600; color: var(--label); }',
+    '.lead-card .hint { margin: -4px 0 0; font-size: 12px; color: var(--muted); }',
     '.lead-card label[hidden] { display: none; }',
     '.lead-actions { display: flex; gap: 8px; margin-top: 4px; }',
     '.primary { flex: 1; border: 0; border-radius: 10px; padding: 11px; background: var(--brand); color: var(--on-brand); font: inherit; font-weight: 600; cursor: pointer; }',
-    '.secondary { border: 1px solid #d1d5db; border-radius: 10px; padding: 11px 14px; background: #fff; color: #374151; font: inherit; cursor: pointer; }',
-    '.error { color: #b91c1c; font-size: 13px; min-height: 1em; margin: 0; }',
+    '.secondary { border: 1px solid var(--field-border); border-radius: 10px; padding: 11px 14px; background: var(--field); color: var(--label); font: inherit; cursor: pointer; }',
+    '.error { color: var(--error); font-size: 13px; min-height: 1em; margin: 0; }',
     '@media (max-width: 480px) {',
     '  .root { bottom: 12px; ' + POSITION + ': 12px; }',
     '  .panel { position: fixed; inset: 0; width: auto; height: auto; border-radius: 0; }',
@@ -340,8 +386,52 @@
     '}'
   ].join('\n');
 
+  // Built-in avatars. "lamp": a glowing London street lamp (Assist Street's
+  // Lumi). Each copy gets its own gradient id, because several can be on the
+  // page at once.
+  var avatarCount = 0;
+  function lampSvg() {
+    var id = 'lamp-glow-' + ++avatarCount;
+    return (
+      '<svg viewBox="0 0 40 40" aria-hidden="true">' +
+      '<defs><radialGradient id="' + id + '" cx="50%" cy="38%" r="55%">' +
+      '<stop offset="0" stop-color="#ffb547" stop-opacity=".75"/><stop offset=".55" stop-color="#ff2d55" stop-opacity=".18"/>' +
+      '<stop offset="1" stop-color="#ff2d55" stop-opacity="0"/></radialGradient></defs>' +
+      '<circle cx="20" cy="20" r="20" fill="#0f1218"/>' +
+      '<circle cx="20" cy="15" r="15" fill="url(#' + id + ')"/>' +
+      '<path d="M13.2 10.4 20 6.2l6.8 4.2z" fill="#e9eaee"/>' +
+      '<rect x="19.3" y="4.2" width="1.4" height="2.4" rx=".7" fill="#e9eaee"/>' +
+      '<path d="M14.6 10.4h10.8l-1.6 9H16.2z" fill="#ffc46b"/>' +
+      '<path d="M20 10.4v9M15.4 14.9h9.2" stroke="#0f1218" stroke-width=".8" opacity=".55"/>' +
+      '<circle cx="20" cy="14.9" r="2.3" fill="#fff6e3"/>' +
+      '<rect x="15.4" y="19.4" width="9.2" height="1.6" rx=".6" fill="#e9eaee"/>' +
+      '<rect x="19.1" y="21" width="1.8" height="11.4" fill="#e9eaee"/>' +
+      '<path d="M16.6 34.4h6.8l-1-2.2h-4.8z" fill="#e9eaee"/>' +
+      '</svg>'
+    );
+  }
+  // Returns a new avatar element for this business, or null if it has none.
+  function makeAvatar() {
+    var kind = state.config.assistant_avatar;
+    if (!kind) return null;
+    var el = document.createElement('span');
+    el.className = 'avatar';
+    el.setAttribute('aria-hidden', 'true');
+    if (kind === 'lamp') {
+      el.innerHTML = lampSvg();
+    } else if (/^https:\/\/\S+$/i.test(kind)) {
+      var img = document.createElement('img');
+      img.src = kind;
+      img.alt = '';
+      el.appendChild(img);
+    } else {
+      return null;
+    }
+    return el;
+  }
+
   var CHAT_ICON =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<svg class="chat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
     '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
 
   // Static markup only. All interface text is filled in by applyLanguage()
@@ -350,7 +440,7 @@
   var MARKUP =
     '<div class="root loading">' +
     '  <section class="panel" role="dialog" hidden>' +
-    '    <header><div><strong class="title"></strong><small data-t="subtitle"></small></div>' +
+    '    <header><div class="who"><span class="avatar-slot"></span><div><strong class="title"></strong><small class="subtitle"></small></div></div>' +
     '      <button class="icon-btn close" type="button" data-t-aria="closeChat">&times;</button></header>' +
     '    <div class="messages" aria-live="polite"></div>' +
     '    <form class="composer">' +
@@ -420,7 +510,11 @@
       el.setAttribute('aria-label', t(el.getAttribute('data-t-aria')));
     });
     $('.launcher-label').textContent = script.getAttribute('data-label') || t('launcher');
-    panel.setAttribute('aria-label', state.config.name || t('launcher'));
+    // Named assistants: "Lumi" over "AI assistant · Assist Street".
+    $('.subtitle').textContent = state.config.assistant_name
+      ? t('aiAssistant') + ' · ' + (state.config.name || '')
+      : t('subtitle');
+    panel.setAttribute('aria-label', state.config.assistant_name || state.config.name || t('launcher'));
     panel.setAttribute('lang', state.lang);
     panel.setAttribute('dir', RTL_LANGUAGES.indexOf(state.lang) === -1 ? 'ltr' : 'rtl');
     renderCustomFields();
@@ -504,7 +598,20 @@
     var color = safeColor(state.config.brand_color);
     root.style.setProperty('--brand', color);
     root.style.setProperty('--on-brand', textOn(color));
-    $('.title').textContent = state.config.name || '';
+    var theme = script.getAttribute('data-theme') || state.config.widget_theme;
+    root.classList.toggle('dark', theme === 'dark');
+    $('.title').textContent = state.config.assistant_name || state.config.name || '';
+
+    // Avatar in the header and on the launcher button (replacing the chat icon).
+    var slot = $('.avatar-slot');
+    slot.textContent = '';
+    var headerAvatar = makeAvatar();
+    if (headerAvatar) slot.appendChild(headerAvatar);
+    var oldLauncherAvatar = launcher.querySelector('.avatar');
+    if (oldLauncherAvatar) oldLauncherAvatar.remove();
+    var launcherAvatar = makeAvatar();
+    launcher.querySelector('.chat-icon').style.display = launcherAvatar ? 'none' : '';
+    if (launcherAvatar) launcher.insertBefore(launcherAvatar, launcher.firstChild);
 
     var services = Array.isArray(state.config.services) ? state.config.services : [];
     var select = leadForm.querySelector('select[name="service"]');
@@ -519,14 +626,30 @@
   }
 
   // ---- Messages ----
+  // Puts an assistant message next to the business's avatar, if it has one.
+  // Returns the element to remove later (the row, or the bubble itself).
+  function placeAssistant(bubble) {
+    var avatar = makeAvatar();
+    if (!avatar) {
+      messages.appendChild(bubble);
+      return bubble;
+    }
+    var row = document.createElement('div');
+    row.className = 'msg-row';
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+    messages.appendChild(row);
+    return row;
+  }
+
   function addMessage(text, role) {
     var el = document.createElement('div');
     el.className = 'msg ' + role;
     el.setAttribute('dir', 'auto');
     el.textContent = text;
-    messages.appendChild(el);
+    var placed = role === 'assistant' ? placeAssistant(el) : (messages.appendChild(el), el);
     messages.scrollTop = messages.scrollHeight;
-    return el;
+    return placed;
   }
 
   function showTyping() {
@@ -534,9 +657,9 @@
     el.className = 'msg assistant typing';
     el.setAttribute('aria-label', t('typing'));
     el.innerHTML = '<span></span><span></span><span></span>';
-    messages.appendChild(el);
+    var placed = placeAssistant(el);
     messages.scrollTop = messages.scrollHeight;
-    return el;
+    return placed;
   }
 
   var greeted = false;
@@ -546,7 +669,10 @@
     launcher.setAttribute('aria-expanded', 'true');
     if (!greeted) {
       greeted = true;
-      addMessage(script.getAttribute('data-greeting') || t('greeting'), 'assistant');
+      addMessage(
+        script.getAttribute('data-greeting') || t(state.config.assistant_name ? 'greetingNamed' : 'greeting'),
+        'assistant'
+      );
     }
     input.focus();
   }

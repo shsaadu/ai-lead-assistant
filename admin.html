@@ -94,6 +94,18 @@
           <div class="table-heading"><div><p class="eyebrow">Business configuration</p><h2>Branding &amp; behaviour</h2></div></div>
           <form class="stack-form" id="settingsForm">
             <label>Business name<input type="text" id="cfgName" /></label>
+            <label>Assistant name (optional, e.g. Lumi)<input type="text" id="cfgAssistantName" maxlength="40" /></label>
+            <label>Assistant avatar
+              <select id="cfgAvatar">
+                <option value="">None</option>
+                <option value="lamp">Street lamp</option>
+                <option value="custom">Custom image (https link)</option>
+              </select>
+            </label>
+            <label id="cfgAvatarUrlLabel" hidden>Avatar image link<input type="url" id="cfgAvatarUrl" placeholder="https://…" /></label>
+            <label>Chat window theme
+              <select id="cfgTheme"><option value="light">Light</option><option value="dark">Dark</option></select>
+            </label>
             <label>Tagline<input type="text" id="cfgTagline" /></label>
             <label>Brand colour<input type="color" id="cfgColor" /></label>
             <label>Notification email (where new leads are sent)<input type="email" id="cfgNotifyEmail" placeholder="you@example.com" /></label>
