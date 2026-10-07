@@ -308,6 +308,20 @@ body::after { content: ''; position: fixed; inset: -50%; z-index: 90; pointer-ev
   .site-nav .btn { display: none; }
 }
 
+/* Phones and tablets: skip the effects that are expensive to repaint while
+   scrolling (animated film grain, frosted-glass blur, animated blurred glows).
+   The look stays the same; backgrounds are just slightly more solid. */
+@media (max-width: 960px), (pointer: coarse) {
+  body::after { display: none; }
+  .site-header.scrolled { backdrop-filter: none; background: rgba(7, 8, 11, .94); }
+  .stat { backdrop-filter: none; background: rgba(7, 8, 11, .88); }
+  .marquee { backdrop-filter: none; background: rgba(12, 14, 19, .95); }
+  .demo-chat { backdrop-filter: none; background: rgba(17, 20, 26, .95); }
+  .lamp { filter: none; animation: none; }
+  .finale::before { animation: none; }
+  .sign { animation: none; }
+}
+
 /* Respect visitors who ask for less motion: everything shows immediately. */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

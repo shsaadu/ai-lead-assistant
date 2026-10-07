@@ -28,6 +28,8 @@
   var FADE_SECONDS = 0.35; // smoothing time constant: ~0.9s for a full crossfade
 
   var W = 0, H = 0, DPR = 1, small = false;
+  // Phones and tablets: draw at 30fps and at 1x resolution to stay smooth.
+  var lowPower = window.matchMedia('(pointer: coarse)').matches;
   var scrollY = window.scrollY;
   var pointer = { x: -9999, y: -9999, active: false };
 
@@ -126,20 +128,30 @@
         a: 0.05 + Math.random() * 0.07
       });
     }
+    // Draw each soft light once into its own small canvas; every frame then
+    // only stamps it, instead of rebuilding a radial gradient.
+    map.bokeh.forEach(function (b) {
+      var size = Math.ceil(b.r * 2);
+      var sprite = document.createElement('canvas');
+      sprite.width = sprite.height = size;
+      var sctx = sprite.getContext('2d');
+      var g = sctx.createRadialGradient(b.r, b.r, b.r * 0.25, b.r, b.r, b.r);
+      g.addColorStop(0, 'rgba(' + b.color + ',' + b.a + ')');
+      g.addColorStop(0.75, 'rgba(' + b.color + ',' + b.a * 0.55 + ')');
+      g.addColorStop(1, 'rgba(' + b.color + ',0)');
+      sctx.fillStyle = g;
+      sctx.fillRect(0, 0, size, size);
+      b.sprite = sprite;
+    });
   }
   function drawMap(alpha, dt) {
     // Bokeh: deepest layer, barely moves with scroll.
     map.bokeh.forEach(function (b) {
       b.y -= b.drift * dt;
       var y = ((b.y - scrollY * b.depth) % (H + 2 * b.r) + H + 2 * b.r) % (H + 2 * b.r) - b.r;
-      var g = ctx.createRadialGradient(b.x, y, b.r * 0.25, b.x, y, b.r);
-      g.addColorStop(0, 'rgba(' + b.color + ',' + b.a * alpha + ')');
-      g.addColorStop(0.75, 'rgba(' + b.color + ',' + b.a * 0.55 * alpha + ')');
-      g.addColorStop(1, 'rgba(' + b.color + ',0)');
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(b.x, y, b.r, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.globalAlpha = alpha;
+      ctx.drawImage(b.sprite, b.x - b.r, y - b.r);
+      ctx.globalAlpha = 1;
     });
 
     // Street grid: scrolls at 30% of page speed for depth.
@@ -194,7 +206,7 @@
   // Constellation
   var stars = { points: [], t: 0 };
   function initStars() {
-    var count = Math.min(small ? 45 : 95, Math.round((W * H) / 16000));
+    var count = Math.min(small ? 32 : lowPower ? 55 : 95, Math.round((W * H) / 16000));
     stars.points = [];
     for (var i = 0; i < count; i++) {
       stars.points.push({
@@ -262,7 +274,7 @@
 
   // ---------- Sizing, input, loop ----------
   function resize() {
-    DPR = Math.min(window.devicePixelRatio || 1, 1.5);
+    DPR = lowPower ? 1 : Math.min(window.devicePixelRatio || 1, 1.5);
     W = window.innerWidth;
     H = window.innerHeight;
     small = W < 700;
@@ -305,7 +317,13 @@
 
   var last = performance.now();
   var sinceCheck = 0;
+  var FRAME_GAP = lowPower ? 1 / 30 : 0;
   function frame(now) {
+    // On phones, skip every other frame (30fps): half the work, still smooth.
+    if (FRAME_GAP && (now - last) / 1000 < FRAME_GAP - 0.004) {
+      requestAnimationFrame(frame);
+      return;
+    }
     var dt = Math.min((now - last) / 1000, 0.05);
     last = now;
     var k = 1 - Math.exp(-dt / FADE_SECONDS);

@@ -72,20 +72,24 @@
   var ticking = false;
 
   function onScroll() {
+    // Measure everything first, then change styles, so the browser lays the
+    // page out once per frame instead of several times (smoother on phones).
     var y = window.scrollY;
     var max = document.documentElement.scrollHeight - window.innerHeight;
+    var mid = window.innerHeight * 0.55;
+    var roadRect = road ? road.getBoundingClientRect() : null;
+    var stopTops = Array.prototype.map.call(stops, function (stop) {
+      return stop.getBoundingClientRect().top;
+    });
+
     if (progress) progress.style.setProperty('--p', max > 0 ? (y / max).toFixed(4) : 0);
     if (header) header.classList.toggle('scrolled', y > 20);
-
-    if (road) {
+    if (roadRect) {
       // The centre line fills as the middle of the screen moves down the road.
-      var rect = road.getBoundingClientRect();
-      var mid = window.innerHeight * 0.55;
-      var filled = Math.min(Math.max((mid - rect.top) / rect.height, 0), 1);
+      var filled = Math.min(Math.max((mid - roadRect.top) / roadRect.height, 0), 1);
       road.style.setProperty('--road', reduceMotion ? 1 : filled.toFixed(4));
-      stops.forEach(function (stop) {
-        var r = stop.getBoundingClientRect();
-        stop.classList.toggle('lit', reduceMotion || r.top < mid);
+      stopTops.forEach(function (top, i) {
+        stops[i].classList.toggle('lit', reduceMotion || top < mid);
       });
     }
     ticking = false;
