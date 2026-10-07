@@ -157,7 +157,7 @@ module.exports = async function handler(req, res) {
     // A named assistant (e.g. "Lumi") introduces itself by name, and never
     // pretends to be a person.
     const identity = business.assistant_name
-      ? `\n\nYour name is ${business.assistant_name}. You are ${business.name}'s AI assistant. Use your name when you introduce yourself, and if anyone asks, say plainly that you are an AI assistant, not a person.`
+      ? `\n\nYour name is ${business.assistant_name}. You are ${business.name}'s AI assistant. Introduce yourself by name in your first reply only. If anyone asks whether you're a person, say plainly that you're an AI assistant; don't repeat this unprompted in every reply.`
       : '';
     const systemInstruction = business.system_prompt + identity + contextBlock + '\n' + REPLY_INSTRUCTIONS;
 

@@ -16,6 +16,7 @@ function formatDate(iso) {
 // every admin API call. For owners the server ignores it and always uses
 // their own business.
 let selectedBusiness = null;
+let currentBusinessName = '';
 
 function adminUrl(path, params = {}) {
   const url = new URL(path, window.location.origin);
@@ -46,6 +47,12 @@ function renderSessionInfo({ user, business, businesses }) {
   if (business) {
     selectedBusiness = user.role === 'superadmin' ? business.slug : null;
     document.getElementById('sidebarBusinessName').textContent = business.name;
+    currentBusinessName = business.name;
+    // Shown on the Knowledge base and Settings tabs, so it's always clear
+    // which business an upload or change goes to.
+    document.querySelectorAll('.current-business-name').forEach((el) => {
+      el.textContent = business.name;
+    });
     document.title = `${business.name} | Admin dashboard`;
   }
 
@@ -343,7 +350,7 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
 
   const results = [];
   for (const [i, file] of files.entries()) {
-    hint.textContent = `Indexing ${i + 1} of ${files.length}: ${file.name}…`;
+    hint.textContent = `Adding to ${currentBusinessName}: indexing ${i + 1} of ${files.length}, ${file.name}…`;
     try {
       const content = (await file.text()).trim();
       if (!content) {
@@ -361,7 +368,7 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
       results.push(`${file.name}: could not reach the server`);
     }
   }
-  hint.textContent = `Done. ${results.join(' · ')}`;
+  hint.textContent = `Done, added to ${currentBusinessName}. ${results.join(' · ')}`;
   document.getElementById('uploadForm').reset();
   loadDocuments();
 });

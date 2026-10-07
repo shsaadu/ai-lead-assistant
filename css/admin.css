@@ -53,3 +53,5 @@
 .conversation-summary{ font-size:0.78rem; line-height:1.35; color:var(--ink); }
 .details-cell small{ display:block; color:var(--muted); margin-bottom:3px; }
 .details-cell small strong{ display:inline; color:var(--ink); font-weight:600; }
+.editing-business{ margin:-14px 0 18px; font-size:.9rem; color:var(--muted); }
+.editing-business strong{ color:var(--ink); background:var(--lime); padding:3px 10px; border-radius:99px; font-weight:800; }

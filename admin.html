@@ -74,6 +74,7 @@
 
         <section class="tab-panel hidden" data-panel="knowledge">
           <div class="table-heading"><div><p class="eyebrow">RAG knowledge base</p><h2>FAQs &amp; documents</h2></div></div>
+          <p class="editing-business">Adding to: <strong class="current-business-name"></strong></p>
           <form class="stack-form" id="documentForm">
             <label>Document name<input type="text" id="docName" placeholder="e.g. Pricing FAQ" required /></label>
             <label>Content<textarea id="docContent" rows="6" placeholder="Paste FAQ text, service details, or policies here..." required></textarea></label>
@@ -92,6 +93,7 @@
 
         <section class="tab-panel hidden" data-panel="settings">
           <div class="table-heading"><div><p class="eyebrow">Business configuration</p><h2>Branding &amp; behaviour</h2></div></div>
+          <p class="editing-business">Editing: <strong class="current-business-name"></strong></p>
           <form class="stack-form" id="settingsForm">
             <label>Business name<input type="text" id="cfgName" /></label>
             <label>Assistant name (optional, e.g. Lumi)<input type="text" id="cfgAssistantName" maxlength="40" /></label>
