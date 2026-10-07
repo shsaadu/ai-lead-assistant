@@ -714,6 +714,17 @@
       });
   });
 
+  // Lets the host page open or close the chat from its own buttons, e.g.
+  // <button onclick="AILeadAssistant.open()">Chat with us</button>.
+  window.AILeadAssistant = {
+    open: function () {
+      if (panel.hidden) openPanel();
+    },
+    close: function () {
+      if (!panel.hidden) closePanel();
+    }
+  };
+
   // ---- Start ----
   function mount() {
     document.body.appendChild(host);

@@ -22,7 +22,10 @@ Demo business: **Northstar Plumbing** (fictional UK plumbing company) — but ev
 
 ```
 ai-lead-assistant/
-├── index.html, admin.html      → customer-facing site + admin dashboard
+├── index.html, privacy.html    → the Assist Street company website (dark theme; assets/site.css + assets/site.js)
+├── admin.html                  → admin dashboard (/admin.html)
+├── demo/northstar/             → demo plumbing company site
+├── demo/thames-english-academy/ → demo language school site
 ├── css/, js/                   → styling + frontend logic
 ├── api/chat.js                 → RAG-powered chat (retrieval + generation + persistence)
 ├── api/leads.js                → lead capture + email notification
@@ -97,6 +100,10 @@ If your Supabase project was set up with an older `schema.sql`, run the files in
 - `003_conversation_insights.sql` — stores each conversation's language, intent and summary for the dashboard. The chat keeps working without it; the dashboard just won't show those details.
 - `004_widget_allowed_origins.sql` — lets each business restrict which websites can embed its widget. Without it, any website can use the widget.
 - `005_lead_questions.sql` — per-business lead-form questions (e.g. course, start date) and phone/WhatsApp as an alternative to email.
+
+## Assist Street website assistant
+
+The chat on the company website is Assist Street's own assistant. Set it up once: run `supabase/seed/assist-street.sql` in the Supabase SQL editor, then in the dashboard switch to **Assist Street** → **Knowledge base** → upload every file in `content/assist-street-knowledge-base/`.
 
 ## Demo: Thames English Academy (fictional language school)
 
