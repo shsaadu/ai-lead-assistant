@@ -69,6 +69,11 @@
   var progress = document.querySelector('.progress');
   var road = document.getElementById('road');
   var stops = road ? road.querySelectorAll('.stop') : [];
+  // Sticky pill menus (services and demos pages): highlight the group in view.
+  var pillLinks = Array.prototype.slice.call(document.querySelectorAll('.pill-nav a[href^="#"]'));
+  var pillTargets = pillLinks.map(function (a) {
+    return document.querySelector(a.getAttribute('href'));
+  });
   var ticking = false;
 
   function onScroll() {
@@ -81,9 +86,16 @@
     var stopTops = Array.prototype.map.call(stops, function (stop) {
       return stop.getBoundingClientRect().top;
     });
+    var activePill = 0;
+    pillTargets.forEach(function (section, i) {
+      if (section && section.getBoundingClientRect().top < window.innerHeight * 0.4) activePill = i;
+    });
 
     if (progress) progress.style.setProperty('--p', max > 0 ? (y / max).toFixed(4) : 0);
     if (header) header.classList.toggle('scrolled', y > 20);
+    pillLinks.forEach(function (a, i) {
+      a.classList.toggle('active', i === activePill);
+    });
     if (roadRect) {
       // The centre line fills as the middle of the screen moves down the road.
       var filled = Math.min(Math.max((mid - roadRect.top) / roadRect.height, 0), 1);
