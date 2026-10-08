@@ -185,22 +185,34 @@ module.exports = async function handler(req, res) {
 
     let parsed = null;
     if (apiKey) {
-      try {
-        const contents = [...earlier, { role: 'user', content: message }].map((m) => ({
-          role: m.role === 'user' ? 'user' : 'model',
-          parts: [{ text: m.content }]
-        }));
-        const { text, structured } = await timed('generate', generateAnswer(apiKey, {
-          systemInstruction,
-          contents,
-          generationConfig: { temperature: 0.4 },
-          responseSchema: REPLY_SCHEMA,
-          timeoutMs: GENERATE_TIMEOUT_MS
-        }));
-        parsed = parseReply(text, structured);
-        if (!parsed.reply) parsed = null;
-      } catch (err) {
-        console.error('Gemini request failed:', err.message || err);
+      const contents = [...earlier, { role: 'user', content: message }].map((m) => ({
+        role: m.role === 'user' ? 'user' : 'model',
+        parts: [{ text: m.content }]
+      }));
+      // The free Gemini tier occasionally errors or returns unusable JSON.
+      // Retry once if there's time left in the budget, rather than showing
+      // the visitor a fallback message.
+      const deadline = Date.now() + GENERATE_TIMEOUT_MS;
+      for (let attempt = 1; attempt <= 2 && !parsed; attempt++) {
+        const remaining = deadline - Date.now();
+        if (attempt > 1 && remaining < 3000) break;
+        try {
+          const { text, structured } = await timed(`generate${attempt > 1 ? '-retry' : ''}`, generateAnswer(apiKey, {
+            systemInstruction,
+            contents,
+            generationConfig: { temperature: 0.4 },
+            responseSchema: REPLY_SCHEMA,
+            // First try leaves room for a retry; the retry gets what's left.
+            timeoutMs: attempt === 1 ? Math.round(GENERATE_TIMEOUT_MS * 0.65) : remaining
+          }));
+          parsed = parseReply(text, structured);
+          if (!parsed.reply) {
+            console.error(`Gemini attempt ${attempt}: unusable reply:`, String(text).slice(0, 300));
+            parsed = null;
+          }
+        } catch (err) {
+          console.error(`Gemini attempt ${attempt} failed:`, err.message || err);
+        }
       }
     }
 
