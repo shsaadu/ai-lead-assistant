@@ -11,6 +11,12 @@ const { handleCors, originAllowed, ORIGIN_NOT_ALLOWED } = require('./_lib/cors')
 // MIN_SIMILARITY are treated as unrelated and left out.
 const TOP_K = 8;
 const MIN_SIMILARITY = 0.35;
+// Small knowledge bases (a few pages, like most small businesses') are sent
+// to the model whole on every question, so indirect questions ("I run a
+// dental clinic, what would you suggest?") still see the prices and services
+// documents. Larger ones fall back to similarity search.
+const FULL_KB_MAX_CHARS = 24000;
+const FULL_KB_MAX_DOCS = 15;
 const HISTORY_LIMIT = 12;
 const MAX_MESSAGE_LENGTH = 2000;
 // Time limits for Gemini calls, kept well inside the function's 30s
@@ -122,9 +128,10 @@ module.exports = async function handler(req, res) {
       convoId = newConvo.id;
     }
 
-    // In parallel: earlier messages in this conversation, and knowledge-base
-    // retrieval (pgvector similarity search on the question's embedding).
-    const [earlier, chunks] = await Promise.all([
+    // In parallel: earlier messages in this conversation, the business's
+    // documents (used whole if the knowledge base is small), and similarity
+    // search over chunks (used for larger knowledge bases).
+    const [earlier, chunks, documents] = await Promise.all([
       existingConvo
         ? timed('history', supabase
             .from('messages')
@@ -146,14 +153,28 @@ module.exports = async function handler(req, res) {
         // Most likely cause: supabase/migrations/002_multi_tenant.sql not run yet.
         if (error) console.error('match_chunks failed:', error.message);
         return data || [];
-      })
+      }),
+      timed('documents', supabase
+        .from('documents')
+        .select('name, content')
+        .eq('business_id', business.id)
+        .order('created_at', { ascending: true })
+        .limit(FULL_KB_MAX_DOCS + 1)
+      ).then(({ data }) => data || [])
     ]);
 
-    const hasKnowledgeBase = chunks.length > 0;
-    const contextBlock = hasKnowledgeBase
-      ? '\n\nRelevant information from the business\'s own FAQs/documents:\n' +
-        chunks.map((c, i) => `[${i + 1}] ${c.content}`).join('\n\n')
-      : '';
+    const totalChars = documents.reduce((sum, d) => sum + (d.content || '').length, 0);
+    const useWholeKb = documents.length > 0 && documents.length <= FULL_KB_MAX_DOCS && totalChars <= FULL_KB_MAX_CHARS;
+    let contextBlock = '';
+    if (useWholeKb) {
+      contextBlock =
+        '\n\nThe business\'s own information (all of it):\n\n' +
+        documents.map((d) => `### ${d.name}\n${d.content}`).join('\n\n');
+    } else if (chunks.length > 0) {
+      contextBlock =
+        '\n\nRelevant information from the business\'s own FAQs/documents:\n' +
+        chunks.map((c, i) => `[${i + 1}] ${c.content}`).join('\n\n');
+    }
 
     // A named assistant (e.g. "Lumi") introduces itself by name, and never
     // pretends to be a person.
