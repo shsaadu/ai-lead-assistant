@@ -5,11 +5,12 @@ const { isUuid } = require('./_lib/ids');
 const { REPLY_SCHEMA, REPLY_INSTRUCTIONS, parseReply } = require('./_lib/reply-format');
 const { handleCors, originAllowed, ORIGIN_NOT_ALLOWED } = require('./_lib/cors');
 
-const TOP_K = 4;
-// Chunks less similar than this to the question are treated as unrelated and
-// not shown to the model. Tune per knowledge base if answers miss obvious
-// matches (lower it) or pull in irrelevant text (raise it).
-const MIN_SIMILARITY = 0.5;
+// Up to TOP_K document passages are shown to the model for each question.
+// Indirect questions ("could this help my salon?") rarely match one passage
+// closely, so the net is fairly wide; passages less similar than
+// MIN_SIMILARITY are treated as unrelated and left out.
+const TOP_K = 8;
+const MIN_SIMILARITY = 0.35;
 const HISTORY_LIMIT = 12;
 const MAX_MESSAGE_LENGTH = 2000;
 // Time limits for Gemini calls, kept well inside the function's 30s
