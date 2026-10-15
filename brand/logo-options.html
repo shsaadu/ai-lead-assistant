@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Assist Street logo options</title>
+<style>
+  @font-face { font-family: 'Archivo'; src: url('../assets/fonts/archivo-latin.woff2') format('woff2'); font-weight: 400 800; }
+  @font-face { font-family: 'Inter'; src: url('../assets/fonts/inter-latin.woff2') format('woff2'); font-weight: 400 700; }
+  :root { --red: #ff2d55; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Inter', system-ui, sans-serif; background: #07080b; color: #eceef1; padding: 40px 20px 60px; }
+  h1 { font-family: 'Archivo', sans-serif; font-size: 34px; margin: 0 0 6px; max-width: 1100px; margin-inline: auto; }
+  .intro { color: #8d939d; max-width: 1100px; margin: 0 auto 30px; }
+  .grid { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 18px; }
+  .card { border: 1px solid rgba(255,255,255,.1); border-radius: 18px; overflow: hidden; background: #0c0e13; }
+  .card h2 { font-family: 'Archivo', sans-serif; font-size: 18px; margin: 0; padding: 16px 18px 4px; }
+  .card p { margin: 0; padding: 0 18px 14px; color: #8d939d; font-size: 14px; line-height: 1.5; }
+  .stage { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 30px 18px; }
+  .dark { background: #07080b; }
+  .light { background: #f5f3ee; color: #111418; }
+  .mark { width: 110px; height: 110px; }
+  .lockup { display: flex; align-items: center; gap: 12px; }
+  .lockup svg { width: 46px; height: 46px; }
+  .word { font-family: 'Archivo', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: .08em; text-transform: uppercase; line-height: 1; }
+  .word b { color: var(--red); font-weight: 800; }
+  .sizes { display: flex; align-items: end; gap: 14px; padding: 14px 18px 18px; border-top: 1px solid rgba(255,255,255,.08); }
+  .sizes svg { display: block; }
+  .sizes span { font-size: 12px; color: #5d636d; }
+  .light .mark-stroke { stroke: #111418; }
+  .light .mark-fill { fill: #111418; }
+  .light .plate { fill: #ffffff; }
+</style>
+</head>
+<body>
+<h1>Assist Street: logo options</h1>
+<p class="intro">Four concepts mixing tech with the street theme, in the site's neon red. Each shows the mark, the logo with the name, a light-background version and small sizes (app icon and browser tab).</p>
+
+<div class="grid">
+
+  <!-- 1. Route S -->
+  <section class="card">
+    <h2>1. Route S <span style="color:var(--red)">(my pick)</span></h2>
+    <p>An S drawn like a route on a map, or a trace on a circuit board. It starts at a red node and ends at a white one: an enquiry travelling to your team.</p>
+    <div class="stage dark">
+      <svg class="mark" viewBox="0 0 64 64" role="img" aria-label="Route S mark"><path class="mark-stroke" d="M46 16H24a8 8 0 0 0 0 16h16a8 8 0 0 1 0 16H18" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="46" cy="16" r="5.5" fill="#ff2d55"/><circle cx="18" cy="48" r="4.5" fill="#07080b" stroke="#fff" stroke-width="3" class="mark-stroke"/></svg>
+    </div>
+    <div class="stage dark"><div class="lockup"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M46 16H24a8 8 0 0 0 0 16h16a8 8 0 0 1 0 16H18" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="46" cy="16" r="5.5" fill="#ff2d55"/><circle cx="18" cy="48" r="4.5" fill="#07080b" stroke="#fff" stroke-width="3"/></svg><span class="word">Assist <b>Street</b></span></div></div>
+    <div class="stage light"><div class="lockup"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M46 16H24a8 8 0 0 0 0 16h16a8 8 0 0 1 0 16H18" fill="none" stroke="#111418" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="46" cy="16" r="5.5" fill="#ff2d55"/><circle cx="18" cy="48" r="4.5" fill="#f5f3ee" stroke="#111418" stroke-width="3"/></svg><span class="word">Assist <b>Street</b></span></div></div>
+    <div class="sizes"><svg width="48" height="48" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#111418"/><path d="M46 16H24a8 8 0 0 0 0 16h16a8 8 0 0 1 0 16H18" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="46" cy="16" r="5.5" fill="#ff2d55"/><circle cx="18" cy="48" r="4.5" fill="#111418" stroke="#fff" stroke-width="3"/></svg><svg width="16" height="16" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#111418"/><path d="M46 16H24a8 8 0 0 0 0 16h16a8 8 0 0 1 0 16H18" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="46" cy="16" r="7" fill="#ff2d55"/></svg><span>App icon · browser tab</span></div>
+  </section>
+
+  <!-- 2. Road A -->
+  <section class="card">
+    <h2>2. Road A</h2>
+    <p>An A made from a road running to the horizon, with the red dashed centre line as its crossbar. It echoes the neon road at the top of your website.</p>
+    <div class="stage dark">
+      <svg class="mark" viewBox="0 0 64 64" role="img" aria-label="Road A mark"><path d="M12 54 32 10 52 54" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 50V24" stroke="#ff2d55" stroke-width="4" stroke-linecap="round" stroke-dasharray="6 6"/><circle cx="32" cy="10" r="3" fill="#ff2d55"/></svg>
+    </div>
+    <div class="stage dark"><div class="lockup"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M12 54 32 10 52 54" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 50V24" stroke="#ff2d55" stroke-width="4" stroke-linecap="round" stroke-dasharray="6 6"/><circle cx="32" cy="10" r="3" fill="#ff2d55"/></svg><span class="word">Assist <b>Street</b></span></div></div>
+    <div class="stage light"><div class="lockup"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M12 54 32 10 52 54" fill="none" stroke="#111418" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 50V24" stroke="#ff2d55" stroke-width="4" stroke-linecap="round" stroke-dasharray="6 6"/><circle cx="32" cy="10" r="3" fill="#ff2d55"/></svg><span class="word">Assist <b>Street</b></span></div></div>
+    <div class="sizes"><svg width="48" height="48" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#111418"/><path d="M14 52 32 12 50 52" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 48V26" stroke="#ff2d55" stroke-width="4" stroke-linecap="round" stroke-dasharray="6 6"/></svg><svg width="16" height="16" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#111418"/><path d="M14 52 32 12 50 52" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><path d="M32 48V30" stroke="#ff2d55" stroke-width="6" stroke-linecap="round"/></svg><span>App icon · browser tab</span></div>
+  </section>
+
+  <!-- 3. Signal pin -->
+  <section class="card">
+    <h2>3. Signal pin</h2>
+    <p>A map pin that is also a chat window, with the "typing" dots inside. Local business, always answering. The clearest of the four to a non-technical customer.</p>
+    <div class="stage dark">
+      <svg class="mark" viewBox="0 0 64 64" role="img" aria-label="Signal pin mark"><path d="M32 6C20.4 6 12 14.6 12 25.5 12 39 32 58 32 58s20-19 20-32.5C52 14.6 43.6 6 32 6Z" fill="none" stroke="#fff" stroke-width="4.5" stroke-linejoin="round"/><circle cx="23" cy="26" r="3.6" fill="#fff"/><circle cx="32" cy="26" r="3.6" fill="#ff2d55"/><circle cx="41" cy="26" r="3.6" fill="#fff"/></svg>
+    </div>
+    <div class="stage dark"><div class="lockup"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6C20.4 6 12 14.6 12 25.5 12 39 32 58 32 58s20-19 20-32.5C52 14.6 43.6 6 32 6Z" fill="none" stroke="#fff" stroke-width="4.5" stroke-linejoin="round"/><circle cx="23" cy="26" r="3.6" fill="#fff"/><circle cx="32" cy="26" r="3.6" fill="#ff2d55"/><circle cx="41" cy="26" r="3.6" fill="#fff"/></svg><span class="word">Assist <b>Street</b></span></div></div>
+    <div class="stage light"><div class="lockup"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M32 6C20.4 6 12 14.6 12 25.5 12 39 32 58 32 58s20-19 20-32.5C52 14.6 43.6 6 32 6Z" fill="none" stroke="#111418" stroke-width="4.5" stroke-linejoin="round"/><circle cx="23" cy="26" r="3.6" fill="#111418"/><circle cx="32" cy="26" r="3.6" fill="#ff2d55"/><circle cx="41" cy="26" r="3.6" fill="#111418"/></svg><span class="word">Assist <b>Street</b></span></div></div>
+    <div class="sizes"><svg width="48" height="48" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#111418"/><path d="M32 9C22.6 9 16 16 16 25c0 11 16 27 16 27s16-16 16-27c0-9-6.6-16-16-16Z" fill="none" stroke="#fff" stroke-width="4.5" stroke-linejoin="round"/><circle cx="25" cy="25" r="3" fill="#fff"/><circle cx="32" cy="25" r="3" fill="#ff2d55"/><circle cx="39" cy="25" r="3" fill="#fff"/></svg><svg width="16" height="16" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#111418"/><path d="M32 9C22.6 9 16 16 16 25c0 11 16 27 16 27s16-16 16-27c0-9-6.6-16-16-16Z" fill="#ff2d55"/></svg><span>App icon · browser tab</span></div>
+  </section>
+
+  <!-- 4. Street sign (current) -->
+  <section class="card">
+    <h2>4. Street sign, refined</h2>
+    <p>Your current mark, tidied up: a London street-sign plate with "AS" and the red "AI" district code. The most distinctive, but busier at small sizes.</p>
+    <div class="stage dark">
+      <svg class="mark" viewBox="0 0 64 64" role="img" aria-label="Street sign mark"><rect x="5" y="14" width="54" height="36" rx="6" fill="#0c0e13" stroke="#fff" stroke-width="3.5"/><rect x="10" y="19" width="44" height="26" rx="3" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.5"/><text x="29" y="40.5" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="800" font-size="17" fill="#fff" letter-spacing="1">AS</text><text x="48" y="28" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="800" font-size="7.5" fill="#ff2d55">AI</text></svg>
+    </div>
+    <div class="stage dark"><div class="lockup"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="5" y="14" width="54" height="36" rx="6" fill="#0c0e13" stroke="#fff" stroke-width="3.5"/><rect x="10" y="19" width="44" height="26" rx="3" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.5"/><text x="29" y="40.5" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="800" font-size="17" fill="#fff" letter-spacing="1">AS</text><text x="48" y="28" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="800" font-size="7.5" fill="#ff2d55">AI</text></svg><span class="word">Assist <b>Street</b></span></div></div>
+    <div class="stage light"><div class="lockup"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="5" y="14" width="54" height="36" rx="6" fill="#fff" stroke="#111418" stroke-width="3.5"/><rect x="10" y="19" width="44" height="26" rx="3" fill="none" stroke="#111418" stroke-opacity=".55" stroke-width="1.5"/><text x="29" y="40.5" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="800" font-size="17" fill="#111418" letter-spacing="1">AS</text><text x="48" y="28" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="800" font-size="7.5" fill="#ff2d55">AI</text></svg><span class="word">Assist <b>Street</b></span></div></div>
+    <div class="sizes"><svg width="48" height="48" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#111418"/><rect x="8" y="17" width="48" height="30" rx="5" fill="none" stroke="#fff" stroke-width="3"/><text x="32" y="38.5" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="800" font-size="16" fill="#fff">AS</text></svg><svg width="16" height="16" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#111418"/><text x="32" y="44" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="800" font-size="30" fill="#fff">AS</text></svg><span>App icon · browser tab</span></div>
+  </section>
+
+</div>
+</body>
+</html>
