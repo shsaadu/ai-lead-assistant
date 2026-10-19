@@ -410,6 +410,16 @@
       '</svg>'
     );
   }
+  function toothSvg() {
+    return (
+      '<svg viewBox="0 0 40 40" aria-hidden="true">' +
+      '<circle cx="20" cy="20" r="20" fill="#e6f4f1"/>' +
+      '<path d="M14.6 10.2c-3.4 0-5.6 2.7-5.6 6.2 0 2.6 1 4.4 1.9 6.6.8 2 1.1 4.3 1.6 6.6.4 1.9 1.1 3.2 2.4 3.2 1.6 0 2-1.8 2.4-3.9.4-2.2.9-4.1 2.7-4.1s2.3 1.9 2.7 4.1c.4 2.1.8 3.9 2.4 3.9 1.3 0 2-1.3 2.4-3.2.5-2.3.8-4.6 1.6-6.6.9-2.2 1.9-4 1.9-6.6 0-3.5-2.2-6.2-5.6-6.2-2.2 0-3.4 1.2-5.4 1.2s-3.2-1.2-5.4-1.2z" fill="#fff" stroke="#0f766e" stroke-width="1.6" stroke-linejoin="round"/>' +
+      '<path d="M13.4 15.2c.4-1.3 1.3-2 2.6-2.1" fill="none" stroke="#0f766e" stroke-width="1.3" stroke-linecap="round" opacity=".55"/>' +
+      '<path d="M30.5 7.5v4M28.5 9.5h4" stroke="#f2b33d" stroke-width="1.4" stroke-linecap="round"/>' +
+      '</svg>'
+    );
+  }
   // Returns a new avatar element for this business, or null if it has none.
   function makeAvatar() {
     var kind = state.config.assistant_avatar;
@@ -419,6 +429,8 @@
     el.setAttribute('aria-hidden', 'true');
     if (kind === 'lamp') {
       el.innerHTML = lampSvg();
+    } else if (kind === 'tooth') {
+      el.innerHTML = toothSvg();
     } else if (/^https:\/\/\S+$/i.test(kind)) {
       var img = document.createElement('img');
       img.src = kind;
@@ -842,9 +854,12 @@
 
   // Lets the host page open or close the chat from its own buttons, e.g.
   // <button onclick="AILeadAssistant.open()">Chat with us</button>.
+  // open('How much is a check-up?') also asks that question for the visitor.
   window.AILeadAssistant = {
-    open: function () {
+    open: function (question) {
       if (panel.hidden) openPanel();
+      var text = typeof question === 'string' ? question.trim().slice(0, 500) : '';
+      if (text) send(text);
     },
     close: function () {
       if (!panel.hidden) closePanel();

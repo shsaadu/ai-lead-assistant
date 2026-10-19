@@ -386,7 +386,7 @@ async function loadSettings() {
   document.getElementById('cfgName').value = business.name || '';
   document.getElementById('cfgAssistantName').value = business.assistant_name || '';
   const avatar = business.assistant_avatar || '';
-  document.getElementById('cfgAvatar').value = avatar === 'lamp' || avatar === '' ? avatar : 'custom';
+  document.getElementById('cfgAvatar').value = ['lamp', 'tooth', ''].includes(avatar) ? avatar : 'custom';
   document.getElementById('cfgAvatarUrl').value = avatar.startsWith('https://') ? avatar : '';
   document.getElementById('cfgAvatarUrlLabel').hidden = document.getElementById('cfgAvatar').value !== 'custom';
   document.getElementById('cfgTheme').value = business.widget_theme === 'dark' ? 'dark' : 'light';

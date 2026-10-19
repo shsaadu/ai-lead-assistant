@@ -29,8 +29,8 @@ module.exports = async function handler(req, res) {
     }
     if (updates.assistant_avatar !== undefined) {
       const avatar = String(updates.assistant_avatar || '').trim();
-      if (avatar && avatar !== 'lamp' && !/^https:\/\/\S+$/i.test(avatar)) {
-        return res.status(400).json({ error: 'Avatar must be "lamp", an https:// image link, or empty.' });
+      if (avatar && avatar !== 'lamp' && avatar !== 'tooth' && !/^https:\/\/\S+$/i.test(avatar)) {
+        return res.status(400).json({ error: 'Avatar must be "lamp", "tooth", an https:// image link, or empty.' });
       }
       updates.assistant_avatar = avatar || null;
     }
