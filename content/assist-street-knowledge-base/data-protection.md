@@ -6,4 +6,4 @@
 - Assist Street deletes a customer's information on request.
 - The Assist Street website has a privacy policy explaining how information from its own chat is handled.
 
-For specific legal questions about data protection, businesses should speak to Mohammad directly or take their own advice.
+For specific legal questions about data protection, businesses should speak to the Assist Street team directly or take their own advice.

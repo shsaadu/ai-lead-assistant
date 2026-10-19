@@ -23,4 +23,4 @@ Assist Street's services are grouped into three areas: Answer, Automate and Buil
 - AI opportunity call (free): a relaxed 30-minute call about how the business works and where AI could genuinely save time, including honest advice when AI isn't worth it.
 - Team AI workshop: a practical half-day session, at the client's office or online, using AI tools on the team's real work, with simple guidelines on using AI safely with customer data.
 
-To book a call, a workshop or a pilot, visitors can leave their details in this chat and Mohammad will reply within one working day.
+To book a call, a workshop or a pilot, visitors can leave their details in this chat and the Assist Street team will reply within one working day.
