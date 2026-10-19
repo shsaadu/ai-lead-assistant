@@ -36,6 +36,12 @@ These are our private prices. NHS patients pay the NHS bands instead (see the NH
 - Treatment usually takes 6 to 18 months.
 - Includes retainers at the end of treatment.
 
+## Braces and children's orthodontics
+
+- We don't fit fixed (metal or ceramic) braces at the practice.
+- Children and teenagers who need braces are referred to a specialist NHS orthodontist. Our dentists check how children's teeth are growing at every check-up and make the referral when needed, free of charge. NHS braces are free for under-18s who qualify, and waiting lists for specialist orthodontists can be long.
+- Invisalign is available for adults and for teenagers aged 12 and over whose adult teeth have come through. A free Invisalign consultation tells you whether it's suitable.
+
 ## Dental implants
 
 - Implant consultation with Dr Hughes: £95, taken off the cost of treatment if you go ahead
