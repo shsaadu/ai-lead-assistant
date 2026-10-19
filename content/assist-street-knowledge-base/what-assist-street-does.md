@@ -18,4 +18,10 @@ Any business that gets questions through its website: for example schools and tr
 
 ## Live demos
 
-There are two example businesses with working assistants on the Assist Street website: a plumbing company and an English language school. Visitors can try asking questions in any language.
+There are three example businesses with working assistants, all linked from the Demos page of the Assist Street website (/demos). Visitors can try asking questions in any language.
+
+- Northstar Plumbing, a plumbing company: emergency call-outs, prices and areas covered. Link: /demo/northstar/
+- Thames English Academy, an English language school: courses, start dates and accommodation for international students, in many languages. Link: /demo/thames-english-academy/
+- Aldbridge Dental, a dental practice: NHS and private prices, same-day emergencies, Invisalign, finance and nervous patients. Its assistant, Ava, never gives clinical advice and sends urgent symptoms to 999, A&E or NHS 111. Link: /demo/aldbridge-dental/
+
+All three are fictional businesses made for the demos. Lumi, on the Assist Street website itself, is a fourth working example.
