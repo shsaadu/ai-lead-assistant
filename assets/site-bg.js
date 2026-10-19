@@ -2,10 +2,10 @@
 //
 // One full-screen canvas behind the page draws three scenes:
 //   road  — a neon road running to the horizon (hero and final section)
-//   map   — a faint street grid with glowing messages travelling along it,
-//           plus soft out-of-focus city lights deep in the background
+//   city  — a night skyline: windows lighting up and going dark, red
+//           aircraft-warning lights on the towers, a plane crossing now and then
 //   stars — a constellation of points that connect around the cursor
-// Each section declares its scene with data-bg="road|map|stars". As you
+// Each section declares its scene with data-bg="road|city|stars". As you
 // scroll, the scene for the section in the middle of the screen fades in and
 // the previous one fades out, so changes are always gradual.
 //
@@ -36,7 +36,7 @@
   // ---------- Scenes ----------
   var scenes = {
     road: { weight: 0, target: 0, init: initRoad, draw: drawRoad },
-    map: { weight: 0, target: 0, init: initMap, draw: drawMap },
+    city: { weight: 0, target: 0, init: initCity, draw: drawCity },
     stars: { weight: 0, target: 0, init: initStars, draw: drawStars }
   };
 
@@ -92,114 +92,155 @@
     }
   }
 
-  // Street map + bokeh
-  var map = { pulses: [], bokeh: [], spacing: 64 };
-  function newPulse() {
-    var horizontal = Math.random() < 0.5;
-    var cols = Math.ceil(W / map.spacing) + 2;
-    var rows = Math.ceil((H * 2) / map.spacing) + 2;
+  // City skyline at night
+  var city = { layers: [], windows: [], beacons: [], planes: [], t: 0, haze: null };
+  function initCity() {
+    city.layers = [];
+    city.windows = [];
+    city.beacons = [];
+    city.planes = [];
+    // Two rows of buildings: a faint far row and a darker, taller near row.
+    var specs = [
+      { fill: 'rgba(255,255,255,0.028)', min: 0.12, max: 0.34, wMin: 26, wMax: 70, lit: 0.1 },
+      { fill: 'rgba(14,15,20,0.96)', min: 0.08, max: 0.46, wMin: 34, wMax: 96, lit: 0.16 }
+    ];
+    var scale = small ? 0.7 : 1;
+    specs.forEach(function (spec, depth) {
+      var layer = document.createElement('canvas');
+      layer.width = W;
+      layer.height = H;
+      var lctx = layer.getContext('2d');
+      var x = -Math.random() * 40;
+      var tallest = [];
+      while (x < W) {
+        var bw = (spec.wMin + Math.random() * (spec.wMax - spec.wMin)) * scale;
+        var bh = H * (spec.min + Math.pow(Math.random(), 1.6) * (spec.max - spec.min));
+        // Now and then a tower, so the skyline isn't flat.
+        if (Math.random() < 0.08) bh = H * (spec.max + 0.04 + Math.random() * 0.06);
+        var top = H - bh;
+        lctx.fillStyle = spec.fill;
+        lctx.fillRect(Math.round(x), Math.round(top), Math.ceil(bw), Math.ceil(bh));
+        // A thin edge of light along each roof.
+        lctx.fillStyle = 'rgba(255,255,255,' + (depth ? 0.07 : 0.035) + ')';
+        lctx.fillRect(Math.round(x), Math.round(top), Math.ceil(bw), 1);
+        if (Math.random() < 0.3) {
+          // Rooftop mast.
+          lctx.fillRect(Math.round(x + bw / 2), Math.round(top - 14 * scale), 1, Math.round(14 * scale));
+        }
+        tallest.push({ x: x + bw / 2, top: top, h: bh });
+        // Windows: a grid on each building; a share of them lit.
+        var cols = Math.max(1, Math.floor((bw - 8) / 9));
+        var rows = Math.floor((bh - 10) / 12);
+        for (var r = 0; r < rows; r++) {
+          for (var c = 0; c < cols; c++) {
+            if (Math.random() > spec.lit) continue;
+            city.windows.push({
+              x: Math.round(x + 5 + c * 9),
+              y: Math.round(top + 8 + r * 12),
+              w: depth ? 4 : 3,
+              h: depth ? 5 : 4,
+              on: Math.random() < 0.75 ? 1 : 0,
+              level: 0,
+              color: Math.random() < 0.7 ? AMBER : WHITE,
+              a: (depth ? 0.28 : 0.14) + Math.random() * 0.2
+            });
+          }
+        }
+        x += bw + (Math.random() < 0.25 ? 4 + Math.random() * 18 : 0);
+      }
+      city.layers.push(layer);
+      // Red aircraft-warning lights on the tallest near buildings.
+      if (depth === 1) {
+        tallest.sort(function (a, b) { return b.h - a.h; });
+        tallest.slice(0, small ? 2 : 4).forEach(function (b, i) {
+          city.beacons.push({ x: b.x, y: b.top - 15 * scale, phase: i * 0.7 });
+        });
+      }
+    });
+    city.windows.forEach(function (w) { w.level = w.on; });
+    // A plane's lights crossing high up now and then.
+    city.planes.push(newPlane(true));
+  }
+  function newPlane(anywhere) {
+    var dir = Math.random() < 0.5 ? 1 : -1;
     return {
-      horizontal: horizontal,
-      lane: Math.floor(Math.random() * (horizontal ? rows : cols)),
-      pos: -60,
-      speed: 60 + Math.random() * 110,
-      color: Math.random() < 0.62 ? RED : AMBER
+      x: anywhere ? Math.random() * W : dir > 0 ? -40 : W + 40,
+      y: H * (0.08 + Math.random() * 0.22),
+      dir: dir,
+      speed: 14 + Math.random() * 10,
+      wait: anywhere ? 0 : 4 + Math.random() * 10
     };
   }
-  function initMap() {
-    map.spacing = small ? 52 : 64;
-    map.pulses = [];
-    var count = small ? 7 : 13;
-    for (var i = 0; i < count; i++) {
-      var p = newPulse();
-      p.pos = Math.random() * (p.horizontal ? W : H * 2);
-      map.pulses.push(p);
-    }
-    map.bokeh = [];
-    var lights = small ? 9 : 16;
-    for (var j = 0; j < lights; j++) {
-      map.bokeh.push({
-        x: Math.random() * W,
-        y: Math.random() * H,
-        r: (small ? 30 : 40) + Math.random() * (small ? 50 : 90),
-        color: [RED, AMBER, WHITE, AMBER][j % 4],
-        drift: 4 + Math.random() * 10,
-        depth: 0.05 + Math.random() * 0.12,
-        a: 0.05 + Math.random() * 0.07
-      });
-    }
-    // Draw each soft light once into its own small canvas; every frame then
-    // only stamps it, instead of rebuilding a radial gradient.
-    map.bokeh.forEach(function (b) {
-      var size = Math.ceil(b.r * 2);
-      var sprite = document.createElement('canvas');
-      sprite.width = sprite.height = size;
-      var sctx = sprite.getContext('2d');
-      var g = sctx.createRadialGradient(b.r, b.r, b.r * 0.25, b.r, b.r, b.r);
-      g.addColorStop(0, 'rgba(' + b.color + ',' + b.a + ')');
-      g.addColorStop(0.75, 'rgba(' + b.color + ',' + b.a * 0.55 + ')');
-      g.addColorStop(1, 'rgba(' + b.color + ',0)');
-      sctx.fillStyle = g;
-      sctx.fillRect(0, 0, size, size);
-      b.sprite = sprite;
-    });
-  }
-  function drawMap(alpha, dt) {
-    // Bokeh: deepest layer, barely moves with scroll.
-    map.bokeh.forEach(function (b) {
-      b.y -= b.drift * dt;
-      var y = ((b.y - scrollY * b.depth) % (H + 2 * b.r) + H + 2 * b.r) % (H + 2 * b.r) - b.r;
-      ctx.globalAlpha = alpha;
-      ctx.drawImage(b.sprite, b.x - b.r, y - b.r);
-      ctx.globalAlpha = 1;
+  function drawCity(alpha, dt) {
+    city.t += dt;
+
+    // Warm haze rising from the streets.
+    var haze = ctx.createLinearGradient(0, H * 0.35, 0, H);
+    haze.addColorStop(0, 'rgba(' + RED + ',0)');
+    haze.addColorStop(0.7, 'rgba(' + RED + ',' + 0.07 * alpha + ')');
+    haze.addColorStop(1, 'rgba(' + AMBER + ',' + 0.12 * alpha + ')');
+    ctx.fillStyle = haze;
+    ctx.fillRect(0, H * 0.35, W, H * 0.65);
+
+    // Plane.
+    city.planes.forEach(function (p, i) {
+      if (p.wait > 0) { p.wait -= dt; return; }
+      p.x += p.dir * p.speed * dt;
+      var blink = (city.t * 1.2 + i) % 1 < 0.12 ? 1 : 0.35;
+      ctx.fillStyle = 'rgba(' + WHITE + ',' + 0.5 * blink * alpha + ')';
+      ctx.fillRect(p.x, p.y, 2, 2);
+      ctx.fillStyle = 'rgba(' + RED + ',' + 0.6 * alpha + ')';
+      ctx.fillRect(p.x - p.dir * 6, p.y + 1, 2, 2);
+      if (p.x < -60 || p.x > W + 60) city.planes[i] = newPlane(false);
     });
 
-    // Street grid: scrolls at 30% of page speed for depth.
-    var s = map.spacing;
-    var offset = -((scrollY * 0.3) % s);
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = 'rgba(255,255,255,' + 0.055 * alpha + ')';
-    ctx.beginPath();
-    for (var x = 0; x <= W; x += s) {
-      ctx.moveTo(Math.round(x) + 0.5, 0);
-      ctx.lineTo(Math.round(x) + 0.5, H);
-    }
-    for (var y = offset; y <= H; y += s) {
-      ctx.moveTo(0, Math.round(y) + 0.5);
-      ctx.lineTo(W, Math.round(y) + 0.5);
-    }
-    ctx.stroke();
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(city.layers[0], 0, 0, W, H);
+    ctx.globalAlpha = 1;
 
-    // Messages travelling along the streets.
-    var gridTop = -(scrollY * 0.3) % s;
-    map.pulses.forEach(function (p, i) {
-      p.pos += p.speed * dt;
-      var len = 70;
-      var x1, y1, x2, y2;
-      if (p.horizontal) {
-        y1 = y2 = gridTop + (p.lane % Math.ceil(H / s + 2)) * s;
-        x1 = p.pos;
-        x2 = p.pos - len;
-      } else {
-        x1 = x2 = p.lane * s;
-        y1 = p.pos - H * 0.5;
-        y2 = y1 - len;
+    // Windows switching on and off, a few at a time, fading gently.
+    var flips = dt * (small ? 3 : 6);
+    while (flips > 0) {
+      if (Math.random() < flips) {
+        var w = city.windows[Math.floor(Math.random() * city.windows.length)];
+        if (w) w.on = w.on ? 0 : 1;
       }
-      var g = ctx.createLinearGradient(x1, y1, x2, y2);
-      g.addColorStop(0, 'rgba(' + p.color + ',' + 0.85 * alpha + ')');
-      g.addColorStop(1, 'rgba(' + p.color + ',0)');
-      ctx.strokeStyle = g;
-      ctx.lineWidth = 2;
+      flips -= 1;
+    }
+    var nearStart = -1;
+    for (var i = 0; i < city.windows.length; i++) {
+      var win = city.windows[i];
+      if (win.w === 4 && nearStart < 0) {
+        // Far windows are done: lay the near row of buildings over them.
+        nearStart = i;
+        ctx.globalAlpha = alpha;
+        ctx.drawImage(city.layers[1], 0, 0, W, H);
+        ctx.globalAlpha = 1;
+      }
+      win.level += (win.on - win.level) * Math.min(1, dt * 1.5);
+      if (win.level < 0.02) continue;
+      ctx.fillStyle = 'rgba(' + win.color + ',' + win.a * win.level * alpha + ')';
+      ctx.fillRect(win.x, win.y, win.w, win.h);
+    }
+    if (nearStart < 0) {
+      ctx.globalAlpha = alpha;
+      ctx.drawImage(city.layers[1], 0, 0, W, H);
+      ctx.globalAlpha = 1;
+    }
+
+    // Aircraft-warning lights: a slow red pulse with a soft glow.
+    city.beacons.forEach(function (b) {
+      var pulse = Math.pow(Math.max(0, Math.sin((city.t * 0.9 + b.phase) * Math.PI)), 6);
+      var a = (0.25 + pulse * 0.75) * alpha;
+      var g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, 16);
+      g.addColorStop(0, 'rgba(' + RED + ',' + 0.5 * a + ')');
+      g.addColorStop(1, 'rgba(' + RED + ',0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(b.x - 16, b.y - 16, 32, 32);
+      ctx.fillStyle = 'rgba(' + RED + ',' + a + ')';
       ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
-      ctx.stroke();
-      ctx.fillStyle = 'rgba(' + p.color + ',' + alpha + ')';
-      ctx.beginPath();
-      ctx.arc(x1, y1, 2.4, 0, Math.PI * 2);
+      ctx.arc(b.x, b.y, 1.8, 0, Math.PI * 2);
       ctx.fill();
-      var limit = p.horizontal ? W + len : H * 1.5 + len;
-      if (p.pos > limit) map.pulses[i] = newPulse();
     });
   }
 
@@ -262,7 +303,7 @@
   var zones = Array.prototype.slice.call(document.querySelectorAll('[data-bg]'));
   function pickScene() {
     var middle = window.innerHeight * 0.5;
-    var current = zones.length ? zones[0].getAttribute('data-bg') : 'map';
+    var current = zones.length ? zones[0].getAttribute('data-bg') : 'city';
     for (var i = 0; i < zones.length; i++) {
       if (zones[i].getBoundingClientRect().top <= middle) current = zones[i].getAttribute('data-bg');
     }
