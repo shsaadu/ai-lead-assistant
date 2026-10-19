@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Assist Street One-Pager</title>
+<style>
+@font-face { font-family: 'Archivo'; src: url('../assets/fonts/archivo-latin.woff2') format('woff2'); font-weight: 400 800; }
+@font-face { font-family: 'Inter'; src: url('../assets/fonts/inter-latin.woff2') format('woff2'); font-weight: 400 700; }
+:root { --ink: #0b0d12; --muted: #5a606b; --line: #e3e5ea; --red: #ff2d55; --red-ink: #d4143f; --amber: #ffb547; --dark: #07080b; }
+@page { size: A4; margin: 0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #d9dbe0; }
+body { font-family: 'Inter', system-ui, sans-serif; color: var(--ink); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { width: 210mm; height: 297mm; margin: 10mm auto; background: #fff; position: relative; overflow: hidden; display: flex; flex-direction: column; }
+@media print { html, body { background: #fff; } .page { margin: 0; } }
+h1, h2, h3 { font-family: 'Archivo', 'Inter', sans-serif; margin: 0; letter-spacing: -0.02em; }
+p { margin: 0; }
+
+.band { background: var(--dark); color: #fff; padding: 10mm 14mm 0; position: relative; }
+.band::before { content: ''; position: absolute; inset: 0; background: radial-gradient(90mm 50mm at 85% 10%, rgba(255,45,85,.28), transparent 70%), radial-gradient(80mm 40mm at 5% 100%, rgba(255,181,71,.16), transparent 70%); }
+.band > * { position: relative; }
+.brand { display: flex; align-items: center; gap: 3mm; font-family: 'Archivo'; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; font-size: 11pt; }
+.mark { width: 9mm; height: 9mm; }
+.eyebrow { margin-top: 7mm; color: var(--red); font-weight: 700; letter-spacing: .18em; text-transform: uppercase; font-size: 8pt; }
+.band h1 { font-size: 30pt; line-height: 1.02; margin-top: 2.5mm; font-weight: 800; }
+.band h1 span { color: var(--red); }
+.band .lede { margin-top: 3mm; max-width: 150mm; color: #c9ccd3; font-size: 10.2pt; line-height: 1.5; }
+.sky { display: block; width: calc(100% + 28mm); margin: 4mm -14mm 0; height: 15mm; }
+
+.body { flex: 1; padding: 7mm 14mm 0; display: grid; grid-template-columns: 1fr 74mm; gap: 9mm; }
+h2 { font-size: 13pt; font-weight: 800; margin-bottom: 2.5mm; }
+.block + .block { margin-top: 5mm; }
+ul { margin: 0; padding: 0; list-style: none; }
+li { font-size: 9.2pt; line-height: 1.4; padding-left: 5mm; position: relative; }
+li + li { margin-top: 1.3mm; }
+li::before { content: ''; position: absolute; left: 0; top: 1.9mm; width: 2mm; height: 2mm; border-radius: 50%; background: var(--red); }
+.problem li::before { background: #c3c7cf; }
+.steps { counter-reset: s; }
+.steps li { padding-left: 8mm; }
+.steps li::before { counter-increment: s; content: counter(s); width: 5.5mm; height: 5.5mm; top: 0; background: var(--ink); color: #fff; font: 700 8pt 'Archivo'; display: grid; place-items: center; }
+.steps strong { display: block; }
+.services { display: grid; gap: 2mm; margin-top: 5mm; }
+.also { margin-top: 5mm; font-size: 9.2pt; line-height: 1.45; padding: 3mm 4mm; background: #f4f5f7; border-radius: 3mm; }
+.also b { color: var(--red-ink); }
+.chip { border: 1px solid var(--line); border-radius: 2.5mm; padding: 2.2mm 3mm; font-size: 8.6pt; line-height: 1.35; }
+.chip b { display: block; font-size: 9pt; }
+.chip .soon { color: var(--muted); font-size: 7.6pt; }
+
+.chat { background: #f4f5f7; border-radius: 4mm; padding: 4mm; font-size: 8.8pt; line-height: 1.4; }
+.chat .label { font-size: 7pt; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 700; margin-bottom: 2.5mm; }
+.msg { padding: 2.4mm 3.2mm; border-radius: 3mm; max-width: 92%; }
+.msg + .msg { margin-top: 2mm; }
+.msg.in { background: #fff; border: 1px solid var(--line); }
+.msg.out { background: var(--dark); color: #fff; margin-left: auto; }
+.lead { margin-top: 3mm; border-left: 1mm solid var(--red); background: #fff; padding: 2.4mm 3mm; font-size: 8.2pt; border-radius: 0 2mm 2mm 0; }
+.lead b { color: var(--red-ink); }
+.pilot { margin-top: 5mm; border: 0.6mm solid var(--red); border-radius: 4mm; padding: 4.5mm; }
+.pilot h2 { font-size: 15pt; margin-bottom: 1.5mm; }
+.pilot p { font-size: 9pt; line-height: 1.45; color: #2b2f37; }
+.prices { margin-top: 5mm; font-size: 8.6pt; }
+.prices .row { display: flex; justify-content: space-between; gap: 3mm; padding: 2mm 0; border-bottom: 1px solid var(--line); }
+.prices .row:last-child { border-bottom: 0; }
+.prices .amt { font-weight: 700; text-align: right; white-space: nowrap; }
+.prices small { display: block; color: var(--muted); font-weight: 400; font-size: 7.6pt; }
+.prices s { color: var(--muted); font-weight: 400; }
+
+.foot { margin: auto 14mm 0; padding: 4.5mm 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: 23mm 1fr auto; gap: 6mm; align-items: center; }
+.qr { width: 23mm; height: 23mm; display: block; }
+.try h3 { font-size: 12pt; }
+.try p { font-size: 9pt; color: var(--muted); margin-top: 1mm; line-height: 1.4; }
+.contact { text-align: right; font-size: 9pt; line-height: 1.55; }
+.contact b { font-size: 10pt; }
+.legal { background: var(--dark); color: #8d939d; font-size: 7.2pt; padding: 3mm 14mm; text-align: center; letter-spacing: .02em; }
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="band">
+    <div class="brand"><svg class="mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M46 16H24a8 8 0 0 0 0 16h16a8 8 0 0 1 0 16H18" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="46" cy="16" r="5.5" fill="#ff2d55"/><circle cx="18" cy="48" r="4.5" fill="#07080b" stroke="#fff" stroke-width="3"/></svg>Assist Street</div>
+    <p class="eyebrow">AI assistants for local businesses</p>
+    <h1>Your front desk<br><span>never closes.</span></h1>
+    <p class="lede">An assistant on your website that answers customers' questions instantly, day and night, in their own language, and sends you the enquiries that are ready to act on. We set it up and look after it for you.</p>
+    <svg class="sky" viewBox="0 0 600 70" preserveAspectRatio="none" aria-hidden="true"><g fill="#151821"><rect x="0" y="43" width="24" height="27"/><rect x="26" y="26" width="23" height="44"/><rect x="49" y="48" width="23" height="22"/><rect x="72" y="13" width="29" height="57"/><rect x="101" y="47" width="18" height="23"/><rect x="119" y="44" width="24" height="26"/><rect x="143" y="42" width="28" height="28"/><rect x="171" y="6" width="19" height="64"/><rect x="190" y="30" width="20" height="40"/><rect x="210" y="40" width="38" height="30"/><rect x="251" y="37" width="30" height="33"/><rect x="281" y="19" width="30" height="51"/><rect x="311" y="43" width="17" height="27"/><rect x="328" y="38" width="35" height="32"/><rect x="363" y="27" width="22" height="43"/><rect x="385" y="49" width="22" height="21"/><rect x="408" y="6" width="22" height="64"/><rect x="434" y="42" width="19" height="28"/><rect x="453" y="20" width="21" height="50"/><rect x="474" y="51" width="40" height="19"/><rect x="515" y="20" width="37" height="50"/><rect x="557" y="43" width="16" height="27"/><rect x="573" y="14" width="29" height="56"/></g><rect x="3" y="47" width="2" height="3" fill="#ffffff" opacity="0.35"/><rect x="15" y="47" width="2" height="3" fill="#ffb547" opacity="0.35"/><rect x="3" y="54" width="2" height="3" fill="#ffb547" opacity="0.35"/><rect x="9" y="54" width="2" height="3" fill="#ffb547" opacity="0.7"/><rect x="15" y="54" width="2" height="3" fill="#ffb547" opacity="0.7"/><rect x="9" y="61" width="2" height="3" fill="#ffb547" opacity="0.35"/><rect x="29" y="30" width="2" height="3" fill="#ffb547" opacity="0.7"/><rect x="29" y="44" width="2" height="3" fill="#ffb547" opacity="0.35"/><rect x="35" y="65" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="64" y="52" width="2" height="3" fill="#ffb547" opacity="0.35"/><rect x="58" y="59" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="93" y="17" width="2" height="3" fill="#ffb547" opacity="0.7"/><rect x="75" y="52" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="110" y="65" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="122" y="55" width="2" height="3" fill="#ffffff" opacity="0.7"/><rect x="128" y="62" width="2" height="3" fill="#ffb547" opacity="0.35"/><rect x="152" y="46" width="2" height="3" fill="#ffb547" opacity="0.7"/><rect x="158" y="46" width="2" height="3" fill="#ffb547" opacity="0.35"/><rect x="164" y="46" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="146" y="53" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="164" y="53" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="158" y="60" width="2" height="3" fill="#ffb547" opacity="0.7"/><rect x="174" y="24" width="2" height="3" fill="#ffffff" opacity="0.7"/><rect x="186" y="24" width="2" height="3" fill="#ffffff" opacity="0.7"/><rect x="205" y="62" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="237" y="51" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="213" y="58" width="2" height="3" fill="#ffffff" opacity="0.5"/><rect x="237" y="58" width="2" height="3" fill="#ffb547" opacity="0.7"/><rect x="272" y="41" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="260" y="55" width="2" height="3" fill="#ffb547" opacity="0.7"/><rect x="266" y="55" width="2" height="3" fill="#ffb547" opacity="0.35"/><rect x="260" y="62" width="2" height="3" fill="#ffb547" opacity="0.7"/><rect x="290" y="23" width="2" height="3" fill="#ffb547" opacity="0.35"/><rect x="302" y="23" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="302" y="58" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="320" y="54" width="2" height="3" fill="#ffb547" opacity="0.7"/><rect x="337" y="49" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="343" y="56" width="2" height="3" fill="#ffffff" opacity="0.35"/><rect x="355" y="56" width="2" height="3" fill="#ffb547" opacity="0.35"/><rect x="366" y="38" width="2" height="3" fill="#ffb547" opacity="0.7"/><rect x="372" y="45" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="378" y="45" width="2" height="3" fill="#ffffff" opacity="0.35"/><rect x="372" y="52" width="2" height="3" fill="#ffb547" opacity="0.7"/><rect x="378" y="59" width="2" height="3" fill="#ffb547" opacity="0.35"/><rect x="417" y="17" width="2" height="3" fill="#ffffff" opacity="0.5"/><rect x="411" y="45" width="2" height="3" fill="#ffffff" opacity="0.35"/><rect x="423" y="45" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="417" y="52" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="437" y="46" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="443" y="60" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="456" y="24" width="2" height="3" fill="#ffffff" opacity="0.35"/><rect x="468" y="24" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="462" y="31" width="2" height="3" fill="#ffffff" opacity="0.35"/><rect x="468" y="45" width="2" height="3" fill="#ffb547" opacity="0.7"/><rect x="456" y="52" width="2" height="3" fill="#ffffff" opacity="0.7"/><rect x="468" y="59" width="2" height="3" fill="#ffb547" opacity="0.7"/><rect x="507" y="55" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="495" y="62" width="2" height="3" fill="#ffb547" opacity="0.7"/><rect x="518" y="24" width="2" height="3" fill="#ffb547" opacity="0.7"/><rect x="536" y="24" width="2" height="3" fill="#ffb547" opacity="0.7"/><rect x="536" y="31" width="2" height="3" fill="#ffffff" opacity="0.5"/><rect x="524" y="38" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="548" y="38" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="530" y="52" width="2" height="3" fill="#ffffff" opacity="0.35"/><rect x="542" y="52" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="566" y="61" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="588" y="25" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="582" y="32" width="2" height="3" fill="#ffffff" opacity="0.7"/><rect x="588" y="32" width="2" height="3" fill="#ffb547" opacity="0.5"/><rect x="588" y="46" width="2" height="3" fill="#ffb547" opacity="0.7"/><circle cx="419.0" cy="3" r="1.6" fill="#ff2d55"/><circle cx="419.0" cy="3" r="5" fill="#ff2d55" opacity=".25"/><circle cx="180.5" cy="3" r="1.6" fill="#ff2d55"/><circle cx="180.5" cy="3" r="5" fill="#ff2d55" opacity=".25"/><circle cx="86.5" cy="10" r="1.6" fill="#ff2d55"/><circle cx="86.5" cy="10" r="5" fill="#ff2d55" opacity=".25"/></svg>
+  </header>
+
+  <main class="body">
+    <div>
+      <section class="block problem">
+        <h2>Customers don't wait</h2>
+        <ul>
+          <li>Most people look you up in the evening or at the weekend, when nobody is there to reply.</li>
+          <li>If they don't get an answer quickly, they message the next business on Google.</li>
+          <li>Your team spends hours answering the same questions about prices, times and availability.</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h2>What you get</h2>
+        <ul>
+          <li>Instant answers from your own prices, services and opening hours, never made up</li>
+          <li>Replies in the customer's language: English, Bengali, Arabic, Spanish and many more</li>
+          <li>The customer's name, contact details and what they need, emailed to you</li>
+          <li>Anything it can't answer goes straight to you, and every conversation is in your dashboard</li>
+        </ul>
+      </section>
+      <section class="block">
+        <h2>Live in a week, in three steps</h2>
+        <ul class="steps">
+          <li><strong>Tell us about your business</strong>A 15-minute chat, or send us your price list and FAQs.</li>
+          <li><strong>We build and test it</strong>With your information, in your colours.</li>
+          <li><strong>You get the enquiries</strong>By email, ready to call back, book or quote.</li>
+        </ul>
+      </section>
+      <p class="also"><b>We can also</b> follow up leads automatically and build your website. Booking and WhatsApp assistants are coming soon.</p>
+    </div>
+
+    <aside>
+      <div class="chat">
+        <p class="label">Example chat, 11:42pm</p>
+        <div class="msg in">Hi, how much is a check-up? Do you have anything on Saturday?</div>
+        <div class="msg out">A check-up is £45 for new patients. We're open Saturdays 9am to 1pm. Shall I ask the team to book you in? What's your name and number?</div>
+        <div class="lead"><b>New enquiry:</b> check-up, Saturday morning, new patient. Name and mobile included.</div>
+      </div>
+      <div class="pilot">
+        <h2>Free for 30 days</h2>
+        <p>We set it up on your website for free. No contract, no card. At the end we show you every conversation it had. If it isn't worth it, we take it down.</p>
+      </div>
+      <div class="prices">
+        <div class="row"><span>Essentials<small>Assistant, alerts and dashboard</small></span><span class="amt">£75 / month<small>+ £200 setup</small></span></div>
+        <div class="row"><span>Managed<small>We keep it updated, monthly report</small></span><span class="amt"><s>£200</s> £150 / month<small>+ £400 setup, first 10 clients</small></span></div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="foot">
+    <svg viewBox="0 0 33 33" class="qr" xmlns="http://www.w3.org/2000/svg" width="33" height="33" class="segno"><path class="qrline" stroke="#07080b" d="M0 0.5h7m1 0h2m1 0h1m1 0h1m2 0h2m1 0h2m2 0h1m2 0h7m-33 1h1m5 0h1m1 0h6m4 0h1m3 0h3m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m4 0h2m4 0h1m6 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h1m5 0h3m3 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m2 0h1m1 0h2m1 0h1m2 0h1m2 0h1m3 0h1m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m3 0h1m1 0h2m4 0h3m1 0h1m1 0h1m1 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-25 1h4m5 0h1m2 0h1m1 0h3m-25 1h1m1 0h2m1 0h3m1 0h1m7 0h5m4 0h1m2 0h1m1 0h2m-32 1h1m2 0h1m2 0h4m5 0h1m1 0h3m2 0h1m2 0h2m1 0h4m-32 1h1m2 0h5m1 0h1m1 0h1m1 0h1m1 0h2m3 0h3m2 0h4m1 0h2m-30 1h1m1 0h1m3 0h2m1 0h4m2 0h2m4 0h1m2 0h1m1 0h1m-27 1h2m1 0h4m8 0h2m2 0h4m1 0h3m1 0h1m-31 1h2m1 0h2m2 0h1m2 0h1m1 0h1m2 0h3m3 0h1m1 0h2m1 0h1m1 0h1m1 0h1m-32 1h2m1 0h1m2 0h1m1 0h3m4 0h2m9 0h1m3 0h1m-31 1h1m2 0h1m1 0h1m1 0h3m2 0h2m2 0h1m2 0h3m3 0h2m1 0h3m-31 1h2m1 0h1m2 0h3m1 0h6m2 0h4m1 0h1m1 0h2m1 0h3m-31 1h2m2 0h2m5 0h1m3 0h1m1 0h1m2 0h1m1 0h5m1 0h2m1 0h2m-31 1h1m2 0h3m2 0h1m1 0h6m2 0h1m6 0h2m1 0h2m-30 1h1m1 0h2m1 0h2m2 0h2m6 0h2m1 0h3m1 0h1m1 0h1m-29 1h1m1 0h1m1 0h1m1 0h2m2 0h1m1 0h1m1 0h2m2 0h3m1 0h2m5 0h2m-31 1h1m4 0h1m1 0h1m5 0h1m1 0h1m1 0h2m4 0h1m1 0h3m2 0h1m1 0h1m-31 1h3m1 0h5m2 0h1m2 0h1m1 0h1m3 0h3m1 0h1m3 0h3m-32 1h3m1 0h1m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m3 0h2m2 0h1m1 0h1m2 0h1m-33 1h1m1 0h1m1 0h4m2 0h2m3 0h1m1 0h1m2 0h1m1 0h7m2 0h2m-25 1h1m1 0h1m2 0h1m1 0h5m3 0h2m3 0h2m1 0h1m-32 1h7m1 0h6m5 0h2m1 0h3m1 0h1m1 0h1m-29 1h1m5 0h1m1 0h1m2 0h2m1 0h3m2 0h1m1 0h1m2 0h1m3 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m6 0h3m1 0h1m2 0h1m2 0h6m1 0h2m-32 1h1m1 0h3m1 0h1m1 0h1m2 0h1m1 0h2m3 0h3m1 0h2m3 0h1m1 0h1m1 0h2m-33 1h1m1 0h3m1 0h1m1 0h3m2 0h2m4 0h1m1 0h1m4 0h2m1 0h2m-31 1h1m5 0h1m4 0h1m2 0h4m1 0h1m2 0h3m1 0h3m3 0h1m-33 1h7m1 0h1m1 0h4m1 0h3m2 0h2m3 0h1m2 0h1m1 0h1"/></svg>
+    <div class="try">
+      <h3>Try it now</h3>
+      <p>Scan to chat with a live demo.<br>Ask it anything, in any language.</p>
+    </div>
+    <div class="contact">
+      <b>Mohammad Saad</b><br>
+      Founder, Assist Street<br>
+      hello.assiststreet@gmail.com<br>
+      ai-lead-assistant-iota.vercel.app
+    </div>
+  </footer>
+  <div class="legal">Assist Street Ltd · Registered in England and Wales · Company no. 17518103 · London E1</div>
+</div>
+</body>
+</html>
