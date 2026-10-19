@@ -8,6 +8,7 @@
  * Optional attributes:
  *   data-position="left"        put the button bottom-left instead of bottom-right
  *   data-greeting="Hi there!"   replace the first message shown in the chat
+ *   data-voice="off"            hide the microphone button (voice messages)
  *   data-label="Ask us"         replace the text on the chat button
  *   data-language="es"          start in this language instead of the visitor's browser language
  *   data-theme="dark"           use the dark theme (otherwise the business's setting, or light)
@@ -63,7 +64,10 @@
       sendError: 'Could not send your details. Please try again.',
       reachError: 'Could not reach the server. Please try again in a moment.',
       serverDown: "Sorry, I couldn't reach the server. Please leave your details and the team will follow up.",
-      noReply: "Sorry, I couldn't process that. Please try again."
+      noReply: "Sorry, I couldn't process that. Please try again.",
+      micStart: 'Speak your message', micStop: 'Stop and send', listening: 'Listening… tap the microphone to send',
+      micBlocked: 'Microphone access is blocked. Please allow it in your browser settings, or type your message.',
+      micFailed: 'Sorry, I couldn\'t hear that. Please try again or type your message.'
     },
     es: {
       launcher: 'Chatea con nosotros', openChat: 'Abrir chat', closeChat: 'Cerrar chat', subtitle: 'Suele responder en segundos',
@@ -80,7 +84,10 @@
       sendError: 'No se pudieron enviar tus datos. Inténtalo de nuevo.',
       reachError: 'No se pudo conectar con el servidor. Inténtalo de nuevo en un momento.',
       serverDown: 'Lo siento, no pude conectar con el servidor. Déjanos tus datos y el equipo te contactará.',
-      noReply: 'Lo siento, no pude procesar eso. Inténtalo de nuevo.'
+      noReply: 'Lo siento, no pude procesar eso. Inténtalo de nuevo.',
+      micStart: 'Habla tu mensaje', micStop: 'Detener y enviar', listening: 'Escuchando… toca el micrófono para enviar',
+      micBlocked: 'El micrófono está bloqueado. Permítelo en la configuración del navegador o escribe tu mensaje.',
+      micFailed: 'Lo siento, no te he oído bien. Inténtalo de nuevo o escribe tu mensaje.'
     },
     fr: {
       launcher: 'Discutons', openChat: 'Ouvrir le chat', closeChat: 'Fermer le chat', subtitle: 'Répond généralement en quelques secondes',
@@ -97,7 +104,10 @@
       sendError: "Impossible d'envoyer vos coordonnées. Veuillez réessayer.",
       reachError: 'Impossible de joindre le serveur. Veuillez réessayer dans un instant.',
       serverDown: "Désolé, je n'ai pas pu joindre le serveur. Laissez vos coordonnées et l'équipe vous recontactera.",
-      noReply: "Désolé, je n'ai pas pu traiter votre message. Veuillez réessayer."
+      noReply: "Désolé, je n'ai pas pu traiter votre message. Veuillez réessayer.",
+      micStart: 'Dictez votre message', micStop: 'Arrêter et envoyer', listening: 'J\'écoute… touchez le micro pour envoyer',
+      micBlocked: 'Le micro est bloqué. Autorisez-le dans les réglages du navigateur, ou écrivez votre message.',
+      micFailed: 'Désolé, je n\'ai pas bien entendu. Réessayez ou écrivez votre message.'
     },
     de: {
       launcher: 'Chatten Sie mit uns', openChat: 'Chat öffnen', closeChat: 'Chat schließen', subtitle: 'Antwortet meist in Sekunden',
@@ -114,7 +124,10 @@
       sendError: 'Ihre Daten konnten nicht gesendet werden. Bitte versuchen Sie es erneut.',
       reachError: 'Der Server ist nicht erreichbar. Bitte versuchen Sie es gleich noch einmal.',
       serverDown: 'Der Server ist leider nicht erreichbar. Hinterlassen Sie Ihre Kontaktdaten, und das Team meldet sich.',
-      noReply: 'Das konnte ich leider nicht verarbeiten. Bitte versuchen Sie es erneut.'
+      noReply: 'Das konnte ich leider nicht verarbeiten. Bitte versuchen Sie es erneut.',
+      micStart: 'Nachricht sprechen', micStop: 'Stoppen und senden', listening: 'Ich höre zu… tippen Sie aufs Mikrofon zum Senden',
+      micBlocked: 'Das Mikrofon ist blockiert. Erlauben Sie es in den Browsereinstellungen oder schreiben Sie Ihre Nachricht.',
+      micFailed: 'Das habe ich leider nicht verstanden. Bitte versuchen Sie es erneut oder schreiben Sie.'
     },
     it: {
       launcher: 'Scrivici in chat', openChat: 'Apri chat', closeChat: 'Chiudi chat', subtitle: 'Di solito risponde in pochi secondi',
@@ -131,7 +144,10 @@
       sendError: 'Impossibile inviare i tuoi dati. Riprova.',
       reachError: 'Impossibile raggiungere il server. Riprova tra un momento.',
       serverDown: 'Spiacente, non riesco a raggiungere il server. Lascia i tuoi dati e il team ti ricontatterà.',
-      noReply: 'Spiacente, non sono riuscito a elaborare la richiesta. Riprova.'
+      noReply: 'Spiacente, non sono riuscito a elaborare la richiesta. Riprova.',
+      micStart: 'Detta il tuo messaggio', micStop: 'Ferma e invia', listening: 'Ti ascolto… tocca il microfono per inviare',
+      micBlocked: 'Il microfono è bloccato. Consentilo nelle impostazioni del browser o scrivi il messaggio.',
+      micFailed: 'Spiacente, non ho sentito bene. Riprova o scrivi il messaggio.'
     },
     pt: {
       launcher: 'Fale conosco', openChat: 'Abrir chat', closeChat: 'Fechar chat', subtitle: 'Costuma responder em segundos',
@@ -148,7 +164,10 @@
       sendError: 'Não foi possível enviar seus dados. Tente novamente.',
       reachError: 'Não foi possível conectar ao servidor. Tente novamente em instantes.',
       serverDown: 'Desculpe, não consegui conectar ao servidor. Deixe seus dados e a equipe entrará em contato.',
-      noReply: 'Desculpe, não consegui processar isso. Tente novamente.'
+      noReply: 'Desculpe, não consegui processar isso. Tente novamente.',
+      micStart: 'Fale a sua mensagem', micStop: 'Parar e enviar', listening: 'A ouvir… toque no microfone para enviar',
+      micBlocked: 'O microfone está bloqueado. Permita-o nas definições do navegador ou escreva a sua mensagem.',
+      micFailed: 'Desculpe, não consegui ouvir. Tente novamente ou escreva a sua mensagem.'
     },
     ar: {
       launcher: 'تحدث معنا', openChat: 'فتح المحادثة', closeChat: 'إغلاق المحادثة', subtitle: 'يرد عادةً خلال ثوانٍ',
@@ -165,7 +184,10 @@
       sendError: 'تعذّر إرسال بياناتك. يرجى المحاولة مرة أخرى.',
       reachError: 'تعذّر الاتصال بالخادم. يرجى المحاولة بعد قليل.',
       serverDown: 'عذرًا، تعذّر الاتصال بالخادم. اترك بياناتك وسيتابع معك الفريق.',
-      noReply: 'عذرًا، لم أتمكن من معالجة ذلك. يرجى المحاولة مرة أخرى.'
+      noReply: 'عذرًا، لم أتمكن من معالجة ذلك. يرجى المحاولة مرة أخرى.',
+      micStart: 'تحدّث برسالتك', micStop: 'إيقاف وإرسال', listening: 'أستمع… اضغط على الميكروفون للإرسال',
+      micBlocked: 'الميكروفون محظور. يرجى السماح به من إعدادات المتصفح، أو اكتب رسالتك.',
+      micFailed: 'عذرًا، لم أسمع ذلك جيدًا. حاول مرة أخرى أو اكتب رسالتك.'
     },
     zh: {
       launcher: '在线咨询', openChat: '打开聊天', closeChat: '关闭聊天', subtitle: '通常几秒内回复',
@@ -182,7 +204,10 @@
       sendError: '无法发送您的信息，请重试。',
       reachError: '无法连接服务器，请稍后再试。',
       serverDown: '抱歉，无法连接服务器。请留下您的联系方式，团队会与您联系。',
-      noReply: '抱歉，无法处理您的消息，请重试。'
+      noReply: '抱歉，无法处理您的消息，请重试。',
+      micStart: '说出您的消息', micStop: '停止并发送', listening: '正在聆听…点按麦克风发送',
+      micBlocked: '麦克风已被阻止。请在浏览器设置中允许，或直接输入消息。',
+      micFailed: '抱歉，没有听清楚。请重试或输入您的消息。'
     },
     ja: {
       launcher: 'チャットで相談', openChat: 'チャットを開く', closeChat: 'チャットを閉じる', subtitle: '通常は数秒で返信します',
@@ -199,7 +224,10 @@
       sendError: '送信できませんでした。もう一度お試しください。',
       reachError: 'サーバーに接続できません。しばらくしてからお試しください。',
       serverDown: '申し訳ありません。サーバーに接続できませんでした。ご連絡先を残していただければ、担当者からご連絡します。',
-      noReply: '申し訳ありません。処理できませんでした。もう一度お試しください。'
+      noReply: '申し訳ありません。処理できませんでした。もう一度お試しください。',
+      micStart: '音声で話す', micStop: '停止して送信', listening: '聞き取り中…マイクをタップして送信',
+      micBlocked: 'マイクがブロックされています。ブラウザの設定で許可するか、メッセージを入力してください。',
+      micFailed: '申し訳ありません、聞き取れませんでした。もう一度お試しいただくか、入力してください。'
     },
     ko: {
       launcher: '채팅 상담', openChat: '채팅 열기', closeChat: '채팅 닫기', subtitle: '보통 몇 초 안에 답변합니다',
@@ -216,7 +244,10 @@
       sendError: '정보를 보내지 못했습니다. 다시 시도해 주세요.',
       reachError: '서버에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.',
       serverDown: '죄송합니다. 서버에 연결할 수 없습니다. 연락처를 남겨 주시면 담당자가 연락드리겠습니다.',
-      noReply: '죄송합니다. 처리할 수 없었습니다. 다시 시도해 주세요.'
+      noReply: '죄송합니다. 처리할 수 없었습니다. 다시 시도해 주세요.',
+      micStart: '음성으로 말하기', micStop: '중지하고 보내기', listening: '듣고 있어요… 마이크를 눌러 보내세요',
+      micBlocked: '마이크가 차단되어 있습니다. 브라우저 설정에서 허용하거나 메시지를 입력해 주세요.',
+      micFailed: '죄송합니다. 잘 듣지 못했어요. 다시 시도하거나 입력해 주세요.'
     },
     tr: {
       launcher: 'Bize yazın', openChat: 'Sohbeti aç', closeChat: 'Sohbeti kapat', subtitle: 'Genellikle saniyeler içinde yanıt verir',
@@ -233,7 +264,10 @@
       sendError: 'Bilgileriniz gönderilemedi. Lütfen tekrar deneyin.',
       reachError: 'Sunucuya ulaşılamadı. Lütfen biraz sonra tekrar deneyin.',
       serverDown: 'Üzgünüm, sunucuya ulaşamadım. Bilgilerinizi bırakın, ekip size dönüş yapsın.',
-      noReply: 'Üzgünüm, bunu işleyemedim. Lütfen tekrar deneyin.'
+      noReply: 'Üzgünüm, bunu işleyemedim. Lütfen tekrar deneyin.',
+      micStart: 'Mesajınızı söyleyin', micStop: 'Durdur ve gönder', listening: 'Dinliyorum… göndermek için mikrofona dokunun',
+      micBlocked: 'Mikrofon engellendi. Tarayıcı ayarlarından izin verin veya mesajınızı yazın.',
+      micFailed: 'Üzgünüm, duyamadım. Tekrar deneyin veya mesajınızı yazın.'
     },
     ru: {
       launcher: 'Напишите нам', openChat: 'Открыть чат', closeChat: 'Закрыть чат', subtitle: 'Обычно отвечает за несколько секунд',
@@ -250,7 +284,10 @@
       sendError: 'Не удалось отправить данные. Попробуйте ещё раз.',
       reachError: 'Не удалось подключиться к серверу. Попробуйте чуть позже.',
       serverDown: 'Извините, не удалось подключиться к серверу. Оставьте контакты, и команда свяжется с вами.',
-      noReply: 'Извините, не удалось обработать сообщение. Попробуйте ещё раз.'
+      noReply: 'Извините, не удалось обработать сообщение. Попробуйте ещё раз.',
+      micStart: 'Скажите сообщение', micStop: 'Остановить и отправить', listening: 'Слушаю… нажмите на микрофон, чтобы отправить',
+      micBlocked: 'Микрофон заблокирован. Разрешите его в настройках браузера или напишите сообщение.',
+      micFailed: 'Извините, не расслышал. Попробуйте ещё раз или напишите сообщение.'
     }
   };
 
@@ -365,6 +402,14 @@
     'form.composer textarea { flex: 1; resize: none; max-height: 110px; }',
     '.send { flex: none; border: 0; border-radius: 10px; width: 44px; background: var(--brand); color: var(--on-brand); font-size: 18px; cursor: pointer; }',
     '.send:disabled { opacity: .5; cursor: default; }',
+    // Microphone: tap to record, tap again to send; pulses while recording.
+    '.mic { flex: none; display: grid; place-items: center; width: 44px; border: 1px solid var(--field-border); border-radius: 10px; background: var(--field); color: var(--label); cursor: pointer; }',
+    '.mic[hidden] { display: none; }',
+    '.mic svg { width: 20px; height: 20px; }',
+    '.mic.recording { background: #dc2626; border-color: #dc2626; color: #fff; animation: mic-pulse 1.4s ease-out infinite; }',
+    '.mic:disabled { opacity: .5; cursor: default; }',
+    '@keyframes mic-pulse { 0% { box-shadow: 0 0 0 0 rgba(220,38,38,.5); } 100% { box-shadow: 0 0 0 12px rgba(220,38,38,0); } }',
+    '@media (prefers-reduced-motion: reduce) { .mic.recording { animation: none; } }',
     '.note { margin: 0; padding: 0 12px 10px; font-size: 11.5px; color: var(--muted); background: var(--panel); }',
     '.lead { position: absolute; inset: 0; background: var(--overlay); display: flex; align-items: flex-end; }',
     '.lead[hidden] { display: none; }',
@@ -457,6 +502,7 @@
     '    <div class="messages" aria-live="polite"></div>' +
     '    <form class="composer">' +
     '      <textarea rows="1" maxlength="2000" data-t-placeholder="placeholder" data-t-aria="placeholder"></textarea>' +
+    '      <button class="mic" type="button" data-t-aria="micStart" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v4"/></svg></button>' +
     '      <button class="send" type="submit" data-t-aria="sendMessage">&uarr;</button>' +
     '    </form>' +
     '    <p class="note" data-t="note"></p>' +
@@ -505,6 +551,7 @@
   var composer = $('form.composer');
   var input = $('form.composer textarea');
   var sendButton = $('.send');
+  var micButton = $('.mic');
   var lead = $('.lead');
   var leadForm = $('.lead-form');
   var leadError = $('.lead-error');
@@ -689,6 +736,8 @@
     input.focus();
   }
   function closePanel() {
+    if (recording) stopRecording(true);
+    stopSpeaking();
     panel.hidden = true;
     root.classList.remove('open');
     launcher.setAttribute('aria-expanded', 'false');
@@ -725,8 +774,10 @@
     });
   }
 
-  function send(text) {
+  function send(text, options) {
     if (state.sending) return;
+    var spoken = Boolean(options && options.spoken);
+    stopSpeaking();
     state.sending = true;
     sendButton.disabled = true;
     state.messagesSinceDismiss += 1;
@@ -747,6 +798,7 @@
         }
         if (data.language) setLanguage(data.language);
         addMessage(data.answer || data.error || t('noReply'), 'assistant');
+        if (spoken && data.answer) speak(data.answer, data.language || state.lang);
         // Pre-fill the form with the visitor's own words (the AI's summary is
         // written for staff, about the visitor, so it reads oddly to them).
         if (data.suggestLeadCapture) maybeOfferLeadForm(text);
@@ -760,6 +812,187 @@
         state.sending = false;
         sendButton.disabled = false;
       });
+  }
+
+  // ---- Voice messages ----
+  // The microphone records a short clip as 16kHz mono WAV (a format Gemini
+  // reads in every language), /api/transcribe writes down what was said, and
+  // the text is sent like a typed message, so the visitor sees what was
+  // heard. Replies to voice messages are read aloud when the device has a
+  // voice for that language. Turn it off with data-voice="off".
+  var MAX_RECORDING_SECONDS = 30;
+  var TARGET_RATE = 16000;
+  var AudioCtx = window.AudioContext || window.webkitAudioContext;
+  var voiceSupported = Boolean(
+    script.getAttribute('data-voice') !== 'off' &&
+      AudioCtx && navigator.mediaDevices && navigator.mediaDevices.getUserMedia
+  );
+  var recording = null;
+
+  function startRecording() {
+    unlockSpeech();
+    stopSpeaking();
+    navigator.mediaDevices
+      .getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } })
+      .then(function (stream) {
+        var ctx = new AudioCtx();
+        var source = ctx.createMediaStreamSource(stream);
+        var processor = ctx.createScriptProcessor(4096, 1, 1);
+        var chunks = [];
+        processor.onaudioprocess = function (event) {
+          chunks.push(new Float32Array(event.inputBuffer.getChannelData(0)));
+        };
+        source.connect(processor);
+        processor.connect(ctx.destination);
+        recording = {
+          stream: stream, ctx: ctx, source: source, processor: processor, chunks: chunks,
+          started: Date.now(),
+          timer: setTimeout(stopRecording, MAX_RECORDING_SECONDS * 1000)
+        };
+        micButton.classList.add('recording');
+        micButton.setAttribute('aria-label', t('micStop'));
+        micButton.setAttribute('aria-pressed', 'true');
+        input.setAttribute('placeholder', t('listening'));
+      })
+      .catch(function (err) {
+        var blocked = err && (err.name === 'NotAllowedError' || err.name === 'SecurityError');
+        addMessage(t(blocked ? 'micBlocked' : 'micFailed'), 'assistant');
+      });
+  }
+
+  // Stops recording; sends the clip unless `discard` is set.
+  function stopRecording(discard) {
+    if (!recording) return;
+    var rec = recording;
+    recording = null;
+    clearTimeout(rec.timer);
+    try {
+      rec.source.disconnect();
+      rec.processor.disconnect();
+    } catch (e) {}
+    rec.stream.getTracks().forEach(function (track) {
+      track.stop();
+    });
+    var rate = rec.ctx.sampleRate;
+    rec.ctx.close();
+    micButton.classList.remove('recording');
+    micButton.setAttribute('aria-label', t('micStart'));
+    micButton.setAttribute('aria-pressed', 'false');
+    input.setAttribute('placeholder', t('placeholder'));
+    if (discard === true || Date.now() - rec.started < 600) return;
+    transcribe(encodeWav(rec.chunks, rate));
+  }
+
+  function encodeWav(chunks, inputRate) {
+    var length = 0;
+    chunks.forEach(function (c) {
+      length += c.length;
+    });
+    var samples = new Float32Array(length);
+    var offset = 0;
+    chunks.forEach(function (c) {
+      samples.set(c, offset);
+      offset += c.length;
+    });
+    // Downsample by averaging, then write 16-bit PCM with a WAV header.
+    var ratio = inputRate / TARGET_RATE;
+    var outLength = Math.floor(samples.length / ratio);
+    var view = new DataView(new ArrayBuffer(44 + outLength * 2));
+    function text(pos, str) {
+      for (var i = 0; i < str.length; i++) view.setUint8(pos + i, str.charCodeAt(i));
+    }
+    text(0, 'RIFF'); view.setUint32(4, 36 + outLength * 2, true); text(8, 'WAVE');
+    text(12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 1, true);
+    view.setUint32(24, TARGET_RATE, true); view.setUint32(28, TARGET_RATE * 2, true);
+    view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+    text(36, 'data'); view.setUint32(40, outLength * 2, true);
+    for (var j = 0; j < outLength; j++) {
+      var start = Math.floor(j * ratio);
+      var end = Math.min(samples.length, Math.floor((j + 1) * ratio));
+      var sum = 0;
+      for (var k = start; k < end; k++) sum += samples[k];
+      var v = Math.max(-1, Math.min(1, sum / Math.max(1, end - start)));
+      view.setInt16(44 + j * 2, v < 0 ? v * 0x8000 : v * 0x7fff, true);
+    }
+    // Base64 in slices, so long clips don't overflow the call stack.
+    var bytes = new Uint8Array(view.buffer);
+    var binary = '';
+    for (var b = 0; b < bytes.length; b += 0x8000) {
+      binary += String.fromCharCode.apply(null, bytes.subarray(b, b + 0x8000));
+    }
+    return btoa(binary);
+  }
+
+  function transcribe(audio) {
+    micButton.disabled = true;
+    var typing = showTyping();
+    api('/api/transcribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ audio: audio, business: business })
+    })
+      .then(function (result) {
+        typing.remove();
+        var heard = result.ok && result.data && result.data.text;
+        if (heard) send(heard, { spoken: true });
+        else addMessage((result.data && result.data.error) || t('micFailed'), 'assistant');
+      })
+      .catch(function () {
+        typing.remove();
+        addMessage(t('micFailed'), 'assistant');
+      })
+      .then(function () {
+        micButton.disabled = false;
+      });
+  }
+
+  // Reading replies aloud uses the device's own voices, which differ by
+  // phone and browser. If there's no voice for the reply's language, the
+  // reply stays text-only rather than being read in the wrong accent.
+  var synth = window.speechSynthesis;
+  function pickVoice(code) {
+    var voices = synth.getVoices();
+    var base = baseLanguage(code) || 'en';
+    var matching = voices.filter(function (v) {
+      return v.lang && v.lang.toLowerCase().replace('_', '-').split('-')[0] === base;
+    });
+    if (!matching.length) return null;
+    if (base === 'en') {
+      return matching.filter(function (v) { return /en[-_]GB/i.test(v.lang); })[0] || matching[0];
+    }
+    return matching[0];
+  }
+  function speak(text, code) {
+    if (!synth || typeof SpeechSynthesisUtterance === 'undefined') return;
+    var voice = pickVoice(code);
+    if (!voice) return;
+    var utterance = new SpeechSynthesisUtterance(text);
+    utterance.voice = voice;
+    utterance.lang = voice.lang;
+    synth.cancel();
+    synth.speak(utterance);
+  }
+  function stopSpeaking() {
+    if (synth && (synth.speaking || synth.pending)) synth.cancel();
+  }
+  // iOS only lets a page speak after speech starts from a tap, so a silent
+  // utterance on the microphone tap unlocks the later reply.
+  var speechUnlocked = false;
+  function unlockSpeech() {
+    if (speechUnlocked || !synth || typeof SpeechSynthesisUtterance === 'undefined') return;
+    speechUnlocked = true;
+    var silent = new SpeechSynthesisUtterance(' ');
+    silent.volume = 0;
+    synth.speak(silent);
+  }
+  if (synth && synth.getVoices) synth.getVoices(); // starts loading the voice list
+
+  if (voiceSupported) {
+    micButton.hidden = false;
+    micButton.addEventListener('click', function () {
+      if (recording) stopRecording();
+      else if (!state.sending) startRecording();
+    });
   }
 
   // ---- Events ----
