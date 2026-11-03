@@ -2,6 +2,7 @@
 .dx { --d-bg: #0e1015; --d-card: #151821; --d-line: rgba(255, 255, 255, .1); --d-text: #eceef1; --d-muted: #9aa1ad; --d-accent: #ff2d55; --d-good: #3ddc97; --d-warn: #ffb547; --d-bad: #ff5d73; --d-paper: #f7f4ec; --d-ink: #26231c; --d-btn: rgba(255, 255, 255, .06); --d-btn-text: #eceef1;
   display: grid; gap: 22px; color: var(--d-text); font-size: 15px; line-height: 1.5; container: dx / inline-size; }
 .dx-light { --d-bg: #f4f6f5; --d-card: #fff; --d-line: #dde7e4; --d-text: #10201e; --d-muted: #5a6b68; --d-accent: #0f766e; --d-good: #0f766e; --d-warn: #b45309; --d-bad: #b91c1c; --d-paper: #fffdf6; --d-ink: #26231c; --d-btn: #fff; --d-btn-text: #0a2f2c; }
+.dx[hidden] { display: none; }
 .dx * { box-sizing: border-box; }
 .dx-section { background: var(--d-card); border: 1px solid var(--d-line); border-radius: 16px; padding: 16px; min-width: 0; }
 .dx-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin-bottom: 12px; }
