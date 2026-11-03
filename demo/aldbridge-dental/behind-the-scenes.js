@@ -73,7 +73,7 @@
     load().then(function () { return engine.submitLead(data); }).then(function () {
       current = email; if (phoneView) phoneView.select(email);
       pulse();
-      toast('The practice has ' + data.name.split(' ')[0] + "'s details. Open “See what the practice sees” to follow what happens next." + (lang.note ? ' ' + lang.note : ''));
+      toast('The practice has ' + data.name.split(' ')[0] + "'s details. Want to pick a time now? Or open “See what the practice sees” to follow what happens next." + (lang.note ? ' ' + lang.note : ''), { label: 'Choose a time', run: openBooking });
     }).catch(function () {});
     // The visitor sees the normal "thank you". Their details stay in this browser.
     return Promise.resolve(new Response(JSON.stringify({ success: true, leadId: 'demo-' + Date.now(), emailSent: false }), { status: 200, headers: { 'Content-Type': 'application/json' } }));
@@ -103,10 +103,16 @@
     document.body.appendChild(b);
     document.body.appendChild(make('div', { id: 'bts-toast', class: 'bts-toast', role: 'status', 'aria-live': 'polite', hidden: '' }));
   }
-  function toast(text) {
+  function toast(text, action) {
     var t = $('bts-toast'); if (!t) return;
-    t.textContent = text; t.hidden = false; clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { t.hidden = true; }, 9000);
+    t.textContent = text;
+    if (action) {
+      var b = make('button', { type: 'button', class: 'bts-toast-go' }, action.label);
+      b.addEventListener('click', function () { t.hidden = true; action.run(); });
+      t.appendChild(b);
+    }
+    t.hidden = false; clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.hidden = true; }, action ? 20000 : 9000);
   }
   function pulse() { var b = $('bts-open'); if (b) { b.classList.add('bts-pulse'); } }
   function buildDrawer() {
@@ -149,10 +155,11 @@
     load().then(function () {
       if ($('bts-book')) return;
       var known = engine.state.saved.filter(function (l) { return l.email.toLowerCase() === current.toLowerCase(); })[0] || engine.state.saved[0] || { name: '', email: '' };
+      var hasBooking = engine.state.bookings.some(function (b) { return b.leadId === known.id && b.status === 'booked'; });
       var slots = Object.keys(engine.SLOTS).map(function (k, i) { return '<label class="bts-slot"><input type="radio" name="slot" value="' + k + '"' + (k === 'd1' ? ' checked' : '') + '><span>' + esc(engine.SLOTS[k].label) + '</span></label>'; }).join('');
       var treat = TREATMENTS.map(function (t) { return '<option>' + esc(t) + '</option>'; }).join('');
       var m = make('div', { id: 'bts-book', class: 'bts-modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Book an appointment' },
-        '<div class="bts-card"><button type="button" class="bts-x" id="bts-book-x" aria-label="Close">×</button><h2>Book an appointment</h2><p class="bts-sub">Pick a time that suits you. You will get a confirmation and reminders.</p>' +
+        '<div class="bts-card"><button type="button" class="bts-x" id="bts-book-x" aria-label="Close">×</button><h2>Book an appointment</h2><p class="bts-sub">' + (hasBooking ? 'You already have an appointment. Pick a new time to move it.' : 'Pick a time that suits you. You will get a confirmation and reminders.') + '</p>' +
         '<form id="bts-book-form"><label>Name<input name="name" type="text" required maxlength="60" value="' + esc(known.name) + '"></label><label>Email<input name="email" type="email" required maxlength="80" value="' + esc(known.email) + '"></label>' +
         '<label>What is it for?<select name="treat">' + treat + '</select></label><fieldset><legend>Choose a time</legend><div class="bts-slots">' + slots + '</div></fieldset>' +
         '<button type="submit" class="bts-go">Book this time</button></form><p class="bts-fine">Demo: your details stay in your browser and go nowhere. No payment is taken here or anywhere in this demo.</p></div>');
@@ -171,7 +178,11 @@
     var find = function () { return engine.state.saved.filter(function (l) { return l.email.toLowerCase() === email.toLowerCase(); })[0]; };
     var known = find();
     var ready = known ? Promise.resolve(known) : engine.submitLead({ name: name, email: email, message: 'Booking request: ' + treat, intent: 'ready', lang: languageFor().code }).then(function () { return engine.idle(); }).then(find);
-    ready.then(function (lead) { return engine.createBooking(lead.id, slot); }).then(function () {
+    // Someone who already has an appointment is moving it: the engine ignores a second booking.
+    ready.then(function (lead) {
+      var mine = engine.state.bookings.filter(function (b) { return b.leadId === lead.id && b.status === 'booked'; })[0];
+      return mine ? engine.rescheduleBooking(mine.id, slot) : engine.createBooking(lead.id, slot);
+    }).then(function () {
       current = email; phoneView.select(email); closeBooking(); openDrawer('phone');
     }).catch(function () {});
   }
