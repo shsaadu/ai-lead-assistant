@@ -12,19 +12,21 @@
     ['Check-up', 75], ['Hygiene visit', 70], ['Emergency appointment (private)', 95],
     ['Filling', 120], ['Teeth whitening', 295], ['Implant, first stage', 2400]
   ];
-  var TABS = [['today', 'Today'], ['enquiries', 'Enquiries'], ['diary', 'Diary'], ['invoices', 'Invoices'], ['report', 'Weekly report'], ['activity', 'Activity']];
+  var BASE_TABS = [['today', 'Today'], ['enquiries', 'Enquiries'], ['diary', 'Diary'], ['invoices', 'Invoices'], ['paperwork', 'Paperwork'], ['report', 'Weekly report'], ['activity', 'Activity']];
   var SYSTEM = { up: ['online', 'ok'], error: ['having errors', 'warn'], down: ['unreachable', 'bad'], slow: ['slow to respond', 'warn'], gone: ['disconnected', 'bad'] };
 
   function esc(v) { var d = document.createElement('div'); d.textContent = v == null ? '' : String(v); return d.innerHTML; }
 
   function mount(root, E) {
     var F = E.fmt, H = E.helpers, tab = 'today', painted = {}, state;
+    var hasDocs = !!(global.DocsView && global.DocReader);
+    var TABS = BASE_TABS.filter(function (t) { return hasDocs || t[0] !== 'paperwork'; });
     root.innerHTML =
       '<div class="hub">' +
       '<header class="hub-bar"><div class="hub-brand"><span class="hub-mark" aria-hidden="true">A</span><div><b>Aldbridge Practice Hub</b><small>Reception view · simulated</small></div></div>' +
       '<div class="hub-meta"><span class="hub-sys" id="hub-sys"></span><span class="hub-clock" id="hub-clock"></span></div></header>' +
       '<nav class="hub-tabs" id="hub-tabs" role="tablist"></nav>' +
-      '<div class="hub-body" id="hub-body"></div></div>';
+      '<div class="hub-body" id="hub-body"></div><div class="hub-body" id="hub-docs" hidden></div></div>';
     var $ = function (id) { return root.querySelector('#' + id); };
     function paint(id, html) { var el = $(id); if (painted[id] !== html) { painted[id] = html; el.innerHTML = html; } }
     var money = F.money;
@@ -157,18 +159,20 @@
       return '<ul class="activity">' + items.slice(0, 80).map(function (x) { return '<li class="' + x.tone + '"><time>' + esc(F.fmtTime(x.t)) + '</time>' + esc(x.text) + '</li>'; }).join('') + '</ul>';
     }
 
-    var RENDER = { today: today, enquiries: enquiries, diary: diary, invoices: invoices, report: report, activity: activity };
+    var RENDER = { today: today, enquiries: enquiries, diary: diary, invoices: invoices, paperwork: function () { return ''; }, report: report, activity: activity };
+    function docsWaiting() { return state.docs.filter(function (d) { return d.status === 'review' || d.status === 'held' || d.status === 'approval'; }).length; }
 
     function render() {
       state = E.state;
       var sys = SYSTEM[state.mode] || SYSTEM.up;
       $('hub-sys').className = 'hub-sys ' + sys[1]; $('hub-sys').textContent = 'Patient system: ' + sys[0];
       $('hub-clock').textContent = F.fmtTime(state.now);
-      var badge = { today: waiting().length + owing().length + stuck().length, enquiries: waiting().length, diary: 0, invoices: owing().length, report: 0, activity: 0 };
+      var badge = { today: waiting().length + owing().length + stuck().length, enquiries: waiting().length, diary: 0, invoices: owing().length, paperwork: docsWaiting(), report: 0, activity: 0 };
       paint('hub-tabs', TABS.map(function (t) { return '<button class="hub-tab' + (t[0] === tab ? ' on' : '') + '" role="tab" aria-selected="' + (t[0] === tab) + '" data-tab="' + t[0] + '" type="button">' + t[1] + (badge[t[0]] ? ' <i>' + badge[t[0]] + '</i>' : '') + '</button>'; }).join(''));
       // keep dropdown choices while the screen is redrawn
       var keep = {}; ['hub-slot', 'hub-inv-lead', 'hub-inv-treat', 'hub-inv-days'].forEach(function (id) { var el = $(id); if (el) keep[id] = el.value; });
-      paint('hub-body', RENDER[tab]());
+      $('hub-body').hidden = tab === 'paperwork'; $('hub-docs').hidden = tab !== 'paperwork';
+      if (tab !== 'paperwork') paint('hub-body', RENDER[tab]());
       Object.keys(keep).forEach(function (id) { var el = $(id); if (el && keep[id] !== undefined) el.value = keep[id]; });
     }
 
@@ -195,6 +199,7 @@
       }
     });
 
+    if (hasDocs) global.DocsView.mount($('hub-docs'), E, { theme: 'light' });
     E.onChange(render);
     render();
     return { show: function (name) { if (RENDER[name]) { tab = name; painted['hub-body'] = null; render(); } } };

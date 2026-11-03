@@ -11,6 +11,7 @@
     <link rel="preload" href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="stylesheet" href="/assets/site.css" />
     <link rel="stylesheet" href="/demo/automation-lab/lab.css" />
+    <link rel="stylesheet" href="/assets/docs-view.css" />
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
@@ -150,11 +151,19 @@
             </div>
           </div>
 
+          <!-- paperwork -->
+          <div class="panel paperwork" id="paperwork">
+            <h2 class="panel-title"><span class="step">8</span> Paperwork: read, check, file</h2>
+            <p class="appt-intro">Invoices and forms arrive by email. The system reads each one, checks it the way a careful person would, and then <b>files it, holds it, or sends it to a person</b>. Ordinary paperwork needs nobody. Anything odd (wrong sums, a changed bank account, a missing consent, a second copy) stops and waits. <b>Nothing is ever paid by this system:</b> the practice pays from its own bank, and the system only reminds.</p>
+            <div id="docsMount"></div>
+            <p class="report-note">These are made-up documents, read as text by fixed rules in your browser. A real build adds a scanner step (OCR) in front of the same checks, and a person always settles anything the checks cannot.</p>
+          </div>
+
           <!-- weekly summary -->
           <div class="panel weekly">
             <div class="weekly-head">
               <div>
-                <h2 class="panel-title"><span class="step">8</span> The weekly summary</h2>
+                <h2 class="panel-title"><span class="step">9</span> The weekly summary</h2>
                 <p>Every Monday at 08:00 the owner gets a plain-English summary, built from the same run log you see below. A daily health check also watches for trouble, such as a quiet week or leads stuck outside the CRM.</p>
               </div>
               <div class="weekly-actions">
@@ -171,7 +180,7 @@
           <!-- run log -->
           <div class="panel runlog">
             <div class="runlog-head">
-              <h2 class="panel-title"><span class="step">9</span> The run log</h2>
+              <h2 class="panel-title"><span class="step">10</span> The run log</h2>
               <p>Every automation run is recorded. Nothing fails silently. Select a row to see each attempt.</p>
             </div>
             <div class="table-scroll">
@@ -228,7 +237,10 @@
     </footer>
 
     <script src="/assets/site.js" defer></script>
+    <script src="/assets/doc-reader.js" defer></script>
+    <script src="/assets/doc-samples.js" defer></script>
     <script src="/assets/automation-engine.js" defer></script>
+    <script src="/assets/docs-view.js" defer></script>
     <script src="/demo/automation-lab/lab.js" defer></script>
   </body>
 </html>

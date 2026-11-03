@@ -39,6 +39,9 @@
     ['invoice', 'In panel 5, press "Job done: send invoice". Watch the invoice email and the row of reminder chips.'],
     ['overdue', 'Use +1 week three or four times without marking it paid. Watch the reminders get firmer, and the owner asked to call.'],
     ['paidInv', 'Click "Mark paid" on an invoice and see every remaining reminder cancelled.'],
+    ['doc', 'In panel 8, send "A clean supplier invoice". Watch it being read, checked and filed with nobody touching it, and a bill appear with reminders.'],
+    ['docDupe', 'Send "The same invoice, sent again". It is spotted and never paid twice.'],
+    ['docHeld', 'Send "An invoice with new bank details". It is held, and the manager is told to phone the supplier. Then try the other documents.'],
     ['report', 'Press "Simulate a week" and read the weekly summary it produces.'],
     ['quiet', 'After that, use +1 day three or four times with no new enquiries. The health check will warn the owner.'],
     ['escalated', 'Send an enquiry, then use +1 hour three times without clicking "We contacted them". Watch the reminder, then the escalation.']
@@ -194,6 +197,7 @@
     });
     setInterval(function () { if (!document.hidden) E.advance(0.25); }, 250);
     E.onChange(render);
+    if (window.DocsView && window.DocReader) DocsView.mount($('docsMount'), E, { theme: 'dark' });
     render();
   }
 

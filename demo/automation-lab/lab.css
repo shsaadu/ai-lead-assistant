@@ -209,3 +209,7 @@
 .mail.invoice { border-color: rgba(255, 181, 71, .45); }
 @media (max-width: 1000px) { .inv-form { grid-template-columns: 1fr 1fr; } .inv-form .btn { grid-column: 1 / -1; } }
 @media (max-width: 700px) { .inv-form { grid-template-columns: 1fr; } }
+
+/* paperwork panel */
+.paperwork { margin-top: 16px; }
+.paperwork .appt-intro { max-width: 980px; }

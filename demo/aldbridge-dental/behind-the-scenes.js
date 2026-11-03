@@ -14,7 +14,8 @@
   'use strict';
 
   var BASE = '/demo/aldbridge-dental/';
-  var SCRIPTS = ['/assets/automation-engine.js', BASE + 'journey/phone.js', BASE + 'journey/hub.js'];
+  var OPTIONAL = ['/assets/doc-reader.js', '/assets/doc-samples.js'];   // the paperwork tab; the demo works without them
+  var SCRIPTS = ['/assets/automation-engine.js', '/assets/docs-view.js', BASE + 'journey/phone.js', BASE + 'journey/hub.js'];
   var CLINIC = { owner: 'reception@aldbridgedental.example', manager: 'practice.manager@aldbridgedental.example', operator: 'support@assiststreet.example' };
   var TREATMENTS = ['Check-up', 'Hygiene / scale and polish', 'Emergency / toothache', 'Invisalign consultation', 'Implant consultation', 'Whitening or cosmetic'];
   var SUPPORTED = { en: 1, es: 1, ar: 1 };
@@ -83,8 +84,9 @@
   function addScript(src) { return new Promise(function (ok, bad) { var s = make('script', { src: src }); s.onload = ok; s.onerror = function () { bad(new Error('Could not load ' + src)); }; document.head.appendChild(s); }); }
   function load() {
     if (loading) return loading;
-    loading = SCRIPTS.reduce(function (p, src) { return p.then(function () { return addScript(src); }); }, Promise.resolve()).then(function () {
-      var css = make('link', { rel: 'stylesheet', href: BASE + 'journey/views.css' }); document.head.appendChild(css);
+    var optional = OPTIONAL.reduce(function (p, src) { return p.then(function () { return addScript(src); }); }, Promise.resolve()).catch(function () {});
+    loading = optional.then(function () { return SCRIPTS.reduce(function (p, src) { return p.then(function () { return addScript(src); }); }, Promise.resolve()); }).then(function () {
+      ['journey/views.css', null].forEach(function (f) { document.head.appendChild(make('link', { rel: 'stylesheet', href: f ? BASE + f : '/assets/docs-view.css' })); });
       buildDrawer();
       engine = AssistEngine.create(CLINIC);
       phoneView = PhoneView.mount($('bts-phone'), engine);

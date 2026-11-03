@@ -67,10 +67,11 @@
   var state;
   function fresh() {
     return {
-      now: START_MIN, mode: 'up', saved: [], contacts: [], seenEvents: {}, runs: systemRuns(), emails: [], feed: [], reports: [], preview: null, alertedAt: { quiet: -1e9, crm: -1e9 }, bookings: [], invoices: [], invNo: 0, ui: { lead: '' },
+      now: START_MIN, mode: 'up', saved: [], contacts: [], seenEvents: {}, runs: systemRuns(), emails: [], feed: [], reports: [], preview: null, alertedAt: { quiet: -1e9, crm: -1e9 }, bookings: [], invoices: [], invNo: 0, docs: [], bills: [], regs: [], docNo: 0, suppliers: freshSuppliers(), ui: { lead: '' },
       open: {}, flags: { sent: false, down: false, retried: false, recovered: false, dupe: false, replied: false, ack: false, hot: false, escalated: false }
     };
   }
+  function freshSuppliers() { var R = global.DocReader; return R ? R.DEFAULT_SUPPLIERS.map(function (x) { return { name: x.name, sort: x.sort, acct: x.acct, terms: x.terms }; }) : []; }
   /** Recurring jobs that belong to the whole business, not to one lead. */
   function systemRuns() {
     var who = { name: 'Whole business', id: null };
@@ -183,13 +184,15 @@
         var payments = []; state.invoices.forEach(function (i) { (i.payments || []).forEach(function (p) { if (p.t >= from && p.t < end) payments.push(p); }); });
         return { count: issued.length, invoiced: sum(issued, function (i) { return i.amount; }), paid: sum(payments, function (p) { return p.amount; }), outstanding: sum(open, function (i) { return i.amount - i.paid; }), overdueCount: late.length, overdue: sum(late, function (i) { return i.amount - i.paid; }), reminders: sum(state.invoices.filter(function (i) { return i.issuedAt < end; }), function (i) { return i.reminders; }) };
       })(),
+      docs: docsSummary(from, end),
       prev: state.reports.length ? state.reports[0].enquiries : null
     };
   }
   function highlights(r) {
     var out = [], plural = function (n, w) { return n + ' ' + (n === 1 ? w : /y$/.test(w) ? w.slice(0, -1) + 'ies' : w + 's'); };
     var invLine = (r.inv && (r.inv.count || r.inv.outstanding || r.inv.paid)) ? [r.inv.overdueCount ? 'warn' : 'good', 'Invoices: ' + r.inv.count + ' sent this week (' + money(r.inv.invoiced) + '), ' + money(r.inv.paid) + ' paid, ' + money(r.inv.outstanding) + ' outstanding in total' + (r.inv.overdueCount ? ', of which ' + r.inv.overdueCount + ' overdue (' + money(r.inv.overdue) + ')' : '') + '. ' + r.inv.reminders + ' payment reminders have gone out automatically.'] : null;
-    if (!r.enquiries) return [['warn', 'A quiet week: no new enquiries arrived. If that is not expected, check that the website form and assistant are still working.']].concat(invLine ? [invLine] : []);
+    var docLine = r.docs && (r.docs.received || r.docs.waiting || r.docs.toPay) ? [r.docs.waiting ? 'warn' : 'good', 'Paperwork: ' + plural(r.docs.received, 'document') + ' read this week, ' + r.docs.filed + ' filed without anyone touching ' + (r.docs.filed === 1 ? 'it' : 'them') + (r.docs.dupes ? ', ' + plural(r.docs.dupes, 'duplicate') + ' ignored' : '') + (r.docs.waiting ? '. ' + r.docs.waiting + ' still waiting for a person' : '') + (r.docs.toPay ? '. Bills still to pay: ' + r.docs.toPay + ' (' + DR().pounds(r.docs.toPayAmt) + ')' + (r.docs.dueSoon ? ', ' + DR().pounds(r.docs.dueSoon) + ' of it due in the next 7 days' : '') : '') + '.'] : null;
+    if (!r.enquiries) return [['warn', 'A quiet week: no new enquiries arrived. If that is not expected, check that the website form and assistant are still working.']].concat(invLine ? [invLine] : []).concat(docLine ? [docLine] : []);
     if (r.median != null) out.push(['good', 'Typical time to first contact: ' + fmtDur(r.median) + '. ' + r.withinHour + ' of ' + r.enquiries + ' were contacted within an hour.']);
     if (r.waiting) out.push(['bad', plural(r.waiting, 'lead') + ' still waiting for a reply: ' + r.waitingNames.join(', ') + '.']);
     if (r.escalations) out.push(['warn', plural(r.escalations, 'enquiry') + ' waited over 4 hours and ' + (r.escalations === 1 ? 'was' : 'were') + ' escalated to a manager.']);
@@ -197,6 +200,7 @@
     else if (r.crm.pending) out.push(['bad', plural(r.crm.pending, 'lead') + ' have not reached the CRM and need attention.']);
     if (r.appts && r.appts.total) out.push(['good', 'Appointments: ' + r.appts.total + ' booked, ' + r.appts.attended + ' attended, ' + r.appts.noShows + ' no-show' + (r.appts.noShows === 1 ? '' : 's') + ' (rebooking offered), ' + r.appts.cancelled + ' cancelled. ' + r.appts.reminders + ' reminders sent automatically.']);
     if (invLine) out.push(invLine);
+    if (docLine) out.push(docLine);
     if (r.followupsSent || r.followupsCancelled) out.push(['good', 'Follow-ups: ' + r.followupsSent + ' sent, ' + r.followupsCancelled + ' not needed because the customer replied.']);
     return out;
   }
@@ -208,6 +212,8 @@
   /* ---------------- executing a run ---------------- */
   async function execute(run) {
     var lead = run.event ? run.event.lead : null;
+    if (run.kind === 'doc_read') { run.attempts = 1; run.nextAt = null; run.status = 'succeeded'; readDocument(docById(run.docId), run); return; }
+    if (run.kind.indexOf('bill_') === 0) { runBill(run); return; }
     if (run.kind.indexOf('inv_') === 0) {
       var inv = invoiceById(run.invoiceId), IT = INV_TEXT[lead.lang], left = inv ? inv.amount - inv.paid : 0;
       run.attempts = 1; run.nextAt = null;
@@ -611,6 +617,162 @@
   }
 
   /* a made-up week: [minutes after start, name, email, intent, language, message, contacted after, booked after] */
+  /* ---------------- documents: read, check, file ---------------- */
+  var WHOLE = function (name) { return { name: name, id: null }; };
+  function DR() { return global.DocReader; }
+  function docById(id) { return state.docs.filter(function (d) { return d.id === id; })[0]; }
+  function billById(id) { return state.bills.filter(function (b) { return b.id === id; })[0]; }
+  function regById(id) { return state.regs.filter(function (r) { return r.docId === id; })[0]; }
+  function docsSummary(from, end) {
+    var mine = state.docs.filter(function (d) { return d.at >= from && d.at < end; });
+    var open = state.bills.filter(function (b) { return b.status === 'to_pay'; });
+    return { received: mine.length, filed: mine.filter(function (d) { return d.status === 'filed' && d.auto; }).length, dupes: mine.filter(function (d) { return d.status === 'duplicate'; }).length,
+      waiting: state.docs.filter(function (d) { return d.status === 'review' || d.status === 'held' || d.status === 'approval'; }).length,
+      toPay: open.length, toPayAmt: open.reduce(function (t, b) { return t + b.amount; }, 0),
+      dueSoon: open.filter(function (b) { return b.dueAt >= end && b.dueAt < end + WEEK; }).reduce(function (t, b) { return t + b.amount; }, 0) };
+  }
+  function docLog(run, ok, text) { if (run) run.log.push({ n: run.log.length + 1, t: state.now, ok: ok, text: text }); }
+  function sayDoc(doc, tone, text) { say(tone, text); doc.history.push({ t: state.now, text: text }); }
+  /** Receive a document (an email attachment, in the demo): a run reads it a moment later. */
+  async function receiveDocument(d) {
+    if (!DR() || !d || !String(d.text || '').trim()) return;
+    var doc = { id: uid('doc'), no: ++state.docNo, name: (d.name || 'Document').slice(0, 80), from: String(d.from || 'unknown sender').slice(0, 80), sample: d.sample || null, text: DR().clean(d.text).slice(0, 6000),
+      at: state.now, status: 'reading', type: null, fields: null, checks: [], outcome: null, history: [], auto: false };
+    state.docs.unshift(doc); state.flags.doc = true;
+    sayDoc(doc, 'info', 'A document arrived from ' + doc.from + ': "' + doc.name + '". It will be read and checked straight away.');
+    state.runs.unshift({ id: uid('run'), event: null, kind: 'doc_read', automation: 'Read and check: ' + doc.name, lead: WHOLE(doc.name), docId: doc.id, status: 'queued', attempts: 0, nextAt: state.now + 1, startedAt: state.now, log: [] });
+    notify(); await advance(1);
+  }
+  function readDocument(doc, run) {
+    if (!doc) return;
+    var R = DR(), cls = R.classify(doc.text);
+    doc.type = cls.type;
+    docLog(run, true, 'Classified as "' + R.TYPE_NAME[cls.type] + '" (' + Math.round(cls.confidence * 100) + '% sure' + (cls.why.length ? ': ' + cls.why.join(', ') : '') + ')');
+    if (cls.type === 'unknown') {
+      doc.fields = {}; doc.order = []; doc.checks = [{ id: 'type', label: 'Recognised document', status: 'fail', detail: 'This does not look like a supplier invoice or a new-patient form.' }];
+      doc.outcome = { status: 'review', headline: 'Needs a person: we could not tell what this is', why: 'It does not look like an invoice or a registration form.' };
+      doc.status = 'review'; docLog(run, true, 'Not recognised, so it was sent to a person');
+      mail(MANAGER, 'Please look at this document: "' + doc.name + '"', 'warn'); sayDoc(doc, 'warn', '"' + doc.name + '" was not recognised as an invoice or a form, so it went to a person instead of being guessed at.');
+      notify(); return;
+    }
+    analyse(doc, run);
+    applyOutcome(doc, run, true);
+    notify();
+  }
+  /** Read the fields and run the checks. Used again after a correction. */
+  function analyse(doc, run, keepEdits) {
+    var R = DR(), read = doc.type === 'supplier_invoice' ? R.readInvoice(doc.text, state.suppliers) : R.readForm(doc.text), ctx = { now: state.now, docs: state.docs, suppliers: state.suppliers, selfId: doc.id };
+    if (keepEdits && doc.fields) Object.keys(doc.fields).forEach(function (k) { if (doc.fields[k].edited && read.fields[k]) read.fields[k] = doc.fields[k]; });
+    doc.fields = read.fields; doc.order = read.order;
+    doc.checks = doc.type === 'supplier_invoice' ? R.checkInvoice(read, ctx) : R.checkForm(read, ctx);
+    doc.outcome = R.decide(doc.type, doc.checks);
+    var found = Object.keys(doc.fields).filter(function (k) { return doc.fields[k].value != null; }).length;
+    docLog(run, true, 'Read ' + found + ' of ' + Object.keys(doc.fields).length + ' fields' + (doc.type === 'patient_form' ? ' (medical details are not shown in this log)' : ''));
+    docLog(run, true, 'Ran ' + doc.checks.length + ' checks: ' + doc.checks.filter(function (c) { return c.status === 'pass'; }).length + ' passed' + (doc.checks.some(function (c) { return c.status === 'fail'; }) ? ', ' + doc.checks.filter(function (c) { return c.status === 'fail'; }).length + ' failed' : '') + (doc.checks.some(function (c) { return c.status === 'warn'; }) ? ', ' + doc.checks.filter(function (c) { return c.status === 'warn'; }).length + ' need a person' : ''));
+  }
+  function supplierLabel(doc) { var f = doc.fields; return f.supplier && f.supplier.value ? f.supplier.value : 'a supplier'; }
+  function applyOutcome(doc, run, auto) {
+    var R = DR(), o = doc.outcome, f = doc.fields, label = doc.type === 'supplier_invoice' ? supplierLabel(doc) + (f.gross.value != null ? ' ' + R.pounds(f.gross.value) : '') : (f.name && f.name.value || 'a patient');
+    doc.status = o.status; doc.auto = false; if (o.status === 'held') state.flags.docHeld = true; if (o.status === 'duplicate') state.flags.docDupe = true;
+    if (o.status === 'duplicate') {
+      docLog(run, true, 'Duplicate: kept for the record, not filed again');
+      mail(MANAGER, 'Duplicate ignored: ' + label, 'info'); sayDoc(doc, 'good', 'A second copy of ' + label + ' arrived. It was spotted and ignored, so it cannot be paid twice.');
+    } else if (o.status === 'held') {
+      docLog(run, true, 'Held: ' + o.headline.replace(/^Held: /, ''));
+      if (doc.type === 'supplier_invoice') { mail(MANAGER, 'Do not pay yet: the bank details on ' + label + ' have changed. Phone the supplier on the number you already have.', 'warn'); sayDoc(doc, 'bad', 'The bank details on ' + label + ' are not the ones we hold, so it was held. Nobody is told to pay it until a person has phoned the supplier.'); }
+      else { mail(OWNER, 'Ask ' + label + ' to tick the consent box: their form cannot be filed without it', 'warn'); sayDoc(doc, 'warn', 'The form for ' + label + ' has no consent, so it was held and reception was asked to get it.'); }
+    } else if (o.status === 'review') {
+      docLog(run, true, 'Sent to a person: ' + o.headline.replace(/^Needs a person: /, ''));
+      mail(doc.type === 'supplier_invoice' ? MANAGER : OWNER, 'Please check: ' + label + '. ' + o.why, 'warn'); sayDoc(doc, 'warn', label + ' did not pass every check, so it was sent to a person rather than guessed at. ' + o.why);
+    } else if (o.status === 'approval') {
+      docLog(run, true, 'Waiting for the manager');
+      mail(MANAGER, 'Approval needed: ' + label + '. ' + o.why, 'warn'); sayDoc(doc, 'warn', label + ' passed every check but is over the approval limit, so it is waiting for the manager.');
+    } else fileDocument(doc, run, auto);
+  }
+  function fileDocument(doc, run, auto) {
+    var R = DR(), f = doc.fields; doc.status = 'filed'; doc.auto = !!auto;
+    if (doc.type === 'supplier_invoice') {
+      var bill = { id: uid('bill'), docId: doc.id, supplier: f.supplier.value, number: f.invoiceNo.value, amount: f.gross.value, dueAt: f.due.value != null ? R.minutesFor(f.due.value) : state.now + 30 * DAY, status: 'to_pay', paidAt: null };
+      state.bills.unshift(bill); doc.billId = bill.id;
+      scheduleBill(bill);
+      docLog(run, true, 'Filed: ' + R.pounds(bill.amount) + ' to pay by ' + R.dateFromDay(R.dayAt(bill.dueAt)) + '. Reminders set');
+      sayDoc(doc, 'good', (auto ? 'No one touched it: ' : '') + f.supplier.value + ' ' + R.pounds(bill.amount) + ' was filed as a bill to pay by ' + R.dateFromDay(R.dayAt(bill.dueAt)) + ', and the reminders were set. The system never pays anything: the practice pays from its own bank.');
+    } else {
+      var reg = { id: uid('reg'), docId: doc.id, name: f.name.value, email: f.email.value, dob: f.dob.display, alert: R.hasAlert(f), at: state.now };
+      state.regs.unshift(reg); doc.regId = reg.id;
+      docLog(run, true, 'Filed: ' + reg.name + ' is registered' + (reg.alert ? ' (medical alert flagged, details hidden)' : ''));
+      if (reg.email) mail(reg.email, 'Welcome to Aldbridge Dental, ' + String(reg.name).split(' ')[0] + '. Your details are registered.', 'book');
+      sayDoc(doc, 'good', (auto ? 'No one touched it: ' : '') + reg.name + ' was registered and welcomed by email' + (reg.alert ? '. A medical alert was added to the patient record. The details are kept out of this log and out of emails.' : '.'));
+    }
+  }
+  function scheduleBill(bill) {
+    var R = DR(), name = function (what) { return what + ': ' + bill.supplier + ' ' + R.pounds(bill.amount); };
+    var add = function (kind, label, at) { state.runs.unshift({ id: uid('run'), event: null, kind: kind, automation: name(label), lead: WHOLE(bill.supplier), billId: bill.id, status: at > state.now ? 'scheduled' : 'queued', attempts: 0, nextAt: Math.max(at, state.now), startedAt: state.now, log: [] }); };
+    if (bill.dueAt - 3 * DAY > state.now) add('bill_pre', 'Heads-up, 3 days before it is due', bill.dueAt - 3 * DAY);
+    if (bill.dueAt > state.now) add('bill_due', 'Reminder on the due date', bill.dueAt);
+    add('bill_late', 'Overdue reminder (3 days late)', bill.dueAt + 3 * DAY);
+  }
+  function runBill(run) {
+    var R = DR(), bill = billById(run.billId); run.attempts = 1; run.nextAt = null;
+    if (!bill || bill.status !== 'to_pay') { run.status = 'cancelled'; run.log.push({ n: 1, t: state.now, ok: true, text: 'Already paid or cancelled, so no reminder was needed' }); return; }
+    run.status = 'succeeded'; var what = bill.supplier + ' ' + R.pounds(bill.amount) + ' (' + bill.number + ')';
+    if (run.kind === 'bill_pre') { mail(MANAGER, 'Bill due in 3 days: ' + what + '. Pay it from your own bank.', 'remind'); run.log.push({ n: 1, t: state.now, ok: true, text: 'Heads-up sent to the practice manager' }); say('info', 'Heads-up: ' + what + ' is due in 3 days. The manager was reminded to pay it.'); }
+    else if (run.kind === 'bill_due') { mail(MANAGER, 'Due today: ' + what + '.', 'remind'); run.log.push({ n: 1, t: state.now, ok: true, text: 'Due-today reminder sent' }); say('info', what + ' is due today, so the manager was reminded.'); }
+    else { mail(MANAGER + ', ' + OWNER, 'Overdue: ' + what + ' was due ' + R.dateFromDay(R.dayAt(bill.dueAt)) + '. Please pay it or tell the supplier.', 'warn'); run.log.push({ n: 1, t: state.now, ok: true, text: 'Overdue reminder sent to the manager and reception' }); state.flags.billLate = true; say('bad', what + ' is 3 days overdue, so the manager and reception were asked to deal with it.'); }
+  }
+  function cancelBillRuns(bill, text) { state.runs.forEach(function (r) { if (r.billId === bill.id && (r.status === 'scheduled' || r.status === 'queued')) cancelRun(r, text); }); }
+  /** A person says "I checked it": a held or waiting document is filed. */
+  function approveDoc(id, why) {
+    var doc = docById(id); if (!doc || ['review', 'approval', 'held'].indexOf(doc.status) < 0) return;
+    var R = DR(); doc.fields && Object.keys(doc.fields).forEach(function (k) { if (doc.fields[k].conf < R.SURE && doc.fields[k].value != null) { doc.fields[k].conf = 1; doc.fields[k].note = 'Confirmed by a person'; } });
+    if (doc.type === 'supplier_invoice' && !state.suppliers.some(function (s) { return s.name === doc.fields.supplier.value; })) {
+      state.suppliers.push({ name: doc.fields.supplier.value, sort: doc.fields.sort.value || '', acct: doc.fields.acct.value || '', terms: 30 });
+      sayDoc(doc, 'info', doc.fields.supplier.value + ' was added to the supplier list, with the bank details from this invoice.');
+    }
+    doc.outcome = { status: 'filed', headline: 'Filed after a person approved it', why: why || 'A person checked it.' }; doc.approvedBy = 'a person';
+    sayDoc(doc, 'good', 'A person checked "' + doc.name + '" and approved it.');
+    fileDocument(doc, null, false); notify();
+  }
+  /** Fix what the reader got wrong, then check again. Values are typed by a person: they count as certain. */
+  function correctDoc(id, patch) {
+    var doc = docById(id); if (!doc || !doc.fields || ['review', 'approval', 'held'].indexOf(doc.status) < 0) return;
+    var changed = [];
+    Object.keys(patch || {}).forEach(function (k) {
+      var f = doc.fields[k]; if (!f) return; var v = patch[k];
+      if (typeof v === 'string' && v.trim() === '') v = null;
+      f.value = v; f.display = v == null ? null : (['net', 'vat', 'gross'].indexOf(k) >= 0 ? DR().pounds(v) : k === 'consent' ? (v ? 'Ticked' : 'Not ticked') : String(v)); f.conf = v == null ? 0 : 1; f.edited = true; f.note = 'Corrected by a person'; changed.push(f.label.toLowerCase());
+    });
+    if (!changed.length) return;
+    var prev = doc.status; sayDoc(doc, 'info', 'A person corrected ' + changed.join(', ') + ' on "' + doc.name + '". The checks ran again.');
+    var R = DR(), ctx = { now: state.now, docs: state.docs, suppliers: state.suppliers, selfId: doc.id }, read = { fields: doc.fields };
+    doc.checks = doc.type === 'supplier_invoice' ? R.checkInvoice(read, ctx) : R.checkForm(read, ctx);
+    doc.outcome = R.decide(doc.type, doc.checks);
+    if (doc.outcome.status === 'filed') { sayDoc(doc, 'good', 'It now passes every check.'); fileDocument(doc, null, false); }
+    else { doc.status = doc.outcome.status; sayDoc(doc, doc.status === prev ? 'warn' : 'info', 'Still not filed: ' + doc.outcome.headline.toLowerCase() + '.'); }
+    notify();
+  }
+  /** The manager phoned the supplier on the number they already had, and the new account is genuine. */
+  function confirmBank(id) {
+    var doc = docById(id); if (!doc || doc.status !== 'held' || doc.type !== 'supplier_invoice') return;
+    var sup = state.suppliers.filter(function (s) { return s.name === doc.fields.supplier.value; })[0];
+    if (sup) { sup.sort = doc.fields.sort.value; sup.acct = doc.fields.acct.value; }
+    sayDoc(doc, 'info', 'The manager phoned the supplier on the number we already hold, and they confirmed the new account. The supplier list now has the new details.');
+    var R = DR(); doc.checks = R.checkInvoice({ fields: doc.fields }, { now: state.now, docs: state.docs, suppliers: state.suppliers, selfId: doc.id }); doc.outcome = R.decide(doc.type, doc.checks);
+    if (doc.outcome.status === 'filed') fileDocument(doc, null, false); else { doc.status = doc.outcome.status; sayDoc(doc, 'warn', doc.outcome.headline + '.'); }
+    notify();
+  }
+  function rejectDoc(id, reason) {
+    var doc = docById(id); if (!doc || ['review', 'approval', 'held'].indexOf(doc.status) < 0) return;
+    doc.status = 'rejected'; doc.outcome = { status: 'rejected', headline: 'Rejected by a person', why: reason || 'A person decided it should not be filed.' };
+    sayDoc(doc, 'info', '"' + doc.name + '" was rejected by a person' + (reason ? ': ' + reason : '') + '. Nothing was filed or paid.'); notify();
+  }
+  function markBillPaid(id) {
+    var bill = billById(id); if (!bill || bill.status !== 'to_pay') return;
+    bill.status = 'paid'; bill.paidAt = state.now; cancelBillRuns(bill, 'Already paid, so no reminder was needed');
+    say('good', 'The practice marked ' + bill.supplier + ' ' + DR().pounds(bill.amount) + ' as paid, so its remaining reminders were cancelled. (The system recorded it; the practice paid from its own bank.)'); notify();
+  }
+  function isBillLate(b) { return b.status === 'to_pay' && state.now > b.dueAt; }
+
   var WEEK_SCRIPT = [
     [0, 'Ana Torres', 'ana.t@example.com', 'looking', 'en', 'What are your opening hours?', 25, null],
     [90, 'Marco Bianchi', 'marco.b@example.com', 'ready', 'es', 'Quiero reservar el curso de marzo', 10, 120],
@@ -699,15 +861,15 @@
       // queued actions (they run one at a time, in order)
       submitLead: q(submitLead), advance: q(advance), reset: reset, simulateWeek: q(simulateWeek),
       createBooking: q(createBooking), rescheduleBooking: q(rescheduleBooking), cancelBooking: q(cancelBooking),
-      createInvoice: q(createInvoice), extendInvoice: q(extendInvoice),
+      createInvoice: q(createInvoice), extendInvoice: q(extendInvoice), receiveDocument: q(receiveDocument),
       skip: skip, skipToNextReport: skipToNextReport, sendReportNow: sendReportNow,
       // quick actions
       setMode: setMode, markContacted: markContacted, customerReplied: customerReplied, retryNow: retryNow, moveStage: moveStage,
-      markAttended: markAttended, recordPayment: recordPayment, voidInvoice: voidInvoice, previewReport: previewReport, toggleOpen: toggleOpen,
+      markAttended: markAttended, recordPayment: recordPayment, approveDoc: approveDoc, correctDoc: correctDoc, confirmBank: confirmBank, rejectDoc: rejectDoc, markBillPaid: markBillPaid, voidInvoice: voidInvoice, previewReport: previewReport, toggleOpen: toggleOpen,
       // reading
       buildReport: buildReport, highlights: highlights, selfTest: selfTest,
       fmt: { fmtTime: fmtTime, fmtIn: fmtIn, fmtDur: fmtDur, fmtSlot: fmtSlot, fmtDue: fmtDue, fmtDay: fmtDay, money: money, dayName: dayName },
-      helpers: { bookedAlready: bookedAlready, isOverdue: isOverdue, bookingById: bookingById, invoiceById: invoiceById },
+      helpers: { bookedAlready: bookedAlready, isOverdue: isOverdue, isBillLate: isBillLate, bookingById: bookingById, invoiceById: invoiceById, docById: docById, billById: billById },
       consts: { DAY: DAY, WEEK: WEEK, MAX_ATTEMPTS: MAX_ATTEMPTS, BACKOFF_MIN: BACKOFF_MIN, FIRST_WEEKLY: FIRST_WEEKLY },
       LANG: LANG, SLOTS: SLOTS, say: say
     };
