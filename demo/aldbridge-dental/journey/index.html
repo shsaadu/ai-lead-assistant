@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aldbridge Dental: the whole journey | Assist Street</title>
+    <meta name="description" content="Follow one patient from their first question to their invoice, and see what the dental practice sees. An interactive preview from Assist Street." />
+    <meta name="theme-color" content="#07080b" />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/assets/site.css" />
+    <link rel="stylesheet" href="/demo/aldbridge-dental/journey/views.css" />
+    <link rel="stylesheet" href="/demo/aldbridge-dental/journey/journey.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <div class="progress" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="/" aria-label="Assist Street home"><svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M46 16H24a8 8 0 0 0 0 16h16a8 8 0 0 1 0 16H18" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="46" cy="16" r="5.5" fill="#ff2d55"/><circle cx="18" cy="48" r="4.5" fill="#07080b" stroke="currentColor" stroke-width="3"/></svg>Assist Street</a>
+        <nav class="site-nav" aria-label="Main">
+          <a href="/services">Services</a>
+          <a class="current" href="/demos" aria-current="page">Demos</a>
+          <a href="/pricing">Pricing</a>
+          <a href="/#faq">FAQ</a>
+          <a class="btn btn-primary" href="/#start">Free pilot</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="page-hero" aria-labelledby="page-title">
+        <div class="wrap">
+          <p class="eyebrow">Demo · Aldbridge Dental</p>
+          <h1 id="page-title">One patient. <span class="grad">The whole journey.</span></h1>
+          <p class="lede">Send an enquiry as a patient, then watch both sides: the messages on the patient's phone, and what the practice sees in its back office.</p>
+          <p class="jn-note" role="note"><strong>Interactive preview.</strong> Aldbridge Dental is a made-up practice and these are made-up people. The practice's patient system, bookings, reminders and invoices are simulated in your browser. Assist Street never handles payments: patients pay the practice directly.</p>
+        </div>
+      </section>
+
+      <section class="journey" aria-label="Aldbridge Dental journey">
+        <div class="jn-wide">
+          <div class="jn-controls" role="group" aria-label="Demo controls">
+            <span class="jn-tag">Demo controls <small>(not part of the practice's system)</small></span>
+            <div class="jn-group"><span>Time</span>
+              <button class="chipbtn" data-skip="60" type="button">+1 hour</button>
+              <button class="chipbtn" data-skip="1440" type="button">+1 day</button>
+              <button class="chipbtn" data-skip="10080" type="button">+1 week</button>
+              <button class="chipbtn" id="nextMon" type="button">Next Monday 08:00</button>
+            </div>
+            <div class="jn-group" role="radiogroup" aria-label="Break the patient system"><span>Patient system</span>
+              <button class="chipbtn mode on" role="radio" aria-checked="true" data-mode="up" type="button">Working</button>
+              <button class="chipbtn mode" role="radio" aria-checked="false" data-mode="error" type="button">Erroring</button>
+              <button class="chipbtn mode" role="radio" aria-checked="false" data-mode="down" type="button">Down</button>
+              <button class="chipbtn mode" role="radio" aria-checked="false" data-mode="slow" type="button">Too slow</button>
+            </div>
+            <div class="jn-group"><button class="chipbtn" id="simWeek" type="button">Simulate a week</button><button class="chipbtn" id="resetAll" type="button">Reset</button></div>
+          </div>
+
+          <div class="jn-grid">
+            <div class="jn-left">
+              <div class="jn-panel">
+                <h2><span class="jn-step">1</span> The patient gets in touch</h2>
+                <p class="jn-sm">Pick a patient, or write your own. (In the finished demo, this is the real website and chat.)</p>
+                <div class="jn-presets">
+                  <button class="chipbtn" data-preset="maria" type="button">Maria · Spanish · emergency</button>
+                  <button class="chipbtn" data-preset="chen" type="button">Chen · English · check-up</button>
+                  <button class="chipbtn" data-preset="omar" type="button">Omar · Arabic · needs a person</button>
+                </div>
+                <form id="patientForm" class="jn-form" autocomplete="off">
+                  <label>Name<input name="name" type="text" value="Maria Lopez" maxlength="60" required /></label>
+                  <label>Email<input name="email" type="email" value="maria.lopez@example.com" maxlength="80" required /></label>
+                  <label>Their question<textarea name="message" rows="2" maxlength="160">Hola, necesito una cita de urgencia: me duele una muela.</textarea></label>
+                  <div class="jn-row2">
+                    <label>How ready?<select name="intent"><option value="looking">Just looking</option><option value="ready" selected>Wants to book</option><option value="person">Needs a person</option></select></label>
+                    <label>Language<select name="lang"><option value="en">English</option><option value="es" selected>Spanish</option><option value="ar">Arabic</option></select></label>
+                  </div>
+                  <button class="btn btn-primary" type="submit">Send enquiry</button>
+                </form>
+              </div>
+              <div class="jn-panel jn-phone-panel">
+                <h2><span class="jn-step">2</span> The patient's phone</h2>
+                <div id="phone"></div>
+              </div>
+            </div>
+
+            <div class="jn-right">
+              <h2 class="jn-h"><span class="jn-step">3</span> The practice's back office</h2>
+              <div id="hub"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <span>© <span id="year">2026</span> Assist Street Ltd · Registered in England and Wales · Company no. 17518103</span>
+        <nav aria-label="Footer">
+          <a href="/services">Services</a>
+          <a href="/demos">Demos</a>
+          <a href="/pricing">Pricing</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/admin.html">Client login</a>
+        </nav>
+      </div>
+    </footer>
+
+    <script src="/assets/site.js" defer></script>
+    <script src="/assets/automation-engine.js" defer></script>
+    <script src="/demo/aldbridge-dental/journey/phone.js" defer></script>
+    <script src="/demo/aldbridge-dental/journey/hub.js" defer></script>
+    <script src="/demo/aldbridge-dental/journey/journey.js" defer></script>
+  </body>
+</html>

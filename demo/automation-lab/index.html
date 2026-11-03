@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Automation Lab | Assist Street</title>
+    <meta name="description" content="Watch a customer enquiry travel from your website into a CRM, get followed up, and survive things going wrong. An interactive preview from Assist Street." />
+    <meta name="theme-color" content="#07080b" />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/assets/fonts/archivo-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/assets/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="/assets/site.css" />
+    <link rel="stylesheet" href="/demo/automation-lab/lab.css" />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <div class="progress" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <div class="wrap">
+        <a class="brand" href="/" aria-label="Assist Street home"><svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true"><path d="M46 16H24a8 8 0 0 0 0 16h16a8 8 0 0 1 0 16H18" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="46" cy="16" r="5.5" fill="#ff2d55"/><circle cx="18" cy="48" r="4.5" fill="#07080b" stroke="currentColor" stroke-width="3"/></svg>Assist Street</a>
+        <nav class="site-nav" aria-label="Main">
+          <a href="/services">Services</a>
+          <a class="current" href="/demos" aria-current="page">Demos</a>
+          <a href="/pricing">Pricing</a>
+          <a href="/#faq">FAQ</a>
+          <a class="btn btn-primary" href="/#start">Free pilot</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="page-hero" aria-labelledby="page-title">
+        <div class="wrap">
+          <p class="eyebrow">Automation Lab</p>
+          <h1 id="page-title">Watch a lead travel. <span class="grad">Then break it on purpose.</span></h1>
+          <p class="lede">What happens after a customer gets in touch: the enquiry is saved, sent to a CRM, followed up, and watched. Switch parts of the system off and see how it copes.</p>
+          <p class="lab-note" role="note"><strong>Interactive preview.</strong> The CRM and the receiving system on this page are simulated in your browser, with made-up people. The logic you see (signed messages, retries, duplicate protection, a run log) is what we are building into the live product.</p>
+        </div>
+      </section>
+
+      <section class="lab-section" aria-label="Automation lab">
+        <div class="wrap">
+          <div class="lab-top">
+            <div class="lab-clock" aria-live="off">
+              <span class="clock-label">Demo time</span>
+              <strong id="clock">Day 1 · 09:00</strong>
+              <span class="clock-hint">1 demo-minute passes every second</span>
+            </div>
+            <div class="lab-timemachine" role="group" aria-label="Time machine">
+              <span class="tm-label">Time machine</span>
+              <button class="chipbtn" data-skip="5" type="button">+5 min</button>
+              <button class="chipbtn" data-skip="60" type="button">+1 hour</button>
+              <button class="chipbtn" data-skip="1440" type="button">+1 day</button>
+              <button class="chipbtn" data-skip="10080" type="button">+1 week</button>
+              <button class="chipbtn" id="resetBtn" type="button">Reset demo</button>
+            </div>
+          </div>
+
+          <div class="lab-grid">
+            <!-- left column -->
+            <div class="lab-col">
+              <div class="panel" id="tryPanel">
+                <h2 class="panel-title"><span class="step">Try this</span> A guided tour</h2>
+                <ol class="try-list" id="tryList"></ol>
+              </div>
+
+              <div class="panel">
+                <h2 class="panel-title"><span class="step">1</span> A customer gets in touch</h2>
+                <form id="leadForm" class="lead-form" autocomplete="off">
+                  <label>Name<input name="name" type="text" value="Maria Lopez" required maxlength="60" /></label>
+                  <label>Email<input name="email" type="email" value="maria@example.com" required maxlength="80" /></label>
+                  <label>What do they ask?<textarea name="message" rows="2" maxlength="160">Hola, ¿cuánto cuesta el curso de inglés de 12 semanas?</textarea></label>
+                  <div class="row2">
+                    <label>How ready are they?<select name="intent"><option value="looking">Just looking</option><option value="ready">Ready to book</option><option value="person">Needs a person</option></select></label>
+                    <label>Their language<select name="lang"><option value="en">English</option><option value="es" selected>Spanish</option><option value="ar">Arabic</option></select></label>
+                  </div>
+                  <p class="field-hint">In the live product, the assistant works these two out from the chat itself.</p>
+                  <div class="form-actions">
+                    <button class="btn btn-primary" type="submit">Send enquiry</button>
+                    <button class="btn" id="sameEmailBtn" type="button">Same email again</button>
+                  </div>
+                </form>
+                <div class="saved">
+                  <h3>Saved in Assist Street <span id="savedCount" class="count">0</span></h3>
+                  <ul id="savedList" class="saved-list"><li class="empty">Nothing yet. A lead is always saved here first, whatever happens next.</li></ul>
+                </div>
+              </div>
+
+              <div class="panel">
+                <h2 class="panel-title"><span class="step">2</span> The CRM is…</h2>
+                <div class="mode-group" role="radiogroup" aria-label="State of the receiving system">
+                  <button class="mode on" role="radio" aria-checked="true" data-mode="up" type="button"><b>Working</b><small>Everything is fine</small></button>
+                  <button class="mode" role="radio" aria-checked="false" data-mode="error" type="button"><b>Erroring</b><small>Returns a server error</small></button>
+                  <button class="mode" role="radio" aria-checked="false" data-mode="down" type="button"><b>Down</b><small>Can't be reached</small></button>
+                  <button class="mode" role="radio" aria-checked="false" data-mode="slow" type="button"><b>Too slow</b><small>Saves it but answers late</small></button>
+                  <button class="mode" role="radio" aria-checked="false" data-mode="gone" type="button"><b>Gone</b><small>Address no longer exists</small></button>
+                </div>
+                <p class="mode-explain" id="modeExplain"></p>
+              </div>
+            </div>
+
+            <!-- right area: CRM board, then emails and narrator side by side -->
+            <div class="lab-col lab-right">
+              <div class="panel crm">
+                <h2 class="panel-title"><span class="step">3</span> The client's CRM <small>(simulated)</small></h2>
+                <div class="board" id="board" aria-live="polite">
+                  <div class="lane" data-stage="new"><h3>New enquiry <span class="count" id="cnt-new">0</span></h3><div class="cards" id="lane-new"></div></div>
+                  <div class="lane" data-stage="contacted"><h3>Contacted <span class="count" id="cnt-contacted">0</span></h3><div class="cards" id="lane-contacted"></div></div>
+                  <div class="lane" data-stage="booked"><h3>Booked <span class="count" id="cnt-booked">0</span></h3><div class="cards" id="lane-booked"></div></div>
+                </div>
+                <p class="board-empty" id="boardEmpty">The CRM is empty. Send an enquiry and watch a card appear.</p>
+              </div>
+
+              <div class="panel appts">
+                <h2 class="panel-title"><span class="step">4</span> Bookings and reminders</h2>
+                <p class="appt-intro">Ready customers get a booking link in their follow-up. Pretend to be one of them:</p>
+                <div class="book-row">
+                  <label>Customer<select id="bookLead"><option value="">No customers waiting to book</option></select></label>
+                  <label>Pick a time<select id="bookSlot"><option value="h3">Today, in 3 hours</option><option value="d1" selected>Tomorrow, 10:00</option><option value="d2">In 2 days, 14:00</option><option value="d3">In 3 days, 11:00</option></select></label>
+                  <button class="btn btn-primary" id="bookBtn" type="button">Book this slot</button>
+                </div>
+                <ul class="appt-list" id="appts"><li class="empty">No appointments yet. Pick a customer and a time above.</li></ul>
+              </div>
+
+              <div class="panel invoices">
+                <h2 class="panel-title"><span class="step">5</span> Invoices and payment reminders</h2>
+                <p class="appt-intro">When a job is finished, an invoice goes out and reminders chase it politely until it is paid. <b>Assist Street never handles the money:</b> customers pay the business directly, and the owner (or their accounting tool) marks the invoice paid.</p>
+                <div class="inv-form">
+                  <label>Customer<select id="invLead"><option value="">No customers yet</option></select></label>
+                  <label>What was the job?<input id="invDesc" type="text" value="12-week English course deposit" maxlength="60" /></label>
+                  <label>Amount (£)<input id="invAmount" type="number" min="1" max="100000" value="240" /></label>
+                  <label>Payment due in<select id="invDays"><option value="7">7 days</option><option value="14" selected>14 days</option><option value="30">30 days</option></select></label>
+                  <button class="btn btn-primary" id="invBtn" type="button">Job done: send invoice</button>
+                </div>
+                <div class="cash" id="cash"></div>
+                <ul class="appt-list" id="invoices"><li class="empty">No invoices yet. Send an enquiry, then mark a job done above.</li></ul>
+              </div>
+
+              <div class="pair">
+                <div class="panel narrator">
+                  <h2 class="panel-title"><span class="step">6</span> What just happened</h2>
+                  <ul class="feed" id="feed" aria-live="polite"><li class="empty">Send an enquiry to begin.</li></ul>
+                </div>
+                <div class="panel">
+                  <h2 class="panel-title"><span class="step">7</span> Emails sent <small>(simulated)</small></h2>
+                  <ul class="emails" id="emails"><li class="empty">No emails yet.</li></ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- weekly summary -->
+          <div class="panel weekly">
+            <div class="weekly-head">
+              <div>
+                <h2 class="panel-title"><span class="step">8</span> The weekly summary</h2>
+                <p>Every Monday at 08:00 the owner gets a plain-English summary, built from the same run log you see below. A daily health check also watches for trouble, such as a quiet week or leads stuck outside the CRM.</p>
+              </div>
+              <div class="weekly-actions">
+                <button class="btn btn-primary" id="simWeekBtn" type="button">Simulate a week</button>
+                <button class="btn" id="nextMonBtn" type="button">Skip to next Monday 08:00</button>
+                <button class="btn" id="previewBtn" type="button">Preview this week</button>
+                <button class="btn" id="sendNowBtn" type="button">Send it now</button>
+              </div>
+            </div>
+            <div id="report" class="report"><p class="empty">No summary yet. Simulate a week, or preview this week, to see one.</p></div>
+            <p class="report-note">The week of activity is made up for this demonstration. The counts in the summary are real counts from the engine on this page.</p>
+          </div>
+
+          <!-- run log -->
+          <div class="panel runlog">
+            <div class="runlog-head">
+              <h2 class="panel-title"><span class="step">9</span> The run log</h2>
+              <p>Every automation run is recorded. Nothing fails silently. Select a row to see each attempt.</p>
+            </div>
+            <div class="table-scroll">
+              <table class="runs" id="runsTable">
+                <thead><tr><th>Started</th><th>Lead</th><th>Automation</th><th>Status</th><th>Attempts</th><th>Next step</th><th></th></tr></thead>
+                <tbody id="runs"><tr class="empty"><td colspan="7">No runs yet.</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="lab-foot">
+            <h2>What runs for every enquiry</h2>
+            <ul class="foot-list">
+              <li><b>Acknowledge the customer</b> within seconds, in their own language.</li>
+              <li><b>Email the owner</b> with an English summary.</li>
+              <li><b>Hot-lead alert</b> when the customer is ready to book, with a faster follow-up.</li>
+              <li><b>Needs-a-person alert</b> when the assistant could not fully answer.</li>
+              <li><b>Send to the CRM</b>, with retries and a record of every attempt.</li>
+              <li><b>Reply deadline:</b> a reminder after 2 hours and an escalation to a manager after 4, unless someone has contacted them.</li>
+              <li><b>Follow-up</b> after 2 days (1 day for hot leads), cancelled if the customer replies.</li>
+              <li><b>Booking:</b> a confirmation in the customer's language, reminders 24 hours and 1 hour before, a "we missed you" message after a no-show, and the old reminders cancelled if they move or cancel.</li>
+              <li><b>Invoices:</b> sent in the customer's language with a payment link, then a heads-up 3 days before, a reminder on the due date, a firmer one at 7 days late, a final notice at 14 days that also asks the owner to call. It all stops the moment the invoice is paid, and part payments reduce what is asked for.</li>
+              <li><b>Weekly summary</b> every Monday at 08:00, and a <b>daily health check</b> that warns about a quiet week or leads stuck outside the CRM.</li>
+            </ul>
+          </div>
+
+          <div class="lab-foot">
+            <h2>How the retry rule works</h2>
+            <p>A message is sent straight away. If the CRM is temporarily unavailable, it tries again after <b>1 minute</b>, <b>5 minutes</b>, <b>30 minutes</b>, <b>2 hours</b> and <b>6 hours</b>. If it still fails, the run is marked <b>dead</b> and you are alerted. If the CRM says the address is gone for good (an error such as 410), it stops straight away, because trying again can't help. Each message carries a unique ID, so if one is delivered twice by accident the CRM ignores the repeat.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="finale" style="padding: 70px 0 110px;">
+        <div class="wrap">
+          <h2>Want this for your business?</h2>
+          <p class="lede">We are building this with a small number of founding clients. Tell us how enquiries reach you today, and we'll show you what it would look like for you.</p>
+          <div class="finale-actions"><a class="btn btn-primary" href="/#start">Start a free pilot <span class="arrow" aria-hidden="true">→</span></a><a class="btn" href="/demos">More demos</a></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        <span>© <span id="year">2026</span> Assist Street Ltd · Registered in England and Wales · Company no. 17518103</span>
+        <nav aria-label="Footer">
+          <a href="/services">Services</a>
+          <a href="/demos">Demos</a>
+          <a href="/pricing">Pricing</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/admin.html">Client login</a>
+        </nav>
+      </div>
+    </footer>
+
+    <script src="/assets/site.js" defer></script>
+    <script src="/assets/automation-engine.js" defer></script>
+    <script src="/demo/automation-lab/lab.js" defer></script>
+  </body>
+</html>

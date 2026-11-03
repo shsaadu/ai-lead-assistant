@@ -1,0 +1,37 @@
+/* Aldbridge Dental journey: Assist Street frame, patient's phone, and the practice's own screen. */
+
+.jn-note { margin-top: 22px; max-width: 820px; padding: 14px 18px; border: 1px solid rgba(255, 181, 71, .35); background: rgba(255, 181, 71, .07); border-radius: 14px; color: #e9d7b6; font-size: 15px; }
+.jn-note strong { color: var(--amber); }
+.journey { padding: 10px 0 80px; }
+.jn-wide { width: min(100% - var(--gutter) * 2, 1500px); margin: 0 auto; }
+
+.jn-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 26px; padding: 14px 18px; margin-bottom: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.jn-tag { font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); font-weight: 700; }
+.jn-tag small { text-transform: none; letter-spacing: 0; font-weight: 500; }
+.jn-group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.jn-group > span { font-size: 12.5px; color: var(--muted); font-weight: 600; margin-right: 2px; }
+.chipbtn { font: inherit; cursor: pointer; border: 1px solid var(--line-strong); background: rgba(255, 255, 255, .04); color: var(--text); border-radius: 999px; padding: 8px 14px; font-size: 14px; font-weight: 600; transition: background .2s, border-color .2s, transform .2s; }
+.chipbtn:hover { background: rgba(255, 45, 85, .14); border-color: var(--red); transform: translateY(-1px); }
+.chipbtn.mode.on { border-color: var(--red); background: rgba(255, 45, 85, .14); }
+.chipbtn.mode[data-mode="up"].on { border-color: var(--green); background: rgba(61, 220, 151, .12); }
+
+.jn-grid { display: grid; grid-template-columns: minmax(300px, 380px) minmax(0, 1fr); gap: 16px; align-items: start; }
+.jn-left { display: grid; gap: 16px; min-width: 0; }
+.jn-panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; }
+.jn-panel h2, .jn-h { font-family: 'Archivo', sans-serif; font-size: 18px; letter-spacing: -.01em; display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.jn-h { margin: 0 0 12px; }
+.jn-step { display: inline-grid; place-items: center; min-width: 26px; height: 26px; padding: 0 8px; border-radius: 999px; background: var(--red); color: #fff; font-size: 12px; font-weight: 800; }
+.jn-sm { color: var(--muted); font-size: 14px; margin: -4px 0 12px; }
+.jn-presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.jn-presets .chipbtn { font-size: 13px; padding: 7px 12px; }
+.jn-form { display: grid; gap: 10px; }
+.jn-form label { display: grid; gap: 5px; font-size: 13px; color: var(--muted); font-weight: 600; }
+.jn-form input, .jn-form textarea, .jn-form select { font: inherit; font-weight: 400; color: var(--text); background: var(--bg-2); border: 1px solid var(--line-strong); border-radius: 12px; padding: 10px 12px; width: 100%; resize: vertical; }
+.jn-form input:focus, .jn-form textarea:focus, .jn-form select:focus { outline: 2px solid var(--amber); outline-offset: 1px; }
+.jn-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.jn-form .btn { justify-content: center; padding: 12px 18px; font-size: 15px; }
+.jn-phone-panel { display: grid; justify-items: center; }
+.jn-phone-panel h2 { justify-self: start; }
+
+@media (max-width: 1060px) { .jn-grid { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .jn-row2 { grid-template-columns: 1fr; } }

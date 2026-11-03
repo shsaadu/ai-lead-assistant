@@ -1,0 +1,67 @@
+/* "See what the practice sees": the button, toast, drawer and booking step on the Aldbridge Dental demo site.
+   The screens inside the drawer are styled by journey/views.css, loaded on demand. */
+
+.bts-open { position: fixed; left: 16px; bottom: 16px; z-index: 90; display: inline-flex; align-items: center; gap: 9px; font: 600 14px Inter, system-ui, sans-serif; cursor: pointer; border: 0; padding: 12px 18px; border-radius: 999px; background: #0a2f2c; color: #fff; box-shadow: 0 14px 34px -10px rgba(10, 47, 44, .75), 0 0 0 1px rgba(255, 255, 255, .12) inset; transition: transform .2s, background .2s; }
+.bts-open:hover { background: #0b4d48; transform: translateY(-2px); }
+.bts-open:focus-visible { outline: 3px solid #f2b33d; outline-offset: 3px; }
+.bts-dot { width: 9px; height: 9px; border-radius: 50%; background: #f2b33d; }
+.bts-pulse .bts-dot { animation: bts-ping 1.4s infinite; }
+@keyframes bts-ping { 0% { box-shadow: 0 0 0 0 rgba(242, 179, 61, .8); } 70% { box-shadow: 0 0 0 12px rgba(242, 179, 61, 0); } 100% { box-shadow: 0 0 0 0 rgba(242, 179, 61, 0); } }
+.bts-on .bts-open { display: none; }
+
+.bts-toast { position: fixed; left: 16px; bottom: 74px; z-index: 91; max-width: min(380px, calc(100vw - 32px)); background: #fff; color: #10201e; border: 1px solid #cfe3de; border-left: 4px solid #0f766e; border-radius: 14px; padding: 12px 16px; font: 500 14px/1.45 Inter, system-ui, sans-serif; box-shadow: 0 18px 40px -16px rgba(10, 47, 44, .5); }
+.bts-toast[hidden] { display: none; }
+
+.bts-drawer { position: fixed; z-index: 100000; inset: 0 auto 0 0; width: min(1060px, 70vw); display: flex; flex-direction: column; background: #f4f6f5; color: #10201e; box-shadow: 30px 0 80px -30px rgba(0, 0, 0, .6); font: 400 15px/1.5 Inter, system-ui, sans-serif; animation: bts-slide .3s ease; }
+.bts-drawer[hidden] { display: none; }
+@keyframes bts-slide { from { transform: translateX(-30px); opacity: 0; } to { transform: none; opacity: 1; } }
+.bts-drawer * { box-sizing: border-box; }
+.bts-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 20px; background: #0a2f2c; color: #fff; }
+.bts-head b { font: 600 18px Fraunces, Georgia, serif; display: block; letter-spacing: -.01em; }
+.bts-head small { color: #9ac7bf; font-size: 12.5px; }
+.bts-x { font: 400 24px/1 Inter, sans-serif; cursor: pointer; border: 0; background: rgba(255, 255, 255, .12); color: #fff; width: 34px; height: 34px; border-radius: 50%; flex: none; }
+.bts-x:hover { background: rgba(255, 255, 255, .24); }
+.bts-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 10px 20px; background: #e6f4f1; border-bottom: 1px solid #cfe3de; font-size: 13px; }
+.bts-tag { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: #5a6b68; font-weight: 700; margin-right: 4px; }
+.bts-controls button { font: 600 13px Inter, sans-serif; cursor: pointer; border: 1px solid #b9d4cd; background: #fff; color: #0a2f2c; border-radius: 999px; padding: 5px 12px; }
+.bts-controls button:hover { border-color: #0f766e; background: #f0faf8; }
+.bts-controls label { display: inline-flex; align-items: center; gap: 6px; color: #34504b; font-weight: 600; }
+.bts-controls select { font: inherit; border: 1px solid #b9d4cd; border-radius: 8px; padding: 4px 6px; background: #fff; color: #10201e; }
+.bts-tabs { display: none; background: #fff; border-bottom: 1px solid #dde7e4; }
+.bts-tabs button { flex: 1; font: 600 14px Inter, sans-serif; cursor: pointer; border: 0; background: none; padding: 12px; color: #5a6b68; border-bottom: 3px solid transparent; }
+.bts-tabs button.on { color: #0a2f2c; border-bottom-color: #0f766e; }
+.bts-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 0; overflow: hidden; }
+.bts-col { min-height: 0; overflow-y: auto; padding: 18px; }
+.bts-phonecol { display: flex; justify-content: center; align-items: flex-start; background: #e9efed; border-right: 1px solid #dde7e4; padding: 20px 10px; }
+.bts-hubcol { padding: 14px; background: #f4f6f5; }
+.bts-hubcol .hub { min-height: 0; box-shadow: none; }
+.bts-drawer .ph-frame { width: 310px; height: min(640px, calc(100vh - 230px)); min-height: 520px; }
+
+.bts-modal { position: fixed; inset: 0; z-index: 100001; background: rgba(10, 47, 44, .55); display: grid; place-items: center; padding: 16px; font: 400 15px/1.5 Inter, system-ui, sans-serif; }
+.bts-card { position: relative; width: min(480px, 100%); max-height: 92vh; overflow-y: auto; background: #fff; color: #10201e; border-radius: 22px; padding: 24px; box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .55); }
+.bts-card .bts-x { position: absolute; right: 14px; top: 14px; background: #eef3f1; color: #10201e; width: 32px; height: 32px; }
+.bts-card h2 { font: 600 24px Fraunces, Georgia, serif; margin: 0 0 4px; letter-spacing: -.01em; }
+.bts-sub { color: #5a6b68; margin: 0 0 14px; font-size: 14px; }
+.bts-card form { display: grid; gap: 12px; }
+.bts-card label { display: grid; gap: 4px; font-size: 13px; font-weight: 600; color: #34504b; }
+.bts-card input[type="text"], .bts-card input[type="email"], .bts-card select { font: inherit; font-weight: 400; color: #10201e; border: 1px solid #c4d6d2; border-radius: 12px; padding: 10px 12px; background: #fff; width: 100%; }
+.bts-card input:focus, .bts-card select:focus { outline: 3px solid rgba(15, 118, 110, .35); outline-offset: 1px; }
+.bts-card fieldset { border: 0; padding: 0; margin: 0; } .bts-card legend { font-size: 13px; font-weight: 600; color: #34504b; margin-bottom: 6px; padding: 0; }
+.bts-slots { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.bts-slot { display: block; cursor: pointer; } .bts-slot input { position: absolute; opacity: 0; pointer-events: none; }
+.bts-slot span { display: block; text-align: center; border: 1.5px solid #c4d6d2; border-radius: 12px; padding: 11px 8px; font-weight: 600; font-size: 14px; color: #10201e; background: #f7faf9; }
+.bts-slot input:checked + span { border-color: #0f766e; background: #e6f4f1; box-shadow: 0 0 0 2px rgba(15, 118, 110, .25); }
+.bts-slot input:focus-visible + span { outline: 3px solid #f2b33d; outline-offset: 2px; }
+.bts-go { font: 700 15px Inter, sans-serif; cursor: pointer; border: 0; border-radius: 999px; padding: 13px 20px; background: #0f766e; color: #fff; box-shadow: 0 8px 20px -10px rgba(15, 118, 110, .8); }
+.bts-go:hover { background: #0b4d48; }
+.bts-fine { font-size: 12.5px; color: #5a6b68; margin: 12px 0 0; }
+
+@media (max-width: 1100px) {
+  .bts-drawer { width: 100vw; }
+  .bts-tabs { display: flex; }
+  .bts-body { grid-template-columns: 1fr; }
+  .bts-drawer[data-view="phone"] .bts-hubcol, .bts-drawer[data-view="hub"] .bts-phonecol { display: none; }
+  .bts-phonecol { border-right: 0; background: #e9efed; justify-content: center; }
+}
+@media (max-width: 520px) { .bts-open { left: 10px; bottom: 10px; padding: 11px 15px; font-size: 13.5px; } .bts-toast { left: 10px; bottom: 64px; } .bts-slots { grid-template-columns: 1fr; } .bts-controls { padding: 10px 12px; } }
+@media (prefers-reduced-motion: reduce) { .bts-drawer { animation: none; } .bts-pulse .bts-dot { animation: none; } }
