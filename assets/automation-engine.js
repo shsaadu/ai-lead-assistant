@@ -216,7 +216,7 @@
       var cnote = state.contacts.filter(function (x) { return x.leadId === lead.id; })[0];
       if (run.kind === 'inv_send') {
         run.log.push({ n: 1, t: state.now, ok: true, text: 'Invoice sent in ' + LANG[lead.lang].name });
-        mail(lead.email, IT.send(inv.number, money(left), fmtDue(inv.dueAt)), 'invoice', 'a payment link');
+        mail(lead.email, IT.send(inv.number, money(left), fmtDue(inv.dueAt, lead.lang)), 'invoice', 'a payment link');
         mail(OWNER, 'Invoice sent: ' + inv.number + ' to ' + lead.name + ', ' + money(inv.amount), 'info');
         if (cnote) cnote.notes.unshift('Invoice ' + inv.number + ' sent (' + money(inv.amount) + ')');
         say('good', 'The job was marked done, so invoice ' + inv.number + ' (' + money(inv.amount) + ') went to ' + lead.name + ' in ' + LANG[lead.lang].name + ', with a payment link and a due date. Reminders are scheduled.');
@@ -250,14 +250,14 @@
         run.status = 'cancelled'; run.log.push({ n: 1, t: state.now, ok: true, text: run.kind === 'noshow' ? 'They attended, so no follow-up was needed' : 'The booking is no longer active' });
         return;
       }
-      run.status = 'succeeded'; var slot = fmtSlot(bk.at);
+      run.status = 'succeeded'; var slot = fmtSlot(bk.at), pslot = fmtSlot(bk.at, lead.lang);
       if (run.kind === 'confirm') {
         run.log.push({ n: 1, t: state.now, ok: true, text: 'Confirmation sent in ' + LANG[lead.lang].name });
-        mail(lead.email, T.confirm(slot), 'book');
+        mail(lead.email, T.confirm(pslot), 'book');
         say('good', lead.name + ' booked ' + slot + '. A confirmation went out in ' + LANG[lead.lang].name + ', the CRM card moved to Booked, the chasing follow-up was cancelled, and reminders were scheduled.');
       } else if (run.kind === 'rem24') {
         state.flags.reminded = true; run.log.push({ n: 1, t: state.now, ok: true, text: '24-hour reminder sent' });
-        mail(lead.email, T.rem24(slot), 'remind'); say('info', 'Reminder sent to ' + lead.name + ' (24 hours before), in ' + LANG[lead.lang].name + '.');
+        mail(lead.email, T.rem24(pslot), 'remind'); say('info', 'Reminder sent to ' + lead.name + ' (24 hours before), in ' + LANG[lead.lang].name + '.');
       } else if (run.kind === 'rem1') {
         state.flags.reminded = true; run.log.push({ n: 1, t: state.now, ok: true, text: '1-hour reminder sent' });
         mail(lead.email, T.rem1(), 'remind'); say('info', 'Last reminder sent to ' + lead.name + ' (1 hour before).');
@@ -463,17 +463,33 @@
   }
   /* ---------------- bookings and reminders ---------------- */
   var SLOTS = {
-    h3: { label: 'Today, in 3 hours', at: function () { return state.now + 180; } },
-    d1: { label: 'Tomorrow, 10:00', at: function () { return (Math.floor(state.now / DAY) + 1) * DAY + 600; } },
-    d2: { label: 'In 2 days, 14:00', at: function () { return (Math.floor(state.now / DAY) + 2) * DAY + 840; } },
-    d3: { label: 'In 3 days, 11:00', at: function () { return (Math.floor(state.now / DAY) + 3) * DAY + 660; } }
+    h3: { label: 'Today, in 3 hours', labels: { es: 'Hoy, dentro de 3 horas', ar: 'اليوم، بعد 3 ساعات' }, at: function () { return state.now + 180; } },
+    d1: { label: 'Tomorrow, 10:00', labels: { es: 'Mañana, 10:00', ar: 'غدًا، 10:00' }, at: function () { return (Math.floor(state.now / DAY) + 1) * DAY + 600; } },
+    d2: { label: 'In 2 days, 14:00', labels: { es: 'En 2 días, 14:00', ar: 'بعد يومين، 14:00' }, at: function () { return (Math.floor(state.now / DAY) + 2) * DAY + 840; } },
+    d3: { label: 'In 3 days, 11:00', labels: { es: 'En 3 días, 11:00', ar: 'بعد 3 أيام، 11:00' }, at: function () { return (Math.floor(state.now / DAY) + 3) * DAY + 660; } }
   };
   var BOOK_TEXT = {
     en: { confirm: function (s) { return 'Booked: ' + s; }, rem24: function (s) { return 'Reminder: your appointment is tomorrow, ' + s; }, rem1: function () { return 'Reminder: your appointment is in 1 hour'; }, noshow: function () { return 'We missed you today. Would you like to pick a new time?'; }, cancel: function () { return 'Your appointment was cancelled. Rebook any time'; } },
     es: { confirm: function (s) { return 'Reserva confirmada: ' + s; }, rem24: function (s) { return 'Recordatorio: tu cita es mañana, ' + s; }, rem1: function () { return 'Recordatorio: tu cita es dentro de 1 hora'; }, noshow: function () { return 'Te echamos de menos hoy. ¿Elegimos otra hora?'; }, cancel: function () { return 'Tu cita fue cancelada. Reserva de nuevo cuando quieras'; } },
     ar: { confirm: function (s) { return 'تم تأكيد الحجز: ' + s; }, rem24: function (s) { return 'تذكير: موعدك غدًا، ' + s; }, rem1: function () { return 'تذكير: موعدك بعد ساعة واحدة'; }, noshow: function () { return 'افتقدناك اليوم. هل نختار وقتًا جديدًا؟'; }, cancel: function () { return 'تم إلغاء موعدك. يمكنك الحجز مجددًا في أي وقت'; } }
   };
-  function fmtSlot(m) { var h = Math.floor((m % DAY) / 60), mm = Math.floor(m % 60); return dayName(m) + ' Day ' + (Math.floor(m / DAY) + 1) + ' at ' + String(h).padStart(2, '0') + ':' + String(mm).padStart(2, '0'); }
+  var DAYS = {
+    es: ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'],
+    ar: ['الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد']
+  };
+  /** "Tue Day 2" in English; the patient's own language when one is given. */
+  function fmtDay(m, lang) {
+    var n = Math.floor(m / DAY) + 1;
+    if (lang === 'es') return DAYS.es[Math.floor(m / DAY) % 7] + ', día ' + n;
+    if (lang === 'ar') return DAYS.ar[Math.floor(m / DAY) % 7] + '، اليوم ' + n;
+    return dayName(m) + ' Day ' + n;
+  }
+  function fmtSlot(m, lang) {
+    var h = Math.floor((m % DAY) / 60), mm = Math.floor(m % 60), hm = String(h).padStart(2, '0') + ':' + String(mm).padStart(2, '0');
+    if (lang === 'es') return fmtDay(m, lang) + (h === 1 ? ' a la ' : ' a las ') + hm;
+    if (lang === 'ar') return fmtDay(m, lang) + '، الساعة ' + hm;
+    return fmtDay(m) + ' at ' + hm;
+  }
   function bookingById(id) { return state.bookings.filter(function (b) { return b.id === id; })[0]; }
   function bookedAlready(lead) { return state.bookings.some(function (b) { return b.leadId === lead.id && b.status === 'booked'; }); }
   function cancelRun(r, text) { r.status = 'cancelled'; r.nextAt = null; r.log.push({ n: 1, t: state.now, ok: true, text: text }); }
@@ -539,7 +555,7 @@
     ar: { send: function (n, a, d) { return 'فاتورة ' + n + ': ' + a + '، تستحق ' + d; }, pre: function (n, a) { return 'تذكير ودّي: الفاتورة ' + n + ' (' + a + ') تستحق بعد 3 أيام'; }, due: function (n, a) { return 'الفاتورة ' + n + ' (' + a + ') تستحق اليوم'; }, od7: function (n, a) { return 'متأخرة: الفاتورة ' + n + '، ' + a + '، استحقت قبل 7 أيام'; }, od14: function (n, a) { return 'تذكير أخير: الفاتورة ' + n + ' (' + a + ') متأخرة منذ 14 يومًا'; }, paid: function (n) { return 'شكرًا: تم استلام دفعة ' + n; }, newdate: function (n, d) { return 'الفاتورة ' + n + ': موعد استحقاق جديد ' + d; } }
   };
   function money(n) { return '£' + Number(n).toLocaleString('en-GB'); }
-  function fmtDue(m) { return dayName(m) + ' Day ' + (Math.floor(m / DAY) + 1); }
+  function fmtDue(m, lang) { return fmtDay(m, lang); }
   function invoiceById(id) { return state.invoices.filter(function (i) { return i.id === id; })[0]; }
   function isOverdue(i) { return i.status === 'sent' && state.now > i.dueAt && i.amount - i.paid > 0; }
   function pushInvoiceRun(inv, kind, name, at) {
@@ -583,7 +599,7 @@
     var inv = invoiceById(invoiceId); if (!inv || inv.status !== 'sent') return;
     stopInvoiceRuns(inv, 'The due date moved, so this reminder was replaced');
     inv.dueAt += days * DAY; inv.extended += days; inv.atRisk = false; state.flags.extended = true;
-    mail(inv.lead.email, INV_TEXT[inv.lead.lang].newdate(inv.number, fmtDue(inv.dueAt)), 'invoice', 'a payment link');
+    mail(inv.lead.email, INV_TEXT[inv.lead.lang].newdate(inv.number, fmtDue(inv.dueAt, inv.lead.lang)), 'invoice', 'a payment link');
     scheduleReminders(inv);
     say('info', inv.lead.name + ' asked for more time, so the due date moved to ' + fmtDue(inv.dueAt) + '. The old reminders were cancelled and new ones scheduled around the new date.');
     notify(); await advance(0);
@@ -690,7 +706,7 @@
       markAttended: markAttended, recordPayment: recordPayment, voidInvoice: voidInvoice, previewReport: previewReport, toggleOpen: toggleOpen,
       // reading
       buildReport: buildReport, highlights: highlights, selfTest: selfTest,
-      fmt: { fmtTime: fmtTime, fmtIn: fmtIn, fmtDur: fmtDur, fmtSlot: fmtSlot, fmtDue: fmtDue, money: money, dayName: dayName },
+      fmt: { fmtTime: fmtTime, fmtIn: fmtIn, fmtDur: fmtDur, fmtSlot: fmtSlot, fmtDue: fmtDue, fmtDay: fmtDay, money: money, dayName: dayName },
       helpers: { bookedAlready: bookedAlready, isOverdue: isOverdue, bookingById: bookingById, invoiceById: invoiceById },
       consts: { DAY: DAY, WEEK: WEEK, MAX_ATTEMPTS: MAX_ATTEMPTS, BACKOFF_MIN: BACKOFF_MIN, FIRST_WEEKLY: FIRST_WEEKLY },
       LANG: LANG, SLOTS: SLOTS, say: say
