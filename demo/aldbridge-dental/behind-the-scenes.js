@@ -131,6 +131,7 @@
   }
   function openDrawer(view) {
     return load().then(function () {
+      try { if (window.AILeadAssistant && AILeadAssistant.close) AILeadAssistant.close(); } catch (e) {}
       drawer.hidden = false; document.documentElement.classList.add('bts-on');
       $('bts-open').setAttribute('aria-expanded', 'true'); $('bts-open').classList.remove('bts-pulse');
       if (view) { drawer.dataset.view = view; drawer.querySelectorAll('.bts-tabs button').forEach(function (x) { x.classList.toggle('on', x.dataset.view === view); }); }
