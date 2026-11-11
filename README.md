@@ -119,7 +119,7 @@ A ready-made sales demo for language schools:
 Add one line just before `</body>` on their site (the dashboard's **Settings → Website embed** shows it ready to copy, with the right business slug):
 
 ```html
-<script src="https://YOUR-DEPLOYMENT.vercel.app/widget.js" data-business="their-business-slug" async></script>
+<script src="https://assiststreet.co.uk/widget.js" data-business="their-business-slug" async></script>
 ```
 
 Optional attributes: `data-position="left"`, `data-greeting="…"` (first message), `data-label="…"` (button text).

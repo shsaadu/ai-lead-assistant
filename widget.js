@@ -3,7 +3,7 @@
  *
  * Add to any website, just before </body>:
  *
- *   <script src="https://YOUR-DEPLOYMENT/widget.js" data-business="your-business-slug" async></script>
+ *   <script src="https://assiststreet.co.uk/widget.js" data-business="your-business-slug" async></script>
  *
  * Optional attributes:
  *   data-position="left"        put the button bottom-left instead of bottom-right
