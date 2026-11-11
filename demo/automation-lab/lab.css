@@ -196,8 +196,8 @@
 .inv-form label { display: grid; gap: 5px; font-size: 13px; color: var(--muted); font-weight: 600; }
 .inv-form select, .inv-form input { font: inherit; font-weight: 400; color: var(--text); background: var(--bg-2); border: 1px solid var(--line-strong); border-radius: 12px; padding: 10px; width: 100%; }
 .inv-form .btn { padding: 11px 16px; font-size: 14.5px; }
-.cash { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
-.cashbox { background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; display: grid; gap: 2px; }
+.cash { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 14px; }
+.cashbox { background: var(--bg-2); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; display: grid; gap: 2px; min-width: 0; }
 .cashbox span { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .cashbox b { font-family: 'Archivo', sans-serif; font-size: 22px; letter-spacing: -.02em; }
 .cashbox.bad b { color: var(--red); } .cashbox.good b { color: var(--green); }
@@ -213,3 +213,5 @@
 /* paperwork panel */
 .paperwork { margin-top: 16px; }
 .paperwork .appt-intro { max-width: 980px; }
+
+@media (max-width: 420px) { .cashbox { padding: 8px 8px; } .cashbox span { font-size: 10.5px; letter-spacing: .04em; } .cashbox b { font-size: 18px; } }

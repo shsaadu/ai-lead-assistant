@@ -1,7 +1,7 @@
 /* Shared screens: the patient's phone and the practice's back office. Used on the journey page and on the real Aldbridge Dental demo site. */
 
 /* ---------- the patient's phone ---------- */
-.ph-frame { position: relative; width: 310px; height: 640px; background: #0b0c10; border-radius: 42px; padding: 10px; box-shadow: 0 30px 70px -24px #000, 0 0 0 1px rgba(255, 255, 255, .14); }
+.ph-frame { position: relative; width: min(310px, 100%); height: 640px; background: #0b0c10; border-radius: 42px; padding: 10px; box-shadow: 0 30px 70px -24px #000, 0 0 0 1px rgba(255, 255, 255, .14); }
 .ph-notch { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); width: 92px; height: 22px; border-radius: 999px; background: #0b0c10; z-index: 3; }
 .ph-screen { position: relative; height: 100%; background: #f4f6f5; border-radius: 34px; overflow: hidden; display: flex; flex-direction: column; color: #10201e; font-family: Inter, system-ui, sans-serif; }
 .ph-status { display: flex; justify-content: space-between; align-items: center; padding: 14px 22px 4px; font-size: 12.5px; }

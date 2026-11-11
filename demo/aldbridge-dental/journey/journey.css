@@ -33,5 +33,7 @@
 .jn-phone-panel { display: grid; justify-items: center; }
 .jn-phone-panel h2 { justify-self: start; }
 
-@media (max-width: 1060px) { .jn-grid { grid-template-columns: 1fr; } }
+@media (max-width: 1060px) { .jn-grid { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 700px) { .jn-row2 { grid-template-columns: 1fr; } }
+
+.jn-panel { min-width: 0; }

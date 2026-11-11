@@ -450,4 +450,4 @@ body::after { content: ''; position: fixed; inset: -50%; z-index: 90; pointer-ev
 @media (max-width: 640px) { .code-line { white-space: normal; overflow-wrap: anywhere; font-size: 12.5px; } }
 
 /* Sliding-in sections wait off-screen to the side; clip them so a phone can never scroll sideways */
-main { overflow-x: clip; }
+main { overflow-x: hidden; overflow-x: clip; }
