@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Level 1 demo: add the assistant to an existing website | Assist Street</title>
+    <meta name="description" content="A typical small-business website with no assistant. Press a button to add ours with one line of code, then ask it a question." />
+    <meta name="theme-color" content="#07080b" />
+    <link rel="canonical" href="https://assiststreet.co.uk/demo/existing-site/" />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <style>
+      :root { --ink: #1f2a37; --muted: #5b6573; --line: #d7dde5; --brand: #4f7a28; --brand-dark: #3b5d1e; --bar: #07080b; --red: #ff2d55; --amber: #ffb547; }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; font: 17px/1.6 Georgia, 'Times New Roman', serif; color: var(--ink); background: #f6f3ea; overflow-x: hidden; }
+      a { color: var(--brand-dark); }
+
+      /* The Assist Street demo bar: not part of the "existing website" */
+      .bar { position: relative; z-index: 50; background: var(--bar); color: #eceef1; font: 15px/1.45 Inter, system-ui, -apple-system, 'Segoe UI', sans-serif; border-bottom: 1px solid rgba(255, 255, 255, .12); }
+      .bar-in { max-width: 1040px; margin: 0 auto; padding: 12px 18px; display: grid; gap: 10px; }
+      .bar-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+      .bar b { color: #fff; }
+      .bar .lvl { display: inline-block; font-weight: 700; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--red); margin-right: 8px; }
+      .bar a.back { color: #c9ced6; font-size: 14px; text-decoration: none; border: 1px solid rgba(255, 255, 255, .2); padding: 5px 12px; border-radius: 999px; }
+      .bar a.back:hover { border-color: #fff; color: #fff; }
+      .steps { display: flex; flex-wrap: wrap; gap: 8px 10px; align-items: center; }
+      .go { font: 700 15px Inter, system-ui, sans-serif; cursor: pointer; border: 0; color: #fff; background: var(--red); padding: 11px 20px; border-radius: 999px; box-shadow: 0 8px 24px -10px rgba(255, 45, 85, .8); }
+      .go:hover { background: #ff4468; }
+      .go[disabled] { background: #2d6a4f; box-shadow: none; cursor: default; }
+      .go:focus-visible, .ask:focus-visible, .again:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+      .snippet { margin: 0; font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; background: #11141a; border: 1px solid rgba(255, 255, 255, .12); border-radius: 10px; padding: 10px 12px; color: #c9ced6; overflow-wrap: anywhere; white-space: pre-wrap; min-height: 3.2em; }
+      .snippet .t { color: var(--red); } .snippet .a { color: var(--amber); } .snippet .s { color: #3ddc97; }
+      .after { display: none; gap: 8px; }
+      .after.on { display: grid; }
+      .after p { margin: 0; }
+      .asks { display: flex; flex-wrap: wrap; gap: 8px; }
+      .ask { font: 600 14px Inter, system-ui, sans-serif; cursor: pointer; color: #fff; background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .22); padding: 7px 14px; border-radius: 999px; }
+      .ask:hover { border-color: var(--red); background: rgba(255, 45, 85, .15); }
+      .again { font: 14px Inter, system-ui, sans-serif; cursor: pointer; color: #9aa1ad; background: none; border: 0; text-decoration: underline; padding: 0; }
+      .note { font: 13.5px/1.5 Inter, system-ui, sans-serif; color: #9aa1ad; margin: 0; }
+
+      /* A deliberately ordinary small-business website */
+      .site { max-width: 920px; margin: 0 auto; padding: 0 18px 60px; }
+      .site header { border-bottom: 3px solid var(--brand); padding: 22px 0 12px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 6px 20px; }
+      .site h1 { margin: 0; font-size: 34px; color: var(--brand-dark); }
+      .site h1 small { display: block; font-size: 15px; font-weight: 400; color: var(--muted); font-style: italic; }
+      .site .phone { font-size: 22px; font-weight: 700; }
+      .site nav { display: flex; flex-wrap: wrap; gap: 6px 20px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 16px; }
+      .site h2 { color: var(--brand-dark); margin: 32px 0 8px; font-size: 24px; }
+      .site ul { padding-left: 22px; }
+      .site table { border-collapse: collapse; width: 100%; max-width: 560px; }
+      .site td, .site th { border: 1px solid var(--line); padding: 8px 12px; text-align: left; }
+      .site th { background: #eaf1e0; }
+      .form { background: #fff; border: 1px solid var(--line); padding: 16px 18px; max-width: 520px; }
+      .form label { display: block; margin: 8px 0 3px; font-size: 15px; }
+      .form input, .form textarea { width: 100%; font: inherit; padding: 7px 9px; border: 1px solid #aab4c0; }
+      .form button { margin-top: 12px; font: inherit; background: var(--brand); color: #fff; border: 0; padding: 9px 20px; cursor: not-allowed; opacity: .85; }
+      .foot { max-width: 920px; margin: 0 auto; padding: 0 18px 40px; font: 14px/1.5 Inter, system-ui, sans-serif; color: var(--muted); }
+      @media (max-width: 560px) { .site h1 { font-size: 28px; } .site .phone { font-size: 19px; } }
+    </style>
+  </head>
+  <body>
+    <div class="bar" role="region" aria-label="Demo controls">
+      <div class="bar-in">
+        <div class="bar-top">
+          <div><span class="lvl">Level 1 demo</span><b>This is a typical small-business website, with no assistant.</b> Add ours with one line of code.</div>
+          <a class="back" href="/services#level-1">← Back to Level 1</a>
+        </div>
+        <div class="steps">
+          <button class="go" id="go" type="button">Add the assistant to this website</button>
+          <span class="note" id="hint">Made-up business, real assistant. Nothing here is sent anywhere.</span>
+        </div>
+        <pre class="snippet" id="snippet" aria-live="polite" hidden></pre>
+        <div class="after" id="after" aria-live="polite">
+          <p><b>It's on the page.</b> Look for the chat button in the corner, or try one of these:</p>
+          <div class="asks" id="asks">
+            <button class="ask" type="button" data-q="I have a leak under my kitchen sink and need someone today.">"I have a leak and need someone today."</button>
+            <button class="ask" type="button" data-q="How much do you charge for a call-out?">"How much is a call-out?"</button>
+            <button class="ask" type="button" data-q="¿Pueden venir mañana? Mi calentador no funciona.">"¿Pueden venir mañana?" (Spanish)</button>
+          </div>
+          <p class="note">That is all it takes: one line, added once. We write the assistant's answers from the business's own information, and look after it. <button class="again" id="again" type="button">Start again</button></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="site">
+      <header>
+        <h1>Northstar Plumbing <small>Local plumbers since 1998</small></h1>
+        <div class="phone">020 7946 0000</div>
+      </header>
+      <nav aria-label="Example website menu"><a href="#">Home</a> <a href="#">Services</a> <a href="#">Prices</a> <a href="#">Areas we cover</a> <a href="#">Contact</a></nav>
+
+      <h2>Welcome</h2>
+      <p>We are a family-run plumbing and heating company covering East and North London. Call us for repairs, boilers, bathrooms and emergency call-outs. We are open Monday to Saturday, 8am to 6pm.</p>
+
+      <h2>What we do</h2>
+      <ul>
+        <li>Leaks, burst pipes and emergency repairs</li>
+        <li>Boiler servicing and replacement</li>
+        <li>Bathroom and kitchen fitting</li>
+        <li>Landlord safety checks</li>
+      </ul>
+
+      <h2>Prices</h2>
+      <table>
+        <tr><th>Job</th><th>From</th></tr>
+        <tr><td>Call-out</td><td>See phone</td></tr>
+        <tr><td>Boiler service</td><td>£85</td></tr>
+        <tr><td>Bathroom fit</td><td>Quote</td></tr>
+      </table>
+
+      <h2>Contact us</h2>
+      <p>Phone us, or send a message and we will call you back when we can.</p>
+      <div class="form">
+        <label for="n">Name</label><input id="n" type="text" disabled />
+        <label for="p">Phone</label><input id="p" type="text" disabled />
+        <label for="m">Message</label><textarea id="m" rows="3" disabled></textarea>
+        <button type="button" disabled>Send</button>
+      </div>
+      <p class="note" style="font-family: Inter, system-ui, sans-serif; margin-top: 18px;">Typical of a small-business website: customers who message at night wait until the morning for a reply.</p>
+    </div>
+
+    <div class="foot">Northstar Plumbing is a made-up business for demonstration. The assistant you add here is the real thing. © <span id="y">2026</span> Assist Street Ltd · Registered in England and Wales · Company no. 17518103</div>
+
+    <script>
+      (function () {
+        var SLUG = 'northstar-plumbing';
+        var go = document.getElementById('go'), snippet = document.getElementById('snippet'), after = document.getElementById('after'), hint = document.getElementById('hint');
+        document.getElementById('y').textContent = new Date().getFullYear();
+        var line = '<script src="' + location.origin + '/widget.js" data-business="' + SLUG + '" async><\/script>';
+        function html(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+        function coloured() {
+          return '&lt;<span class="t">script</span> <span class="a">src</span>="<span class="s">' + html(location.origin) + '/widget.js</span>" <span class="a">data-business</span>="<span class="s">' + SLUG + '</span>" async&gt;&lt;/<span class="t">script</span>&gt;';
+        }
+        function type(done) {
+          snippet.hidden = false; snippet.textContent = '';
+          var i = 0, step = Math.max(2, Math.round(line.length / 40));
+          var timer = setInterval(function () {
+            i += step; snippet.textContent = line.slice(0, i);
+            if (i >= line.length) { clearInterval(timer); snippet.innerHTML = coloured(); done(); }
+          }, 28);
+        }
+        function load() {
+          var tag = document.createElement('script');
+          tag.src = '/widget.js'; tag.async = true; tag.setAttribute('data-business', SLUG);
+          tag.onload = function () { go.textContent = 'Assistant added'; hint.textContent = ''; after.classList.add('on'); };
+          tag.onerror = function () { go.disabled = false; go.textContent = 'Add the assistant to this website'; hint.textContent = 'Sorry, the assistant could not load just now. Please try again.'; };
+          document.body.appendChild(tag);
+        }
+        go.addEventListener('click', function () {
+          if (go.disabled) return;
+          go.disabled = true; go.textContent = 'Adding the line…'; hint.textContent = 'Pasting one line into the page…';
+          type(function () { hint.textContent = 'Line added. Loading…'; load(); });
+        });
+        document.getElementById('asks').addEventListener('click', function (e) {
+          var b = e.target.closest('[data-q]'); if (!b) return;
+          if (window.AILeadAssistant && window.AILeadAssistant.open) window.AILeadAssistant.open(b.getAttribute('data-q'));
+        });
+        document.getElementById('again').addEventListener('click', function () { location.reload(); });
+      })();
+    </script>
+  </body>
+</html>

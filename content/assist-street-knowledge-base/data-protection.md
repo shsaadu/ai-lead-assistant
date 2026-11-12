@@ -1,6 +1,6 @@
 # Data protection
 
-- Assist Street signs a data processing agreement with every client. The business decides how its customers' information is used; Assist Street processes it on the business's behalf.
+- The business decides how its customers' information is used; Assist Street processes it on the business's behalf, under UK data protection law.
 - The chat shows customers a notice that the business's team may read the conversation.
 - Customer information is used only to answer customers and pass enquiries to the business. It is never sold.
 - Assist Street deletes a customer's information on request.

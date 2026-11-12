@@ -26,4 +26,4 @@ The assistant has limits on how many messages one visitor can send, to stop spam
 
 ## Speed
 
-Answers usually arrive within a few seconds.
+Answers usually arrive within seconds.

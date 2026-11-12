@@ -10,7 +10,7 @@ Assist Street sets up and looks after AI assistants for UK businesses' websites.
 
 Assist Street does the setup, testing and updates, so the business doesn't need technical skills or staff time.
 
-Alongside the website assistant, Assist Street also offers lead follow-up automation, workflow automation, website design and build, staff knowledge assistants, team AI workshops and a free AI opportunity call. WhatsApp and booking assistants are coming soon. See the services document for details.
+Alongside the website assistant (Level 1), Assist Street also builds new websites with the assistant built in (Level 2), and custom automation and AI built to order, such as follow-ups, reminders, paperwork reading and staff knowledge assistants (Level 3). It also runs team AI workshops. The way to start is a free 30-minute call. WhatsApp and booking assistants are on the roadmap, not available yet. See the services document for details.
 
 ## Who it's for
 
