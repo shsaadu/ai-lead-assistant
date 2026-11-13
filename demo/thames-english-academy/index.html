@@ -4,129 +4,740 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex" />
-    <meta name="description" content="Demo website for a fictional London English school, showing the AI admissions assistant." />
+    <meta name="theme-color" content="#0e2a45" />
+    <meta name="description" content="Demo website for a fictional London English school, showing a website with an AI admissions assistant built in." />
     <title>Thames English Academy | Learn English in London (demo)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <style>
-      :root { --navy: #1f4e79; --navy-dark: #143553; --gold: #f2b33d; --ink: #172433; --muted: #5b6b7c; --paper: #f7f4ee; --line: #e3ddd1; }
+      :root {
+        --navy: #1f4e79; --navy-dark: #0e2a45; --navy-deep: #0a1f33; --sky: #7cc4f2; --gold: #f2b33d; --gold-soft: #ffe3a6;
+        --ink: #14212f; --muted: #5a6a7b; --paper: #f7f4ee; --paper-2: #efe9dc; --line: #e2dccf; --white: #fff;
+        --radius: 20px; --ease: cubic-bezier(.2, .7, .2, 1);
+        --display: 'Fraunces', Georgia, 'Times New Roman', serif; --sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      }
       * { box-sizing: border-box; }
-      body { margin: 0; font-family: "Plus Jakarta Sans", system-ui, sans-serif; color: var(--ink); background: var(--paper); line-height: 1.55; }
+      html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+      body { margin: 0; font-family: var(--sans); color: var(--ink); background: var(--paper); line-height: 1.6; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+      img, svg { display: block; max-width: 100%; }
       a { color: inherit; }
-      .demo-bar { background: var(--ink); color: #dbe4ee; font-size: 13.5px; text-align: center; padding: 9px 16px; }
+      button { font: inherit; color: inherit; cursor: pointer; }
+      :focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+      h1, h2, h3, h4 { font-family: var(--display); font-weight: 600; letter-spacing: -.015em; line-height: 1.08; margin: 0; }
+      h2 { font-size: clamp(30px, 4.4vw, 52px); }
+      h3 { font-size: 22px; }
+      p { margin: 0; }
+      .wrap { width: min(100% - clamp(32px, 8vw, 128px), 1160px); margin: 0 auto; }
+      .eyebrow { display: inline-flex; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: .14em; font-size: 12px; font-weight: 800; color: var(--navy); margin-bottom: 14px; }
+      .eyebrow::before { content: ''; width: 26px; height: 2px; background: var(--gold); }
+      .on-dark .eyebrow, .eyebrow.light { color: var(--gold); }
+      .lede { color: var(--muted); font-size: 18px; max-width: 640px; margin-top: 14px; }
+      .section { padding: clamp(64px, 8vw, 112px) 0; position: relative; }
+      .section-head { margin-bottom: clamp(28px, 4vw, 48px); max-width: 720px; }
+      em.it { font-style: italic; color: var(--gold); font-weight: 500; }
+      em.it.navy-it { color: #b87608; }
+      .btn { display: inline-flex; align-items: center; gap: 10px; border: 0; border-radius: 999px; padding: 14px 24px; font-weight: 700; font-size: 15.5px; text-decoration: none; transition: transform .25s var(--ease), box-shadow .25s, background .25s; }
+      .btn:hover { transform: translateY(-2px); }
+      .btn-gold { background: var(--gold); color: var(--ink); box-shadow: 0 10px 30px -12px rgba(242, 179, 61, .9); }
+      .btn-gold:hover { box-shadow: 0 16px 36px -12px rgba(242, 179, 61, 1); }
+      .btn-ghost { background: rgba(255, 255, 255, .1); color: #fff; border: 1px solid rgba(255, 255, 255, .3); backdrop-filter: blur(6px); }
+      .btn-ghost:hover { background: rgba(255, 255, 255, .18); }
+      .btn svg { width: 18px; height: 18px; }
+
+      /* reveal on scroll */
+      .rv { opacity: 0; transform: translateY(22px); transition: opacity .8s var(--ease) var(--d, 0s), transform .8s var(--ease) var(--d, 0s); }
+      .rv.in { opacity: 1; transform: none; }
+
+      .demo-bar { background: var(--navy-deep); color: #cfdbe8; font-size: 13.5px; text-align: center; padding: 9px 16px; }
       .demo-bar strong { color: var(--gold); }
-      header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px clamp(16px, 5vw, 64px); background: #fff; border-bottom: 1px solid var(--line); }
-      .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; text-decoration: none; color: var(--navy); }
-      .logo-mark { width: 34px; height: 34px; border-radius: 9px; background: var(--navy); color: var(--gold); display: grid; place-items: center; font-size: 18px; }
-      nav { display: flex; gap: 22px; font-size: 14.5px; font-weight: 600; }
-      nav a { text-decoration: none; color: var(--muted); }
-      nav a:hover { color: var(--navy); }
-      .hero { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%); color: #fff; padding: clamp(56px, 9vw, 110px) clamp(16px, 5vw, 64px); }
-      .hero-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1.3fr 1fr; gap: 48px; align-items: center; }
-      .eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: 12.5px; font-weight: 700; color: var(--gold); margin: 0 0 14px; }
-      h1 { font-size: clamp(34px, 5.5vw, 58px); line-height: 1.05; letter-spacing: -.02em; margin: 0 0 18px; }
-      .hero p.lead { font-size: 18px; color: #d6e2ee; max-width: 520px; margin: 0 0 28px; }
-      .cta { display: inline-block; background: var(--gold); color: var(--ink); font-weight: 700; padding: 13px 22px; border-radius: 10px; text-decoration: none; }
-      .facts { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 16px; padding: 24px; display: grid; gap: 16px; }
-      .facts div { display: flex; justify-content: space-between; gap: 12px; border-bottom: 1px solid rgba(255,255,255,.12); padding-bottom: 12px; }
-      .facts div:last-child { border-bottom: 0; padding-bottom: 0; }
-      .facts span { color: #b9cadb; } .facts strong { text-align: right; }
-      section.block { max-width: 1100px; margin: 0 auto; padding: 64px clamp(16px, 5vw, 64px); }
-      h2 { font-size: clamp(26px, 3.5vw, 36px); letter-spacing: -.01em; margin: 0 0 8px; }
-      .sub { color: var(--muted); margin: 0 0 32px; max-width: 620px; }
-      .courses { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
-      .course { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 6px; }
-      .course h3 { margin: 0; font-size: 18px; color: var(--navy); }
-      .course p { margin: 0; color: var(--muted); font-size: 14.5px; flex: 1; }
-      .price { font-weight: 800; font-size: 20px; margin-top: 10px; } .price small { font-weight: 500; font-size: 13px; color: var(--muted); }
-      .why { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; }
-      .why div { border-top: 3px solid var(--gold); padding-top: 14px; }
-      .why h3 { margin: 0 0 6px; font-size: 17px; } .why p { margin: 0; color: var(--muted); font-size: 14.5px; }
-      .try { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 28px; }
-      .try ul { margin: 12px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 10px; }
-      .try li { background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; font-size: 14.5px; }
-      footer { background: var(--ink); color: #b7c3d0; font-size: 14px; padding: 36px clamp(16px, 5vw, 64px); }
-      footer .inner { max-width: 1100px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; }
-      @media (max-width: 820px) { .hero-inner { grid-template-columns: 1fr; } nav { display: none; } }
+
+      /* header */
+      .site-head { position: sticky; top: 0; z-index: 60; transition: background .3s, box-shadow .3s; }
+      .site-head.stuck { background: rgba(10, 31, 51, .84); backdrop-filter: blur(14px) saturate(1.4); -webkit-backdrop-filter: blur(14px) saturate(1.4); box-shadow: 0 8px 30px -18px rgba(0, 0, 0, .6); }
+      .head-in { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 72px; }
+      .logo { display: flex; align-items: center; gap: 11px; text-decoration: none; color: #fff; font-family: var(--display); font-weight: 600; font-size: 20px; letter-spacing: -.01em; }
+      .logo-mark { width: 38px; height: 38px; flex: none; border-radius: 11px; background: linear-gradient(135deg, var(--gold), #ffcf6b); color: var(--navy-dark); display: grid; place-items: center; font-weight: 800; font-size: 20px; font-family: var(--sans); }
+      .main-nav { display: flex; align-items: center; gap: 4px; }
+      .main-nav a { text-decoration: none; color: #cfe0f0; font-size: 14.5px; font-weight: 600; padding: 9px 14px; border-radius: 999px; transition: background .2s, color .2s; }
+      .main-nav a:hover { background: rgba(255, 255, 255, .12); color: #fff; }
+      .head-cta { display: flex; align-items: center; gap: 10px; }
+      .head-cta .btn { padding: 10px 18px; font-size: 14px; }
+      .menu-btn { display: none; width: 44px; height: 44px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, .25); background: rgba(255, 255, 255, .08); align-items: center; justify-content: center; }
+      .menu-btn span, .menu-btn span::before, .menu-btn span::after { content: ''; display: block; width: 18px; height: 2px; background: #fff; border-radius: 2px; position: relative; transition: transform .25s, background .25s; }
+      .menu-btn span::before { position: absolute; top: -6px; } .menu-btn span::after { position: absolute; top: 6px; }
+      .menu-open .menu-btn span { background: transparent; } .menu-open .menu-btn span::before { transform: translateY(6px) rotate(45deg); } .menu-open .menu-btn span::after { transform: translateY(-6px) rotate(-45deg); }
+
+      /* hero */
+      .hero { position: relative; margin-top: -72px; padding: calc(72px + clamp(48px, 8vw, 104px)) 0 0; color: #fff; overflow: hidden; isolation: isolate; background: radial-gradient(1200px 600px at 78% 10%, rgba(124, 196, 242, .28), transparent 60%), radial-gradient(900px 500px at 10% 90%, rgba(242, 179, 61, .16), transparent 55%), linear-gradient(160deg, #1b4a78 0%, var(--navy-dark) 55%, var(--navy-deep) 100%); }
+      .hero-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr); gap: clamp(28px, 5vw, 72px); align-items: center; padding-bottom: clamp(130px, 16vw, 200px); }
+      .hero h1 { font-size: clamp(42px, 6.4vw, 84px); font-weight: 500; }
+      .hero .lead { font-size: clamp(17px, 1.7vw, 20px); color: #d3e3f2; max-width: 540px; margin: 22px 0 32px; }
+      .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+      .hello { margin-top: 34px; display: flex; align-items: center; gap: 14px; color: #9db8d2; font-size: 14px; }
+      .hello b { display: inline-block; min-width: 96px; color: #fff; font-family: var(--display); font-size: 22px; font-weight: 500; transition: opacity .3s; }
+      .next { position: relative; border-radius: 26px; padding: 26px; background: linear-gradient(160deg, rgba(255, 255, 255, .16), rgba(255, 255, 255, .06)); border: 1px solid rgba(255, 255, 255, .22); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); box-shadow: 0 30px 70px -30px rgba(0, 0, 0, .7); }
+      .next small { text-transform: uppercase; letter-spacing: .14em; font-weight: 800; font-size: 11.5px; color: var(--gold); }
+      .next .big { font-family: var(--display); font-size: clamp(32px, 3.6vw, 46px); font-weight: 500; line-height: 1.05; margin: 8px 0 4px; }
+      .next .in-days { color: #b7cde2; font-size: 15px; }
+      .next hr { border: 0; border-top: 1px solid rgba(255, 255, 255, .16); margin: 18px 0; }
+      .next .row { display: flex; justify-content: space-between; gap: 12px; font-size: 14.5px; padding: 7px 0; color: #c5d6e7; }
+      .next .row strong { color: #fff; text-align: right; font-weight: 700; }
+      .river { position: absolute; left: 0; right: 0; bottom: -1px; height: clamp(190px, 25vw, 340px); z-index: -1; pointer-events: none; }
+      .river svg { position: absolute; left: 0; bottom: 0; width: 100%; height: 100%; }
+      .river svg.waves { height: clamp(110px, 14vw, 190px); }
+      .wave { animation: drift 18s linear infinite; }
+      .wave.w2 { animation-duration: 26s; animation-direction: reverse; } .wave.w3 { animation-duration: 36s; }
+      @keyframes drift { from { transform: translateX(0); } to { transform: translateX(-480px); } }
+      .stars span { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff; opacity: .5; animation: tw 4s ease-in-out infinite; }
+      @keyframes tw { 50% { opacity: .1; } }
+
+      /* numbers + ticker */
+      .numbers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: 0 30px 60px -44px rgba(10, 31, 51, .6); }
+      .num { background: var(--white); padding: 26px 24px; }
+      .num b { display: block; font-family: var(--display); font-size: clamp(34px, 4vw, 48px); font-weight: 500; color: var(--navy); line-height: 1; }
+      .num > span { color: var(--muted); font-size: 14.5px; display: block; margin-top: 8px; }
+      .marquee { overflow: hidden; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); color: var(--navy); margin-top: clamp(40px, 6vw, 72px); }
+      .marquee-track { display: flex; gap: 48px; width: max-content; padding: 16px 0; animation: marq 42s linear infinite; font-family: var(--display); font-size: 24px; font-weight: 500; }
+      .marquee-track span { white-space: nowrap; } .marquee-track span:nth-child(3n) { color: #c98a12; } .marquee-track span:nth-child(4n) { color: var(--muted); }
+      @keyframes marq { to { transform: translateX(-50%); } }
+
+      /* finder */
+      .finder { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: clamp(20px, 3vw, 36px); align-items: start; }
+      .panel { background: var(--white); border: 1px solid var(--line); border-radius: 28px; padding: clamp(22px, 3vw, 36px); box-shadow: 0 30px 60px -44px rgba(10, 31, 51, .5); }
+      .q { margin-bottom: 26px; } .q:last-child { margin-bottom: 0; }
+      .q-label { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 15.5px; margin-bottom: 12px; }
+      .q-label i { font-style: normal; width: 26px; height: 26px; flex: none; border-radius: 50%; background: var(--navy-dark); color: var(--gold); font-size: 13px; display: grid; place-items: center; }
+      .chips { display: flex; flex-wrap: wrap; gap: 9px; }
+      .chip { border: 1.5px solid var(--line); background: var(--paper); border-radius: 999px; padding: 10px 17px; font-weight: 600; font-size: 14.5px; transition: all .2s; }
+      .chip:hover { border-color: var(--navy); }
+      .chip[aria-pressed="true"] { background: var(--navy-dark); border-color: var(--navy-dark); color: #fff; box-shadow: 0 8px 20px -10px rgba(14, 42, 69, .8); }
+      .weeks { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; }
+      input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 8px; border-radius: 99px; background: linear-gradient(90deg, var(--navy) var(--p, 25%), var(--paper-2) var(--p, 25%)); outline-offset: 6px; }
+      input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: var(--gold); border: 4px solid var(--navy-dark); box-shadow: 0 4px 12px rgba(0, 0, 0, .25); cursor: grab; }
+      input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; border-radius: 50%; background: var(--gold); border: 4px solid var(--navy-dark); cursor: grab; }
+      .weeks output { font-family: var(--display); font-size: 30px; font-weight: 500; color: var(--navy); min-width: 112px; text-align: right; }
+      .weeks output small { font-family: var(--sans); font-size: 13px; color: var(--muted); font-weight: 600; }
+      .hint { color: var(--muted); font-size: 13.5px; margin-top: 8px; min-height: 1.4em; }
+      .result { position: sticky; top: 92px; background: linear-gradient(165deg, var(--navy-dark), var(--navy-deep)); color: #fff; border-radius: 28px; padding: clamp(22px, 3vw, 34px); box-shadow: 0 40px 70px -40px rgba(10, 31, 51, .9); overflow: hidden; }
+      .result::before { content: ''; position: absolute; right: -80px; top: -80px; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, rgba(242, 179, 61, .35), transparent 65%); pointer-events: none; }
+      .result > * { position: relative; }
+      .result .tag { display: inline-block; font-size: 11.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+      .result h3 { font-size: clamp(28px, 3vw, 38px); font-weight: 500; margin: 8px 0 6px; }
+      .result .why { color: #b9cee2; font-size: 15px; }
+      .facts-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0 6px; }
+      .fact { font-size: 12.5px; font-weight: 700; background: rgba(255, 255, 255, .1); border: 1px solid rgba(255, 255, 255, .16); border-radius: 999px; padding: 6px 12px; color: #dbe8f4; }
+      .lines { margin: 18px 0 0; padding: 0; list-style: none; border-top: 1px solid rgba(255, 255, 255, .14); }
+      .lines li { display: flex; justify-content: space-between; gap: 14px; padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, .1); font-size: 14.5px; color: #c9d9e8; }
+      .lines li b { color: #fff; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+      .lines li.minus b { color: #8be0b0; }
+      .total { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 18px 0 4px; }
+      .total span { color: #b9cee2; font-size: 14px; }
+      .total strong { font-family: var(--display); font-size: clamp(38px, 4.4vw, 56px); font-weight: 500; font-variant-numeric: tabular-nums; }
+      .fine { color: #8fa9c2; font-size: 12.5px; margin-top: 6px; }
+      .result .btn { margin-top: 18px; width: 100%; justify-content: center; }
+      .flash { animation: flash .5s var(--ease); }
+      @keyframes flash { from { opacity: .4; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+
+      /* courses */
+      .courses { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; }
+      .course { position: relative; grid-column: span 2; background: var(--white); border: 1px solid var(--line); border-radius: 24px; padding: 26px; display: flex; flex-direction: column; gap: 10px; overflow: hidden; cursor: pointer; transition: opacity .8s var(--ease) var(--d, 0s), transform .4s var(--ease), box-shadow .35s, background .3s; }
+      .course:nth-child(1), .course:nth-child(2) { grid-column: span 3; }
+      .course::before { content: ''; position: absolute; inset: 0; background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(242, 179, 61, .2), transparent 45%); opacity: 0; transition: opacity .3s; pointer-events: none; }
+      .course:hover { transform: translateY(-4px); box-shadow: 0 30px 50px -34px rgba(10, 31, 51, .55); }
+      .course:hover::before { opacity: 1; }
+      .course .ico { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: var(--paper-2); color: var(--navy); }
+      .course .ico svg { width: 24px; height: 24px; }
+      .course h3 { font-size: 24px; }
+      .course p { color: var(--muted); font-size: 15px; flex: 1; }
+      .course .meta { display: flex; flex-wrap: wrap; gap: 6px; }
+      .course .meta span { font-size: 12.5px; font-weight: 700; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 4px 11px; color: var(--navy-dark); }
+      .course .foot { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-top: 8px; padding-top: 14px; border-top: 1px dashed var(--line); }
+      .course .price { font-family: var(--display); font-size: 32px; font-weight: 500; color: var(--navy-dark); }
+      .course .price small { font-family: var(--sans); font-size: 13px; color: var(--muted); font-weight: 600; }
+      .course .pick { border: 0; background: none; padding: 4px 0; font-weight: 700; font-size: 14px; color: var(--navy); }
+      .course.hot { background: linear-gradient(160deg, var(--navy-dark), var(--navy)); color: #fff; border-color: transparent; }
+      .course.hot h3, .course.hot .price { color: #fff; } .course.hot p, .course.hot .price small { color: #bcd1e5; } .course.hot .ico { background: rgba(255, 255, 255, .12); color: var(--gold); }
+      .course.hot .meta span { background: rgba(255, 255, 255, .1); border-color: rgba(255, 255, 255, .18); color: #e6f0f9; } .course.hot .foot { border-color: rgba(255, 255, 255, .2); } .course.hot .pick { color: var(--gold); }
+      .badge { position: absolute; top: 20px; right: 20px; font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; background: var(--gold); color: var(--ink); border-radius: 999px; padding: 5px 11px; }
+
+      /* levels */
+      .on-dark { background: linear-gradient(170deg, var(--navy-dark), var(--navy-deep)); color: #fff; }
+      .on-dark .lede { color: #b4c9de; }
+      .ladder { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; align-items: end; }
+      .step { border: 1px solid rgba(255, 255, 255, .16); background: rgba(255, 255, 255, .06); border-radius: 18px 18px 8px 8px; padding: 18px 14px; text-align: left; color: #fff; transition: all .25s var(--ease); }
+      .step:nth-child(1) { min-height: 130px; } .step:nth-child(2) { min-height: 156px; } .step:nth-child(3) { min-height: 182px; } .step:nth-child(4) { min-height: 208px; } .step:nth-child(5) { min-height: 234px; }
+      .step b { display: block; font-family: var(--display); font-size: 34px; font-weight: 500; color: var(--gold); line-height: 1; }
+      .step span { display: block; font-weight: 700; margin-top: 8px; font-size: 15px; }
+      .step:hover { background: rgba(255, 255, 255, .12); }
+      .step[aria-pressed="true"] { background: var(--gold); color: var(--ink); border-color: var(--gold); transform: translateY(-6px); box-shadow: 0 24px 40px -22px rgba(242, 179, 61, .8); }
+      .step[aria-pressed="true"] b { color: var(--navy-dark); }
+      .level-note { margin-top: 22px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; background: rgba(255, 255, 255, .07); border: 1px solid rgba(255, 255, 255, .14); border-radius: 18px; padding: 18px 22px; }
+      .level-note p { color: #dbe8f4; max-width: 640px; }
+
+      /* week */
+      .week { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(20px, 4vw, 56px); align-items: start; }
+      .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+      .tab { border: 1.5px solid var(--line); background: var(--white); border-radius: 999px; padding: 10px 18px; font-weight: 700; font-size: 14.5px; transition: all .2s; }
+      .tab[aria-selected="true"] { background: var(--navy-dark); border-color: var(--navy-dark); color: #fff; }
+      .day { background: var(--white); border: 1px solid var(--line); border-radius: 26px; padding: clamp(20px, 3vw, 30px); display: grid; gap: 14px; }
+      .slot { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 14px; align-items: start; padding: 14px 16px; border-radius: 16px; background: var(--paper); border-left: 4px solid var(--navy); }
+      .slot.alt { border-left-color: var(--gold); } .slot.fun { border-left-color: #2fb6a5; } .slot.eve { border-left-color: #8b6ad8; }
+      .slot time { font-weight: 800; font-size: 14px; color: var(--navy-dark); font-variant-numeric: tabular-nums; }
+      .slot b { display: block; font-size: 16px; } .slot span { color: var(--muted); font-size: 14.5px; }
+      .tl { display: grid; gap: 8px; margin-top: 26px; }
+      .tl-row { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 10px; align-items: center; font-size: 12.5px; color: var(--muted); font-weight: 700; }
+      .tl-bar { position: relative; height: 12px; background: var(--paper-2); border-radius: 99px; overflow: hidden; }
+      .tl-bar i { position: absolute; top: 0; bottom: 0; background: var(--navy); border-radius: 99px; }
+      .tl-bar i.g { background: var(--gold); }
+      .tl-scale { display: flex; justify-content: space-between; font-weight: 600; }
+
+      /* stay */
+      .stay { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+      .home { border-radius: 28px; padding: clamp(24px, 3vw, 36px); position: relative; overflow: hidden; min-height: 330px; display: flex; flex-direction: column; justify-content: flex-end; color: #fff; isolation: isolate; }
+      .home.a { background: radial-gradient(500px 300px at 85% 0%, rgba(242, 179, 61, .5), transparent 60%), linear-gradient(160deg, #3b6c9b, var(--navy-dark)); }
+      .home.b { background: radial-gradient(500px 300px at 85% 0%, rgba(124, 196, 242, .45), transparent 60%), linear-gradient(160deg, #1d3e5e, var(--navy-deep)); }
+      .home h3 { font-size: 30px; }
+      .home .big { font-family: var(--display); font-size: 44px; font-weight: 500; line-height: 1.1; } .home .big small { font-family: var(--sans); font-size: 14px; font-weight: 600; color: #cfe0f0; }
+      .home ul { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 7px; font-size: 15px; color: #dbe8f4; }
+      .home li::before { content: '✓'; color: var(--gold); font-weight: 800; margin-right: 10px; }
+      .home .age { position: absolute; top: 22px; right: 22px; font-size: 11.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; background: rgba(255, 255, 255, .14); border: 1px solid rgba(255, 255, 255, .25); border-radius: 999px; padding: 5px 12px; }
+      .transfers { margin-top: 22px; background: var(--white); border: 1px solid var(--line); border-radius: 22px; padding: 22px 26px; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 18px; align-items: center; }
+      .tr-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+      .tr { text-align: center; background: var(--paper); border-radius: 14px; padding: 12px 8px; border: 1px solid var(--line); }
+      .tr b { display: block; font-family: var(--display); font-size: 24px; font-weight: 500; color: var(--navy-dark); } .tr span { font-size: 12.5px; color: var(--muted); font-weight: 700; }
+
+      /* dates + london */
+      .dates { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+      .date { background: var(--white); border: 1px solid var(--line); border-radius: 18px; padding: 16px 12px; text-align: center; }
+      .date b { display: block; font-family: var(--display); font-size: 34px; font-weight: 500; color: var(--navy-dark); line-height: 1; } .date span { font-size: 13px; color: var(--muted); font-weight: 700; display: block; margin-top: 6px; }
+      .date.next-up { background: var(--navy-dark); border-color: var(--navy-dark); box-shadow: 0 20px 36px -22px rgba(14, 42, 69, .9); } .date.next-up b { color: var(--gold); } .date.next-up span { color: #bcd1e5; }
+      .date.past { opacity: .45; }
+      .closure { margin-top: 16px; display: flex; gap: 12px; align-items: center; background: var(--gold-soft); border-radius: 16px; padding: 14px 18px; font-size: 14.5px; color: #5b4310; font-weight: 600; }
+      .life { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+      .tile { border-radius: 24px; padding: 24px; min-height: 250px; display: flex; flex-direction: column; justify-content: flex-end; color: #fff; position: relative; overflow: hidden; isolation: isolate; transition: opacity .8s var(--ease) var(--d, 0s), transform .4s var(--ease); }
+      .tile:hover { transform: translateY(-5px); }
+      .tile svg { position: absolute; top: 18px; right: 18px; width: 46px; height: 46px; opacity: .85; }
+      .tile h3 { font-size: 22px; margin-bottom: 6px; } .tile p { font-size: 14.5px; color: rgba(255, 255, 255, .88); }
+      .t1 { background: linear-gradient(160deg, #3b6c9b, #14395c); } .t2 { background: linear-gradient(160deg, #d9962a, #8a531a); } .t3 { background: linear-gradient(160deg, #2c8f86, #0f4a54); } .t4 { background: linear-gradient(160deg, #6a55b8, #2b2a62); }
+
+      /* assistant + faq */
+      .ask { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); align-items: center; }
+      .ask-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+      .ask-chips button { border: 1px solid rgba(255, 255, 255, .25); background: rgba(255, 255, 255, .08); color: #fff; border-radius: 999px; padding: 10px 16px; font-weight: 600; font-size: 14.5px; transition: all .2s; text-align: left; }
+      .ask-chips button:hover { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+      .phone-chat { background: #fff; color: var(--ink); border-radius: 26px; padding: 18px; box-shadow: 0 40px 80px -40px rgba(0, 0, 0, .8); max-width: 440px; margin-left: auto; width: 100%; }
+      .pc-top { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 14.5px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+      .pc-dot { width: 10px; height: 10px; flex: none; border-radius: 50%; background: #2fb67a; box-shadow: 0 0 0 4px rgba(47, 182, 122, .2); }
+      .bub { margin-top: 12px; padding: 12px 15px; border-radius: 16px; font-size: 14.5px; max-width: 88%; }
+      .bub.me { background: var(--navy); color: #fff; margin-left: auto; border-bottom-right-radius: 5px; } .bub.bot { background: var(--paper); border-bottom-left-radius: 5px; }
+      .faq { display: grid; gap: 12px; max-width: 860px; }
+      .faq details { background: var(--white); border: 1px solid var(--line); border-radius: 18px; padding: 0 22px; transition: box-shadow .25s; }
+      .faq details[open] { box-shadow: 0 22px 40px -32px rgba(10, 31, 51, .6); }
+      .faq summary { cursor: pointer; list-style: none; padding: 18px 0; font-weight: 700; font-size: 16.5px; display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+      .faq summary::-webkit-details-marker { display: none; }
+      .faq summary::after { content: '+'; font-size: 24px; color: var(--navy); transition: transform .25s; } .faq details[open] summary::after { transform: rotate(45deg); }
+      .faq .a { color: var(--muted); padding: 0 0 20px; max-width: 700px; }
+
+      footer { background: var(--navy-deep); color: #a9bfd4; padding: 56px 0 40px; font-size: 14.5px; }
+      .foot-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) repeat(2, minmax(0, 1fr)); gap: 32px; }
+      footer h4 { font-family: var(--sans); font-size: 12px; text-transform: uppercase; letter-spacing: .14em; color: var(--gold); margin-bottom: 12px; font-weight: 800; }
+      footer a { text-decoration: none; } footer a:hover { color: #fff; }
+      .foot-note { margin-top: 34px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, .1); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 13px; }
+
+      @media (max-width: 1000px) {
+        .hero-grid, .finder, .week, .ask, .transfers { grid-template-columns: minmax(0, 1fr); }
+        .result { position: static; }
+        .courses { grid-template-columns: repeat(2, minmax(0, 1fr)); } .course, .course:nth-child(1), .course:nth-child(2) { grid-column: span 1; }
+        .life { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dates { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .phone-chat { margin: 0; }
+      }
+      @media (max-width: 820px) {
+        .menu-btn { display: inline-flex; } .head-cta .btn { display: none; }
+        .main-nav { position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; align-items: stretch; background: rgba(10, 31, 51, .97); backdrop-filter: blur(16px); padding: 12px 16px 20px; gap: 2px; transform: translateY(-8px); opacity: 0; visibility: hidden; transition: transform .3s var(--ease), opacity .3s, visibility .3s; }
+        .menu-open .main-nav { transform: none; opacity: 1; visibility: visible; } .main-nav a { padding: 14px 16px; font-size: 16px; }
+        .numbers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .home { min-height: 0; padding-top: 72px; }
+        .stay, .foot-grid { grid-template-columns: minmax(0, 1fr); } .tr-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      @media (max-width: 600px) {
+        .courses, .life { grid-template-columns: minmax(0, 1fr); } .dates { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .ladder { grid-template-columns: minmax(0, 1fr); } .step, .step:nth-child(n) { min-height: 0; border-radius: 16px; display: flex; align-items: center; gap: 14px; } .step span { margin-top: 0; }
+        .slot { grid-template-columns: minmax(0, 1fr); gap: 4px; } .hello { flex-wrap: wrap; } .tl-row { grid-template-columns: 92px minmax(0, 1fr); }
+        .logo { font-size: 17px; }
+      }
+      @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } .rv { opacity: 1; transform: none; } }
     </style>
   </head>
   <body>
-    <div class="demo-bar">
-      <strong>Demo website.</strong> Thames English Academy is a fictional school. The chat assistant in the corner is real: try it.
-    </div>
+    <div class="demo-bar"><strong>Demo website.</strong> Thames English Academy is a fictional school. The chat assistant in the corner is real: try it.</div>
 
-    <header>
-      <a class="logo" href="#top"><span class="logo-mark">T</span>Thames English Academy</a>
-      <nav aria-label="Main">
-        <a href="#courses">Courses</a>
-        <a href="#why">Why us</a>
-        <a href="#try">Ask us</a>
-      </nav>
+    <header class="site-head" id="head">
+      <div class="wrap head-in">
+        <a class="logo" href="#top"><span class="logo-mark">T</span>Thames English Academy</a>
+        <nav class="main-nav" id="nav" aria-label="Main">
+          <a href="#finder">Find your course</a>
+          <a href="#courses">Courses</a>
+          <a href="#week">A week here</a>
+          <a href="#stay">Stay</a>
+          <a href="#dates">Start dates</a>
+          <a href="#faq">FAQ</a>
+        </nav>
+        <div class="head-cta">
+          <button class="btn btn-gold" type="button" data-ask="Hello! I'd like to know which course is right for me.">Ask our assistant</button>
+          <button class="menu-btn" id="menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav"><span></span></button>
+        </div>
+      </div>
     </header>
 
     <main id="top">
-      <section class="hero">
-        <div class="hero-inner">
+      <!-- hero -->
+      <section class="hero" aria-labelledby="h1">
+        <div class="stars" aria-hidden="true"><span style="left:8%;top:22%"></span><span style="left:22%;top:12%;animation-delay:1.2s"></span><span style="left:41%;top:30%;animation-delay:2.1s"></span><span style="left:63%;top:14%;animation-delay:.6s"></span><span style="left:86%;top:34%;animation-delay:1.8s"></span><span style="left:94%;top:10%;animation-delay:2.7s"></span></div>
+        <div class="wrap hero-grid">
           <div>
-            <p class="eyebrow">English courses in London · Ages 16+</p>
-            <h1>Learn English in the heart of London.</h1>
-            <p class="lead">Small classes, qualified teachers and students from over 40 countries, a short walk from the River Thames.</p>
-            <a class="cta" href="#courses">See courses and prices</a>
+            <p class="eyebrow light rv">English courses in London · Ages 16+</p>
+            <h1 id="h1" class="rv" style="--d:.08s">Learn English in the heart of <em class="it">London.</em></h1>
+            <p class="lead rv" style="--d:.16s">Small classes, qualified teachers and students from over 40 countries, a short walk from the River Thames.</p>
+            <div class="hero-actions rv" style="--d:.24s">
+              <a class="btn btn-gold" href="#finder">Find your course <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+              <a class="btn btn-ghost" href="#courses">See all courses</a>
+            </div>
+            <p class="hello rv" style="--d:.32s" aria-hidden="true">Say hello in <b id="hello">Hello</b></p>
           </div>
-          <div class="facts" aria-label="Key facts">
-            <div><span>Class size</span><strong>Max 12 students</strong></div>
-            <div><span>Start dates</span><strong>Every Monday</strong></div>
-            <div><span>Courses from</span><strong>£110 per week</strong></div>
-            <div><span>Nearest station</span><strong>London Bridge</strong></div>
+          <aside class="next rv" style="--d:.2s" aria-label="Next start date">
+            <small>Next start date</small>
+            <div class="big" id="nextDate">Monday</div>
+            <div class="in-days" id="nextIn">Every Monday, all year</div>
+            <hr />
+            <div class="row"><span>Beginners start</span><strong id="nextBeg">–</strong></div>
+            <div class="row"><span>Class size</span><strong>Max 12 students</strong></div>
+            <div class="row"><span>Courses from</span><strong>£110 per week</strong></div>
+            <div class="row"><span>Nearest station</span><strong>London Bridge</strong></div>
+          </aside>
+        </div>
+        <div class="river" aria-hidden="true">
+          <svg viewBox="0 0 1440 230" preserveAspectRatio="xMidYMax slice"><g id="skyline" fill="#0b2238" opacity=".6">
+            <circle cx="250" cy="130" r="64" fill="none" stroke="#0b2238" stroke-width="4"/><path d="M250 66v128M186 130h128M205 85l90 90M295 85l-90 90" stroke="#0b2238" stroke-width="1.6" fill="none"/><path d="M250 194l-24 30h48z"/>
+            <rect x="520" y="96" width="58" height="130"/><path d="M516 96l33-52 33 52z"/><rect x="838" y="96" width="58" height="130"/><path d="M834 96l33-52 33 52z"/>
+            <rect x="578" y="112" width="260" height="10"/><rect x="578" y="176" width="260" height="10"/>
+            <path d="M380 186q80-4 140-90" fill="none" stroke="#0b2238" stroke-width="4"/><path d="M1036 186q-80-4-140-90" fill="none" stroke="#0b2238" stroke-width="4"/>
+            <path d="M1130 226l30-200 30 200z"/><rect x="1230" y="130" width="40" height="100"/><rect x="1280" y="150" width="50" height="80"/><rect x="60" y="160" width="60" height="70"/><rect x="130" y="138" width="46" height="92"/></g></svg>
+          <svg class="waves" viewBox="0 0 1440 220" preserveAspectRatio="none"><path class="wave w3" id="w3" fill="#1f4e79" opacity=".55"/><path class="wave w2" id="w2" fill="#17395a" opacity=".85"/><path class="wave" id="w1" fill="#f7f4ee"/></svg>
+        </div>
+      </section>
+
+      <section class="section" style="padding:clamp(36px,5vw,64px) 0 0">
+        <div class="wrap">
+          <div class="numbers" aria-label="At a glance">
+            <div class="num rv"><b><span data-count="12">12</span></b><span>students at most in a class, 9 on average</span></div>
+            <div class="num rv" style="--d:.06s"><b><span data-count="40">40</span>+</b><span>countries in our classrooms</span></div>
+            <div class="num rv" style="--d:.12s"><b><span data-count="14">14</span></b><span>classrooms with interactive screens</span></div>
+            <div class="num rv" style="--d:.18s"><b><span data-count="4">4</span><small style="font-size:.5em"> weeks</small></b><span>between progress reviews with your teacher</span></div>
+          </div>
+        </div>
+        <div class="marquee" aria-hidden="true"><div class="marquee-track" id="marq"></div></div>
+      </section>
+
+      <!-- finder + cost -->
+      <section class="section" id="finder" aria-labelledby="finder-h">
+        <div class="wrap">
+          <div class="section-head rv">
+            <p class="eyebrow">Plan your stay</p>
+            <h2 id="finder-h">Find your course, <em class="it navy-it">and see the cost.</em></h2>
+            <p class="lede">Four quick questions. We'll suggest a course and add up tuition, books and accommodation, using our real 2026–2027 prices.</p>
+          </div>
+          <div class="finder">
+            <div class="panel rv">
+              <div class="q">
+                <div class="q-label"><i>1</i> What do you need English for?</div>
+                <div class="chips" id="qGoal" role="group" aria-label="What you need English for">
+                  <button class="chip" type="button" data-v="life" aria-pressed="true">Everyday life &amp; travel</button>
+                  <button class="chip" type="button" data-v="work" aria-pressed="false">My job</button>
+                  <button class="chip" type="button" data-v="exam" aria-pressed="false">The IELTS exam</button>
+                  <button class="chip" type="button" data-v="eve" aria-pressed="false">Evenings, after work</button>
+                </div>
+              </div>
+              <div class="q">
+                <div class="q-label"><i>2</i> What is your level?</div>
+                <div class="chips" id="qLevel" role="group" aria-label="Your level">
+                  <button class="chip" type="button" data-v="0" aria-pressed="false">Beginner</button>
+                  <button class="chip" type="button" data-v="1" aria-pressed="false">Elementary</button>
+                  <button class="chip" type="button" data-v="2" aria-pressed="true">Intermediate</button>
+                  <button class="chip" type="button" data-v="3" aria-pressed="false">Upper-intermediate</button>
+                  <button class="chip" type="button" data-v="4" aria-pressed="false">Advanced</button>
+                </div>
+                <p class="hint">Not sure? Pick your best guess. You take a free level test after booking.</p>
+              </div>
+              <div class="q">
+                <div class="q-label"><i>3</i> How many weeks?</div>
+                <div class="weeks"><input id="qWeeks" type="range" min="1" max="48" value="12" aria-label="Number of weeks" /><output id="qWeeksOut" for="qWeeks">12 <small>weeks</small></output></div>
+                <p class="hint" id="weeksHint"></p>
+              </div>
+              <div class="q">
+                <div class="q-label"><i>4</i> Where will you stay?</div>
+                <div class="chips" id="qStay" role="group" aria-label="Accommodation">
+                  <button class="chip" type="button" data-v="none" aria-pressed="true">I'll sort it myself</button>
+                  <button class="chip" type="button" data-v="home" aria-pressed="false">Homestay</button>
+                  <button class="chip" type="button" data-v="res" aria-pressed="false">Student residence</button>
+                </div>
+                <p class="hint" id="stayHint"></p>
+              </div>
+            </div>
+
+            <aside class="result rv" style="--d:.1s" aria-live="polite" aria-label="Your suggested course and estimate">
+              <span class="tag">We suggest</span>
+              <h3 id="rName">General English</h3>
+              <p class="why" id="rWhy"></p>
+              <div class="facts-row" id="rFacts"></div>
+              <ul class="lines" id="rLines"></ul>
+              <div class="total"><span>Estimated total</span><strong id="rTotal">£0</strong></div>
+              <p class="fine" id="rFine"></p>
+              <button class="btn btn-gold" type="button" id="rAsk">Ask the assistant to check this plan</button>
+            </aside>
           </div>
         </div>
       </section>
 
-      <section class="block" id="courses">
-        <h2>Courses</h2>
-        <p class="sub">All levels from Beginner to Advanced. Prices are per week; long-stay discounts apply to General and Intensive English.</p>
-        <div class="courses">
-          <article class="course"><h3>General English</h3><p>20 lessons a week, mornings. Our most popular course, for every level.</p><div class="price">£230 <small>per week</small></div></article>
-          <article class="course"><h3>Intensive English</h3><p>32 lessons a week, with afternoon speaking, writing and pronunciation workshops.</p><div class="price">£320 <small>per week</small></div></article>
-          <article class="course"><h3>IELTS Preparation</h3><p>32 lessons a week, with two full practice tests. Intermediate level and above.</p><div class="price">£340 <small>per week</small></div></article>
-          <article class="course"><h3>Business English</h3><p>Meetings, presentations, emails and negotiations. Upper-intermediate and above.</p><div class="price">£360 <small>per week</small></div></article>
-          <article class="course"><h3>Evening English</h3><p>Tuesday and Thursday evenings, for people who work or study in London.</p><div class="price">£110 <small>per week</small></div></article>
+      <!-- courses -->
+      <section class="section" id="courses" style="padding-top:0" aria-labelledby="courses-h">
+        <div class="wrap">
+          <div class="section-head rv">
+            <p class="eyebrow">Courses</p>
+            <h2 id="courses-h">Five ways to <em class="it navy-it">learn.</em></h2>
+            <p class="lede">All levels from Beginner to Advanced. Prices are per week, and one lesson is 45 minutes. Tap a course to see it in the finder above.</p>
+          </div>
+          <div class="courses" id="courseGrid"></div>
         </div>
       </section>
 
-      <section class="block" id="why">
-        <h2>Why students choose us</h2>
-        <p class="sub">Everything you need to make real progress, and enjoy London while you do.</p>
-        <div class="why">
-          <div><h3>Small classes</h3><p>Never more than 12 students, so you speak in every lesson.</p></div>
-          <div><h3>Qualified teachers</h3><p>CELTA or DELTA-qualified teachers, with a progress review every 4 weeks.</p></div>
-          <div><h3>Homestay or residence</h3><p>Live with a London host, or in an en-suite room 15 minutes from school.</p></div>
-          <div><h3>Free activities</h3><p>Walking tours, conversation club and film nights every week.</p></div>
+      <!-- levels -->
+      <section class="section on-dark" id="levels" aria-labelledby="levels-h">
+        <div class="wrap">
+          <div class="section-head rv">
+            <p class="eyebrow">Your level</p>
+            <h2 id="levels-h">Five steps, <em class="it">one at a time.</em></h2>
+            <p class="lede">We use the Common European Framework (CEFR). Most students move up one level every 10 to 12 weeks of General English.</p>
+          </div>
+          <div class="ladder rv" id="ladder"></div>
+          <div class="level-note rv"><p id="levelText"></p><button class="btn btn-gold" type="button" id="levelGo">Use this level in the course finder</button></div>
         </div>
       </section>
 
-      <section class="block" id="try">
-        <div class="try">
-          <h2>Questions? Ask our assistant, in your language</h2>
-          <p class="sub">Open the chat in the corner and ask anything about courses, prices, dates or accommodation. For example:</p>
-          <ul>
-            <li>How much is 12 weeks of General English?</li>
-            <li>¿Cuándo empieza el curso para principiantes?</li>
-            <li>هل يوجد سكن مع عائلة؟</li>
-            <li>IELTS 课程最少要上几周？</li>
-            <li>Do I need a visa to study with you?</li>
-          </ul>
+      <!-- a week -->
+      <section class="section" id="week" aria-labelledby="week-h">
+        <div class="wrap week">
+          <div class="rv">
+            <p class="eyebrow">A week at Thames</p>
+            <h2 id="week-h">Mornings for <em class="it navy-it">learning.</em> Afternoons for London.</h2>
+            <p class="lede">Classes run Monday to Friday, with free activities every week. Pick a day to see how it fits together.</p>
+            <div class="tl" id="tl" aria-label="Lesson times by course"></div>
+          </div>
+          <div class="rv" style="--d:.1s">
+            <div class="tabs" role="tablist" aria-label="Day of the week" id="dayTabs"></div>
+            <div class="day" id="dayBody" role="tabpanel" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- stay -->
+      <section class="section" id="stay" style="padding-top:0" aria-labelledby="stay-h">
+        <div class="wrap">
+          <div class="section-head rv">
+            <p class="eyebrow">Where you'll stay</p>
+            <h2 id="stay-h">A home in London, <em class="it navy-it">your way.</em></h2>
+            <p class="lede">Arrive on Sunday, leave on Saturday. We send your accommodation details at least 7 days before you arrive.</p>
+          </div>
+          <div class="stay">
+            <article class="home a rv">
+              <span class="age">Ages 16+</span>
+              <h3>Homestay</h3>
+              <div class="big">£210 <small>per week</small></div>
+              <ul><li>Single room with breakfast and an evening meal every day</li><li>Wi-Fi included</li><li>Zones 2 and 3, usually 30 to 50 minutes away</li><li>Required for students aged 16 or 17</li></ul>
+            </article>
+            <article class="home b rv" style="--d:.1s">
+              <span class="age">Ages 18+</span>
+              <h3>Student residence</h3>
+              <div class="big">£320 <small>per week</small></div>
+              <ul><li>Private en-suite bedroom in a shared flat with a kitchen</li><li>15 minutes' walk from school, self-catering</li><li>Linen, Wi-Fi, gym and laundry room included</li><li>Rooms are limited from June to August, so book early</li></ul>
+            </article>
+          </div>
+          <div class="transfers rv">
+            <div><h3 style="font-size:24px">Airport transfers</h3><p class="lede" style="font-size:15.5px;margin-top:8px">A driver meets you and takes you to your accommodation. One-way prices; book at least 7 days before you travel.</p></div>
+            <div class="tr-list"><div class="tr"><b>£95</b><span>Heathrow</span></div><div class="tr"><b>£105</b><span>Gatwick</span></div><div class="tr"><b>£120</b><span>Stansted</span></div><div class="tr"><b>£75</b><span>London City</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- dates -->
+      <section class="section" id="dates" style="padding-top:0" aria-labelledby="dates-h">
+        <div class="wrap">
+          <div class="section-head rv">
+            <p class="eyebrow">Start dates</p>
+            <h2 id="dates-h">Start any Monday. <em class="it navy-it">Beginners together.</em></h2>
+            <p class="lede">If you already speak some English, you can start any Monday. Complete beginners start on these dates, so the whole class begins together.</p>
+          </div>
+          <div class="dates" id="dateGrid"></div>
+          <p class="closure rv"><span aria-hidden="true">❄️</span> Christmas closure: the school is closed from Saturday 19 December 2026 to Sunday 3 January 2027. Classes start again on Monday 4 January 2027.</p>
+        </div>
+      </section>
+
+      <!-- london -->
+      <section class="section" style="padding-top:0" aria-labelledby="life-h">
+        <div class="wrap">
+          <div class="section-head rv">
+            <p class="eyebrow">Life outside class</p>
+            <h2 id="life-h">London is <em class="it navy-it">your classroom.</em></h2>
+          </div>
+          <div class="life">
+            <article class="tile t1 rv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V8l3-3 3 3v13M13 21V8l3-3 3 3v13M8 12h8"/></svg><h3>Mondays: walking tour</h3><p>Free every week. Borough Market and Tower Bridge are a short walk from school.</p></article>
+            <article class="tile t3 rv" style="--d:.06s"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><h3>Wednesdays: conversation club</h3><p>Free. Practise speaking with students from other countries.</p></article>
+            <article class="tile t4 rv" style="--d:.12s"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3M10 9l5 3-5 3z"/></svg><h3>Fridays: film club</h3><p>Free. Watch, talk and pick up everyday English.</p></article>
+            <article class="tile t2 rv" style="--d:.18s"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l5-9 4 6 3-4 6 7z"/></svg><h3>Weekend trips</h3><p>Oxford, Cambridge, Brighton and Bath, from £45 to £75 including transport.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <!-- assistant -->
+      <section class="section on-dark" id="ask" aria-labelledby="ask-h">
+        <div class="wrap ask">
+          <div class="rv">
+            <p class="eyebrow">Questions?</p>
+            <h2 id="ask-h">Ask our assistant, <em class="it">in your language.</em></h2>
+            <p class="lede">Open the chat in the corner and ask anything about courses, prices, dates or accommodation. Tap a question to try it:</p>
+            <div class="ask-chips">
+              <button type="button" data-ask="How much is 12 weeks of General English?">How much is 12 weeks of General English?</button>
+              <button type="button" data-ask="¿Cuándo empieza el curso para principiantes?">¿Cuándo empieza el curso para principiantes?</button>
+              <button type="button" data-ask="هل يوجد سكن مع عائلة؟" dir="rtl">هل يوجد سكن مع عائلة؟</button>
+              <button type="button" data-ask="IELTS 课程最少要上几周？">IELTS 课程最少要上几周？</button>
+              <button type="button" data-ask="Do I need a visa to study with you?">Do I need a visa to study with you?</button>
+            </div>
+          </div>
+          <div class="phone-chat rv" style="--d:.1s" aria-hidden="true">
+            <div class="pc-top"><span class="pc-dot"></span> Thames English Academy · Assistant</div>
+            <div class="bub me">¿Cuándo empieza el curso para principiantes?</div>
+            <div class="bub bot">¡Hola! Los principiantes empiezan en fechas especiales para que toda la clase empiece junta. Pregúntame y te digo la próxima fecha.</div>
+            <div class="bub me">Gracias. ¿Y el alojamiento?</div>
+            <div class="bub bot">Puedes elegir familia anfitriona o residencia de estudiantes (mayores de 18). ¿Quieres que te cuente los precios?</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- faq -->
+      <section class="section" id="faq" aria-labelledby="faq-h">
+        <div class="wrap">
+          <div class="section-head rv"><p class="eyebrow">Good to know</p><h2 id="faq-h">Common <em class="it navy-it">questions.</em></h2></div>
+          <div class="faq rv">
+            <details><summary>Can I study for just one week?</summary><div class="a">Yes, for General English and Intensive English. Other courses have a minimum length.</div></details>
+            <details><summary>What age do I need to be?</summary><div class="a">16 or over, and there is no upper age limit. Students aged 16 or 17 must stay in homestay.</div></details>
+            <details><summary>How is my level decided?</summary><div class="a">After booking you take a free 30-minute online level test, then a short speaking test with a teacher on your first morning. You join the class that matches your level.</div></details>
+            <details><summary>Do I get a certificate?</summary><div class="a">Yes, at the end of your course, if your attendance is 80% or higher.</div></details>
+            <details><summary>What happens if I'm ill?</summary><div class="a">Tell reception by phone, email or WhatsApp before 9am. Missed lessons are not refunded.</div></details>
+            <details><summary>Is London expensive?</summary><div class="a">It can be. Many students spend around £100 to £150 per week on food, travel and activities, in addition to accommodation.</div></details>
+          </div>
         </div>
       </section>
     </main>
 
     <footer>
-      <div class="inner">
-        <span>Thames English Academy · 18 Wharf Lane, London SE1 (fictional)</span>
-        <span>Demo built with the AI Lead Assistant</span>
+      <div class="wrap">
+        <div class="foot-grid">
+          <div><a class="logo" href="#top" style="margin-bottom:14px"><span class="logo-mark">T</span>Thames English Academy</a><p>18 Wharf Lane, London SE1 (fictional)<br />London Bridge, 6 minutes' walk · Borough, 8 minutes' walk</p></div>
+          <div><h4>Admissions</h4><p>admissions@thamesenglish.example<br />+44 20 7946 0123<br />Monday to Friday, 9am to 5pm</p></div>
+          <div><h4>Explore</h4><p><a href="#finder">Find your course</a><br /><a href="#dates">Start dates</a><br /><a href="#faq">FAQ</a></p></div>
+        </div>
+        <div class="foot-note"><span>Demo website: a made-up school, with a real assistant.</span><span>A website with an AI assistant built in, by <a href="/services#website" style="color:var(--gold)">Assist Street</a></span></div>
       </div>
     </footer>
+
+    <script>
+      (function () {
+        'use strict';
+        var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches, hasIO = 'IntersectionObserver' in window && !reduce;
+        var gbp = function (n) { return '£' + Math.round(n).toLocaleString('en-GB'); };
+
+        /* ---------- the facts (from the school's own price list) ---------- */
+        var LEVELS = [
+          { code: 'A1', name: 'Beginner', text: 'You know very little English. You start on a special beginner date, so the whole class begins together.' },
+          { code: 'A2', name: 'Elementary', text: 'You can talk about simple, everyday things.' },
+          { code: 'B1', name: 'Intermediate', text: 'You can manage most everyday situations.' },
+          { code: 'B2', name: 'Upper-intermediate', text: 'You can talk about many topics with some confidence.' },
+          { code: 'C1', name: 'Advanced', text: 'You can use English fluently for study and work.' }
+        ];
+        var COURSES = {
+          general: { name: 'General English', price: 230, lessons: 20, when: 'Mon–Fri, 9:00–12:15', minLevel: 0, minWeeks: 1, discount: true, blurb: 'Our most popular course, for every level from Beginner to Advanced.', icon: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>' },
+          intensive: { name: 'Intensive English', price: 320, lessons: 32, when: 'Mon–Fri, 9:00–12:15 and 13:15–15:30', minLevel: 1, minWeeks: 1, discount: true, blurb: 'General English in the morning, then speaking, writing and pronunciation workshops in the afternoon.', icon: '<path d="M13 2 3 14h9l-1 8 10-12h-9z"/>' },
+          ielts: { name: 'IELTS Preparation', price: 340, lessons: 32, when: 'Mon–Fri, 9:00–12:15 and 13:15–15:30', minLevel: 2, minWeeks: 4, discount: false, blurb: 'Focused on the IELTS Academic and General Training exams, with two full practice tests and feedback.', icon: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1"/>' },
+          business: { name: 'Business English', price: 360, lessons: 28, when: 'Mon–Fri, 9:00–12:15 and 13:15–14:45', minLevel: 3, minWeeks: 2, discount: false, blurb: 'Meetings, presentations, emails and negotiations, for upper-intermediate learners and above.', icon: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/>' },
+          evening: { name: 'Evening English', price: 110, lessons: 8, when: 'Tue and Thu, 18:30–21:30', minLevel: 1, maxLevel: 3, minWeeks: 4, discount: false, blurb: 'For people who work or study in London during the day.', icon: '<path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/>' }
+        };
+        var STAY = { none: { name: 'No accommodation', price: 0 }, home: { name: 'Homestay', price: 210 }, res: { name: 'Student residence', price: 320 } };
+        var REG = 75, BOOKS = 40, PLACE = 60;
+
+        /** The same sums the school's price list shows: tuition, long-stay discount, registration, books, accommodation. */
+        function calc(courseId, weeks, stay) {
+          var c = COURSES[courseId], w = Math.max(c.minWeeks, Math.min(48, weeks)), tuition = c.price * w, pct = 0;
+          if (c.discount) pct = w >= 24 ? 0.10 : w >= 12 ? 0.05 : 0;
+          var disc = tuition * pct, books = Math.ceil(w / 10) * BOOKS, s = STAY[stay] || STAY.none;
+          var acc = s.price * w, place = s.price ? PLACE : 0;
+          return { weeks: w, tuition: tuition, pct: pct, discount: disc, registration: REG, books: books, accommodation: acc, placement: place, total: tuition - disc + REG + books + acc + place };
+        }
+        window.Thames = { calc: calc, COURSES: COURSES };
+
+        /** Which course fits what the student told us. */
+        function suggest(goal, level) {
+          var g = 'general', why = 'Our most popular course, and it works at every level.';
+          if (goal === 'exam') {
+            if (level >= 2) { g = 'ielts'; why = 'IELTS Preparation needs Intermediate level or above, and you are there. It includes two full practice tests with feedback.'; }
+            else { g = level >= 1 ? 'intensive' : 'general'; why = 'IELTS Preparation needs Intermediate level. Start here, move up, then join IELTS when you are ready.'; }
+          } else if (goal === 'work') {
+            if (level >= 3) { g = 'business'; why = 'Meetings, presentations, emails and negotiations, at your level.'; }
+            else { g = level >= 1 ? 'intensive' : 'general'; why = 'Business English starts at Upper-intermediate. This builds the speaking and writing you need for work first.'; }
+          } else if (goal === 'eve') {
+            if (level >= 1 && level <= 3) { g = 'evening'; why = 'Two evenings a week, for people who work or study in London during the day.'; }
+            else { g = 'general'; why = level === 0 ? 'Evening English starts at Elementary. General English gets complete beginners started.' : 'Evening English runs up to Upper-intermediate. General English covers Advanced.'; }
+          } else if (level >= 1) { why = 'Great for everyday life. Want to learn faster? Intensive adds afternoon workshops.'; }
+          return { id: g, why: why };
+        }
+
+        /* ---------- header, menu, reveal ---------- */
+        var head = $('#head'), menuBtn = $('#menu'), io = null;
+        function onScroll() { head.classList.toggle('stuck', window.scrollY > 40); }
+        window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
+        menuBtn.addEventListener('click', function () { var o = document.body.classList.toggle('menu-open'); menuBtn.setAttribute('aria-expanded', o ? 'true' : 'false'); });
+        $$('#nav a').forEach(function (a) { a.addEventListener('click', function () { document.body.classList.remove('menu-open'); menuBtn.setAttribute('aria-expanded', 'false'); }); });
+        function count(root) {
+          $$('[data-count]', root).forEach(function (el) {
+            var to = +el.getAttribute('data-count'), t0 = null; if (reduce) { el.textContent = to; return; }
+            (function step(t) { if (!t0) t0 = t; var p = Math.min(1, (t - t0) / 1100); el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(step); })(performance.now());
+          });
+        }
+        if (hasIO) io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); if (e.target.querySelector('[data-count]')) count(e.target); } }); }, { threshold: .12, rootMargin: '0px 0px -6% 0px' });
+        function reveal(el) { if (io) io.observe(el); else el.classList.add('in'); }
+        $$('.rv').forEach(reveal);
+
+        /* ---------- waves (seamless loops) ---------- */
+        function wave(id, y, amp) { var p = 480, d = 'M0 ' + y + ' Q' + (p / 4) + ' ' + (y - amp) + ' ' + (p / 2) + ' ' + y; for (var x = p; x <= 2400; x += p / 2) d += ' T' + x + ' ' + y; $(id).setAttribute('d', d + ' V220 H0Z'); }
+        wave('#w3', 150, 30); wave('#w2', 174, 24); wave('#w1', 198, 18);
+
+        /* ---------- the assistant ---------- */
+        function ask(q) {
+          var tries = 0;
+          (function go() { if (window.AILeadAssistant && window.AILeadAssistant.open) window.AILeadAssistant.open(q); else if (tries++ < 40) setTimeout(go, 150); })();
+        }
+        document.addEventListener('click', function (e) { var b = e.target.closest('[data-ask]'); if (b) ask(b.getAttribute('data-ask')); });
+
+        /* ---------- hello in many languages, and the language ticker ---------- */
+        var HELLO = ['Hello', 'Hola', 'مرحبا', '你好', 'Bonjour', 'Merhaba', 'Ciao', 'こんにちは', 'Olá', 'Hallo'], hi = 0, helloEl = $('#hello');
+        if (!reduce) setInterval(function () { hi = (hi + 1) % HELLO.length; helloEl.style.opacity = 0; setTimeout(function () { helloEl.textContent = HELLO[hi]; helloEl.style.opacity = 1; }, 300); }, 2200);
+        var words = ['Hello', 'Hola', 'مرحبا', '你好', 'Bonjour', 'Ciao', 'こんにちは', 'Merhaba', 'Olá', '안녕하세요', 'Hallo', 'Привет'];
+        $('#marq').innerHTML = words.concat(words).map(function (w) { return '<span>' + w + '</span>'; }).join('');
+
+        /* ---------- next start dates (always relative to today) ---------- */
+        var BEG = ['2026-11-02', '2026-12-07', '2027-01-04', '2027-02-01', '2027-03-01', '2027-04-05'];
+        var fmt = function (d, o) { return d.toLocaleDateString('en-GB', o); };
+        function atMidnight(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+        function nextMonday(from) {
+          var d = atMidnight(from); d.setDate(d.getDate() + ((8 - d.getDay()) % 7));
+          if (d >= new Date(2026, 11, 19) && d <= new Date(2027, 0, 3)) d = new Date(2027, 0, 4);   // Christmas closure
+          return d;
+        }
+        var today = atMidnight(new Date()), nm = nextMonday(today), days = Math.round((nm - today) / 864e5);
+        $('#nextDate').textContent = fmt(nm, { weekday: 'long', day: 'numeric', month: 'long' });
+        $('#nextIn').textContent = days === 0 ? 'Starting today' : days === 1 ? 'Starts tomorrow' : 'Starts in ' + days + ' days. Every Monday, all year.';
+        var begDates = BEG.map(function (s) { var p = s.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }), nextBeg = begDates.filter(function (d) { return d >= today; })[0], firstUp = begDates.indexOf(nextBeg);
+        $('#nextBeg').textContent = nextBeg ? fmt(nextBeg, { day: 'numeric', month: 'short', year: 'numeric' }) : 'dates coming soon';
+        $('#dateGrid').innerHTML = begDates.map(function (d, i) {
+          return '<div class="date rv' + (i === firstUp ? ' next-up' : '') + (d < today ? ' past' : '') + '" style="--d:' + (i * .05) + 's"><b>' + d.getDate() + '</b><span>' + fmt(d, { month: 'long', year: 'numeric' }) + '</span><span>' + (i === firstUp ? 'Next beginner start' : 'Monday') + '</span></div>';
+        }).join('');
+        $$('#dateGrid .rv').forEach(reveal);
+
+        /* ---------- course finder and cost ---------- */
+        var S = { goal: 'life', level: 2, weeks: 12, stay: 'none', course: null, manual: false };
+        function pressed(group, val) { $$('button', $(group)).forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-v') === String(val) ? 'true' : 'false'); }); }
+        function render() {
+          var s = suggest(S.goal, S.level), id = S.manual && S.course ? S.course : s.id, c = COURSES[id];
+          S.course = id;
+          var r = calc(id, S.weeks, S.stay), range = $('#qWeeks');
+          S.weeks = r.weeks; range.value = r.weeks; range.style.setProperty('--p', ((r.weeks - 1) / 47 * 100) + '%');
+          $('#qWeeksOut').innerHTML = r.weeks + ' <small>week' + (r.weeks === 1 ? '' : 's') + '</small>';
+          $('#weeksHint').textContent = c.minWeeks > 1 ? c.name + ' has a ' + c.minWeeks + '-week minimum.' : (c.discount ? (r.pct === 0 ? 'Study 12 weeks or more and save 5%. 24 weeks or more saves 10%.' : r.pct === 0.05 ? 'You get 5% off tuition. Study 24 weeks or more to save 10%.' : 'You get 10% off tuition.') : '');
+          $('#stayHint').textContent = S.stay === 'res' ? 'Student residence is for students aged 18 and over.' : S.stay === 'home' ? 'Students aged 16 or 17 must stay in homestay.' : 'Many students rent privately after their first few weeks.';
+          var lvlOk = S.level >= c.minLevel && (c.maxLevel == null || S.level <= c.maxLevel);
+          $('#rName').textContent = c.name;
+          $('#rWhy').textContent = S.manual ? c.blurb + (lvlOk ? '' : ' Note: this course is not for ' + LEVELS[S.level].name.toLowerCase() + ' level.') : s.why;
+          $('#rFacts').innerHTML = ['£' + c.price + ' per week', c.lessons + ' lessons a week', c.when].map(function (f) { return '<span class="fact">' + f + '</span>'; }).join('') + (S.level === 0 && nextBeg ? '<span class="fact">Beginners start ' + fmt(nextBeg, { day: 'numeric', month: 'short' }) + '</span>' : '');
+          var rows = [['Tuition: ' + r.weeks + ' × £' + c.price, gbp(r.tuition), '']];
+          if (r.pct) rows.push(['Long-stay discount (' + Math.round(r.pct * 100) + '%)', '−' + gbp(r.discount), 'minus']);
+          rows.push(['Registration fee (one-off)', gbp(r.registration), '']); rows.push(['Course books (£40 per 10 weeks)', gbp(r.books), '']);
+          if (S.stay !== 'none') { rows.push([STAY[S.stay].name + ': ' + r.weeks + ' × £' + STAY[S.stay].price, gbp(r.accommodation), '']); rows.push(['Accommodation placement fee', gbp(r.placement), '']); }
+          $('#rLines').innerHTML = rows.map(function (x) { return '<li class="' + x[2] + '"><span>' + x[0] + '</span><b>' + x[1] + '</b></li>'; }).join('');
+          $('#rTotal').textContent = gbp(r.total);
+          $('#rFine').textContent = 'An estimate from our 2026–2027 price list. Airport transfers, weekend trips and the IELTS exam fee are extra.';
+          $$('.course').forEach(function (el) { el.classList.toggle('hot', el.getAttribute('data-id') === id); });
+          var box = $('.result'); box.classList.remove('flash'); void box.offsetWidth; if (!reduce) box.classList.add('flash');
+          S.q = "I'm interested in " + r.weeks + ' week' + (r.weeks === 1 ? '' : 's') + ' of ' + c.name + (S.stay !== 'none' ? ' with ' + STAY[S.stay].name.toLowerCase() : '') + '. Can you check the dates and what is included?';
+        }
+        function pick(group, key, num) { $(group).addEventListener('click', function (e) { var b = e.target.closest('button'); if (!b) return; S[key] = num ? +b.getAttribute('data-v') : b.getAttribute('data-v'); S.manual = false; pressed(group, S[key]); render(); syncLadder(); }); }
+        pick('#qGoal', 'goal'); pick('#qLevel', 'level', true); pick('#qStay', 'stay');
+        $('#qWeeks').addEventListener('input', function (e) { S.weeks = +e.target.value; render(); });
+        $('#rAsk').addEventListener('click', function () { ask(S.q); });
+
+        /* ---------- course cards ---------- */
+        $('#courseGrid').innerHTML = Object.keys(COURSES).map(function (id, i) {
+          var c = COURSES[id], mins = c.minWeeks > 1 ? 'Min. ' + c.minWeeks + ' weeks' : '1–48 weeks', lvl = c.maxLevel != null ? LEVELS[c.minLevel].name + ' to ' + LEVELS[c.maxLevel].name : (c.minLevel === 0 ? 'All levels' : LEVELS[c.minLevel].name + ' and above');
+          return '<article class="course rv" data-id="' + id + '" style="--d:' + (i * .06) + 's">' + (id === 'general' ? '<span class="badge">Most popular</span>' : '') +
+            '<span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + c.icon + '</svg></span><h3>' + c.name + '</h3><p>' + c.blurb + '</p>' +
+            '<div class="meta"><span>' + c.lessons + ' lessons a week</span><span>' + lvl + '</span><span>' + mins + '</span></div><div class="foot"><span class="price">£' + c.price + ' <small>per week</small></span><button type="button" class="pick" aria-label="Use ' + c.name + ' in the course finder">Use in finder →</button></div></article>';
+        }).join('');
+        $$('.course').forEach(function (el) {
+          reveal(el);
+          el.addEventListener('mousemove', function (e) { var r = el.getBoundingClientRect(); el.style.setProperty('--mx', (e.clientX - r.left) + 'px'); el.style.setProperty('--my', (e.clientY - r.top) + 'px'); });
+          el.addEventListener('click', function () { S.course = el.getAttribute('data-id'); S.manual = true; render(); $('#finder').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); });
+        });
+
+        /* ---------- levels ---------- */
+        var ladder = $('#ladder'), lv = 2;
+        ladder.innerHTML = LEVELS.map(function (l, i) { return '<button type="button" class="step" data-v="' + i + '" aria-pressed="' + (i === lv) + '"><b>' + l.code + '</b><span>' + l.name + '</span></button>'; }).join('');
+        function showLevel() { $$('.step', ladder).forEach(function (b) { b.setAttribute('aria-pressed', +b.getAttribute('data-v') === lv ? 'true' : 'false'); }); $('#levelText').innerHTML = '<strong>' + LEVELS[lv].name + ' (' + LEVELS[lv].code + ').</strong> ' + LEVELS[lv].text; }
+        function syncLadder() { lv = S.level; showLevel(); }
+        ladder.addEventListener('click', function (e) { var b = e.target.closest('.step'); if (!b) return; lv = +b.getAttribute('data-v'); showLevel(); });
+        $('#levelGo').addEventListener('click', function () { S.level = lv; S.manual = false; pressed('#qLevel', lv); render(); $('#finder').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); });
+
+        /* ---------- a week at Thames ---------- */
+        var DAYS = [
+          { d: 'Monday', fun: ['Walking tour', 'A free London walking tour, every Monday.'] },
+          { d: 'Tuesday', eve: true },
+          { d: 'Wednesday', fun: ['Conversation club', 'Free. Practise speaking with students from other countries.'] },
+          { d: 'Thursday', eve: true },
+          { d: 'Friday', fun: ['Film club', 'Free. Watch, talk and pick up everyday English.'] }
+        ];
+        var tabs = $('#dayTabs'), body = $('#dayBody'), cur = 0;
+        tabs.innerHTML = DAYS.map(function (x, i) { return '<button class="tab" role="tab" type="button" aria-selected="' + (i === 0) + '" data-i="' + i + '">' + x.d.slice(0, 3) + '</button>'; }).join('');
+        function showDay(i) {
+          cur = i; $$('.tab', tabs).forEach(function (t, k) { t.setAttribute('aria-selected', k === i ? 'true' : 'false'); });
+          var x = DAYS[i], h = '<div class="slot"><time>9:00–12:15</time><div><b>Morning lessons</b><span>General, Intensive, IELTS and Business English all start at 9:00.</span></div></div>' +
+            '<div class="slot alt"><time>13:15–15:30</time><div><b>Afternoon workshops</b><span>Intensive and IELTS students: speaking, writing and pronunciation. Business English finishes at 14:45.</span></div></div>';
+          if (x.fun) h += '<div class="slot fun"><time>This week</time><div><b>' + x.fun[0] + '</b><span>' + x.fun[1] + '</span></div></div>';
+          if (x.eve) h += '<div class="slot eve"><time>18:30–21:30</time><div><b>Evening English</b><span>8 lessons a week, on Tuesday and Thursday evenings.</span></div></div>';
+          body.innerHTML = h; if (!reduce) { body.classList.remove('flash'); void body.offsetWidth; body.classList.add('flash'); }
+        }
+        tabs.addEventListener('click', function (e) { var t = e.target.closest('.tab'); if (t) showDay(+t.getAttribute('data-i')); });
+        tabs.addEventListener('keydown', function (e) { if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { var n = (cur + (e.key === 'ArrowRight' ? 1 : DAYS.length - 1)) % DAYS.length; showDay(n); $$('.tab', tabs)[n].focus(); } });
+        showDay(0);
+        var mins = function (t) { var p = t.split(':'); return +p[0] * 60 + +p[1]; }, A = 540, Z = 1290;
+        var bar = function (a, b) { return 'left:' + ((mins(a) - A) / (Z - A) * 100) + '%;width:' + ((mins(b) - mins(a)) / (Z - A) * 100) + '%'; };
+        var TL = [['General', [['9:00', '12:15']], ''], ['Intensive, IELTS', [['9:00', '12:15'], ['13:15', '15:30']], ''], ['Business', [['9:00', '12:15'], ['13:15', '14:45']], ''], ['Evening (Tue, Thu)', [['18:30', '21:30']], 'g']];
+        $('#tl').innerHTML = TL.map(function (r) { return '<div class="tl-row"><span>' + r[0] + '</span><div class="tl-bar">' + r[1].map(function (s) { return '<i class="' + r[2] + '" style="' + bar(s[0], s[1]) + '"></i>'; }).join('') + '</div></div>'; }).join('') + '<div class="tl-row"><span></span><span class="tl-scale"><span>9:00</span><span>12:00</span><span>15:00</span><span>18:00</span><span>21:30</span></span></div>';
+
+        /* ---------- gentle parallax on the skyline ---------- */
+        var sky = $('#skyline');
+        if (!reduce && sky) window.addEventListener('scroll', function () { sky.style.transform = 'translateY(' + (Math.min(window.scrollY, 600) * 0.12) + 'px)'; }, { passive: true });
+
+        showLevel(); render();
+      })();
+    </script>
 
     <!-- The only thing a school adds to its website: -->
     <script src="/widget.js" data-business="thames-english" async></script>
