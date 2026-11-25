@@ -207,8 +207,12 @@ function renderLeads(leads, fields = []) {
 async function loadConversations() {
   const res = await fetch(adminUrl('/api/admin/conversations'));
   if (!res.ok) return;
-  const { conversations } = await res.json();
+  const { conversations, usage } = await res.json();
   renderConversationList(conversations || []);
+  if (usage) {
+    document.getElementById('metric-month').textContent = usage.conversationsThisMonth;
+    document.getElementById('metric-month-note').textContent = `Last month: ${usage.conversationsLastMonth}. One conversation is one visitor's chat.`;
+  }
   document.getElementById('metric-handoff').textContent = (conversations || []).filter((c) => c.handoffRequested).length;
   document.getElementById('metric-priority').textContent = (conversations || []).filter((c) => c.intent === 'ready').length;
 }

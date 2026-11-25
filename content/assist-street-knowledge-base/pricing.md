@@ -11,7 +11,7 @@ The first 10 clients get half-price setup on any assistant plan or website.
 ## Assistant (an AI assistant on the business's existing website)
 
 - Starter: £79 per month plus £249 one-off setup. Assistant on one website, answers from the business's own information, 12 languages, the business's own questions on the enquiry form, email alerts and a dashboard. Up to 500 conversations a month.
-- Managed: £199 per month plus £399 one-off setup. Everything in Starter, plus Assist Street updates the information whenever it changes, reviews unanswered questions every month, sends a monthly report on enquiries, and gives priority support. Up to 1,500 conversations a month.
+- Managed: £199 per month plus £399 one-off setup. Everything in Starter, plus Assist Street updates the information whenever it changes (up to four updates a month), reviews unanswered questions every month, sends a monthly report on enquiries, and gives priority support. Up to 1,500 conversations a month.
 
 ## Website plus assistant (a new hand-built website with the assistant built in)
 
@@ -39,3 +39,8 @@ These are built to order with proven tools or custom code. They are not off-the-
 A WhatsApp assistant and a booking assistant (offering real appointment slots from the business's calendar) are in development. They are not available yet and have no price yet.
 
 The full price list is on the Pricing page of the Assist Street website.
+
+## What counts as a conversation, and how limits and updates work
+- A conversation is one visitor's chat with the assistant, from their first message until they close the page. If the same person comes back later, that is a new conversation.
+- If a client reaches their plan limit: Assist Street lets them know when they reach 80% of their plan. The assistant keeps answering customers. If the client regularly goes over, Assist Street agrees a plan that fits, and does not charge extra without telling them first.
+- An update (Managed plan) is a change to information the assistant already has, such as prices, opening hours or FAQs. Up to four updates a month are included. Larger changes, such as a new service or a set of new documents, are quoted separately at £75 an hour.

@@ -1,6 +1,17 @@
 const { getSupabase } = require('../_lib/supabase');
 const { requireAdmin } = require('../_lib/admin-auth');
 
+// Start of a calendar month in UK time, as a UTC instant. offsetMonths: 0 = this month, -1 = last month.
+function londonMonthStart(now, offsetMonths) {
+  const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', year: 'numeric', month: 'numeric' }).formatToParts(now);
+  const year = Number(parts.find((p) => p.type === 'year').value);
+  const month = Number(parts.find((p) => p.type === 'month').value) - 1 + offsetMonths;
+  const guess = Date.UTC(year, month, 1); // Date.UTC rolls months over or back across years
+  const hour = Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour: 'numeric', hourCycle: 'h23' }).format(new Date(guess)));
+  // 01:00 in London at 00:00 UTC means British Summer Time, so local midnight was an hour earlier.
+  return new Date(hour === 1 ? guess - 3600000 : guess);
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -55,5 +66,28 @@ module.exports = async function handler(req, res) {
     summary: c.summary || ''
   }));
 
-  return res.status(200).json({ conversations });
+  // Conversations started this and last calendar month (UK time), so staff can
+  // see how close a client is to their plan's monthly allowance.
+  const now = new Date();
+  const thisStart = londonMonthStart(now, 0);
+  const lastStart = londonMonthStart(now, -1);
+  const countFrom = (from, before) => {
+    let query = supabase
+      .from('conversations')
+      .select('id', { count: 'exact', head: true })
+      .eq('business_id', business.id)
+      .gte('created_at', from.toISOString());
+    if (before) query = query.lt('created_at', before.toISOString());
+    return query;
+  };
+  const [thisMonth, lastMonth] = await Promise.all([countFrom(thisStart), countFrom(lastStart, thisStart)]);
+  const usage = thisMonth.error || lastMonth.error
+    ? null
+    : {
+        conversationsThisMonth: thisMonth.count || 0,
+        conversationsLastMonth: lastMonth.count || 0,
+        monthStart: thisStart.toISOString()
+      };
+
+  return res.status(200).json({ conversations, usage });
 };
